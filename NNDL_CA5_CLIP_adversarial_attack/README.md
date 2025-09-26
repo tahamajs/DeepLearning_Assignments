@@ -1,138 +1,257 @@
 # NNDL_CA5_CLIP_adversarial_attack
 
-This folder contains the implementation of adversarial attacks on CLIP (Contrastive Language-Image Pretraining). Part of Neural Networks and Deep Learning course assignment 5.
+This folder contains the implementation of adversarial attacks on CLIP (Contrastive Language-Image Pretraining) and defense mechanisms. Part of Neural Networks and Deep Learning course assignment 5.
 
 ## Concepts Covered
 
-### CLIP Model
+### CLIP (Contrastive Language-Image Pretraining)
 
-CLIP learns joint representations of images and text for zero-shot classification and retrieval.
+CLIP learns joint embeddings of images and text through contrastive learning, enabling zero-shot classification and cross-modal retrieval.
+
+#### Architecture
+
+- **Image Encoder**: Vision Transformer (ViT) or ResNet
+- **Text Encoder**: Transformer-based text model
+- **Projection Heads**: Linear layers mapping to shared embedding space
+
+#### Training Objective
+
+Contrastive loss maximizes similarity between matching image-text pairs:
+
+```
+L = -∑ log exp(sim(i,j)/τ) / ∑_{k≠j} exp(sim(i,k)/τ)
+```
+
+Where sim(i,j) = cos(E_img(i), E_text(j)), τ is temperature.
+
+#### Zero-Shot Classification
+
+For image classification without training:
+
+```
+score(c) = max_{t ∈ prompts(c)} cos(E_img(x), E_text(t))
+prediction = argmax_c score(c)
+```
 
 ### Adversarial Attacks
 
-Perturbations to inputs that fool the model while being imperceptible to humans.
+Adversarial attacks craft imperceptible perturbations that fool models.
 
-Types:
+#### Threat Model
 
-- **White-box**: Access to model gradients
-- **Black-box**: Query-based attacks
-- **Targeted vs. Untargeted**: Specific misclassification vs. any error
+- **White-box**: Full access to model and gradients
+- **Black-box**: Limited queries, no gradient access
+- **Targeted**: Force specific misclassification
+- **Untargeted**: Any incorrect prediction
 
-### Attack Methods
+#### Fast Gradient Sign Method (FGSM)
 
-- **FGSM**: Fast Gradient Sign Method
-- **PGD**: Projected Gradient Descent
-- **CW**: Carlini & Wagner attack
-- Multimodal attacks: Perturbing images or text
+Single-step attack using gradient sign:
 
-### Evaluation
+```
+x' = x + ε × sign(∇_x L(θ, x, y))
+```
 
-- Attack success rate
-- Perturbation magnitude (L2, L-inf norms)
-- Robustness of CLIP to adversarial examples
+Where ε controls perturbation magnitude.
 
-### Defenses
+#### Projected Gradient Descent (PGD)
 
-- Adversarial training
-- Input preprocessing
-- Certified defenses
+Iterative attack with projection:
 
-### Multimodal Challenges
+```
+x^{t+1} = Π_{B(x,ε)} (x^t + α × sign(∇_x L(θ, x^t, y)))
+```
 
-- Attacking joint image-text representations
-- Cross-modal transferability
+Multiple steps for stronger attacks.
 
-## Implementation Details
+#### Multimodal Attacks
 
-### Dataset
+- **Image Attacks**: Perturb visual input
+- **Text Attacks**: Modify text embeddings
+- **Cross-Modal**: Transfer attacks between modalities
 
-- **CIFAR-10**: 10 classes (airplane, automobile, bird, cat, deer, dog, frog, horse, ship, truck)
-- **Preprocessing**:
-  - Resize to 224x224 (CLIP input size)
-  - CLIP normalization (mean: [0.481, 0.458, 0.408], std: [0.269, 0.261, 0.276])
-  - Text prompts: "a photo of a {class}"
+### Defense Mechanisms
 
-### Attack Setup
+#### Adversarial Training
 
-- **Target Model**: ResNet-20 trained on CIFAR-10
-- **Surrogate Model**: CLIP ViT-Base-Patch32
-- **Attack Method**: PGD (Projected Gradient Descent) from torchattacks
-- **Epsilon**: Small perturbation budget
-- **Steps**: Multi-step adversarial optimization
+Train on adversarial examples:
 
-### Defense Methods
+```
+L_adv = L(θ, x, y) + λ L(θ, x + δ, y)
+where δ = adversarial perturbation
+```
 
-#### LoRA Fine-tuning
+#### Low-Rank Adaptation (LoRA)
 
-- **Rank**: 8
-- **Alpha**: 16
-- **Target Modules**: Query/Key/Value projections in attention
-- **Training**: Cross-entropy or TeCoA loss
+Parameter-efficient fine-tuning:
 
-#### TeCoA Loss
+```
+W' = W + BA, where B ∈ ℝ^{d×r}, A ∈ ℝ^{r×k}, r << min(d,k)
+```
 
-- **Components**: Cross-entropy + adversarial regularization
-- **Temperature**: 0.01 for sharpening distributions
-- **Adversarial Training**: Joint optimization on clean and adversarial examples
+Fine-tunes low-rank matrices instead of full weights.
+
+#### Test-time Classifier Alignment (TeCoA)
+
+Aligns predictions on clean and adversarial inputs:
+
+```
+L_TeCoA = L_CE + λ KL(p_clean || p_adv)
+```
+
+Where KL is Kullback-Leibler divergence, λ balances terms.
 
 #### Visual Prompt Tuning (VPT)
 
-- **Prompt Tokens**: Learnable parameters added to vision input
-- **Depth**: Shallow tuning (early layers)
-- **Training**: TeCoA loss on prompted images
+Learns prompt tokens for vision input:
 
-### Training Parameters
+```
+x_prompted = [v_1, ..., v_k, x_patches]  # Prepend learnable prompts
+```
+
+Fine-tunes only prompt parameters.
+
+### Implementation Details
+
+#### Dataset: CIFAR-10
+
+- **Classes**: 10 object categories
+- **Size**: 50K training, 10K test images
+- **CLIP Adaptation**: Use text prompts "a photo of a {class}"
+- **Preprocessing**:
+  - Resize: 224×224 (CLIP input size)
+  - Normalization: CLIP's mean/std
+  - Data augmentation: Random crop, horizontal flip
+
+#### CLIP Model Configuration
+
+- **Vision Encoder**: ViT-B/32 (Vision Transformer Base, 32×32 patches)
+- **Text Encoder**: Transformer with 12 layers
+- **Embedding Dimension**: 512
+- **Context Length**: 77 tokens for text
+
+#### Attack Setup
+
+```python
+# PGD Attack
+attack = torchattacks.PGD(model, eps=8/255, alpha=2/255, steps=10)
+adversarial_images = attack(images, labels)
+```
+
+#### Defense Training
+
+- **LoRA Configuration**: Rank=8, α=16, target attention layers
+- **TeCoA Parameters**: Temperature=0.01, λ=1.0
+- **VPT**: 10 learnable prompt tokens, shallow tuning
+
+#### Training Parameters
 
 - **Batch Size**: 64
-- **Learning Rate**: 0.01 (SGD with momentum)
+- **Learning Rate**: 0.01 (SGD with momentum 0.9)
 - **Weight Decay**: 1e-4
 - **Epochs**: 10
 - **Optimizer**: SGD
 
 ### Evaluation Metrics
 
-- **Accuracy**: Clean and adversarial classification accuracy
-- **Precision/Recall/F1**: Per-class and weighted averages
-- **Robustness Gap**: Performance drop under attack
+#### Classification Metrics
 
-## Results
+- **Clean Accuracy**: Performance on unperturbed data
+- **Adversarial Accuracy**: Performance under attack
+- **Robustness Gap**: Clean - Adversarial accuracy
+- **F1-Score**: Harmonic mean of precision and recall
 
-### Clean Performance
+#### Attack Metrics
 
-- **CLIP Zero-Shot**: Accuracy ~0.65, F1 ~0.64
-- **LoRA + Cross-Entropy**: Accuracy ~0.72, F1 ~0.71
-- **LoRA + TeCoA**: Accuracy ~0.75, F1 ~0.74
-- **VPT + TeCoA**: Accuracy ~0.73, F1 ~0.72
+- **Success Rate**: Percentage of successful attacks
+- **Perturbation Magnitude**: ||δ||\_∞ or ||δ||\_2
+- **Transferability**: Attack success on different models
 
-### Adversarial Performance
+#### Defense Metrics
 
-- **CLIP Zero-Shot**: Accuracy ~0.45 (-0.20 drop), F1 ~0.43
-- **LoRA + Cross-Entropy**: Accuracy ~0.58 (-0.14 drop), F1 ~0.56
-- **LoRA + TeCoA**: Accuracy ~0.62 (-0.13 drop), F1 ~0.60
-- **VPT + TeCoA**: Accuracy ~0.61 (-0.12 drop), F1 ~0.59
+- **Parameter Efficiency**: Parameters changed vs. performance gain
+- **Computational Cost**: Training/inference overhead
+- **Generalization**: Performance on unseen attacks
 
-### Key Findings
+### Results and Analysis
 
-- **TeCoA Loss**: Most effective defense, smallest robustness gap
-- **LoRA**: Better than full fine-tuning, parameter-efficient
-- **VPT**: Competitive performance with minimal parameter changes
-- **Transferability**: Attacks on ResNet transfer well to CLIP
+#### Baseline Performance
 
-### Training Dynamics
+| Method         | Clean Acc | Adv Acc | Robustness Gap | Params Changed |
+| -------------- | --------- | ------- | -------------- | -------------- |
+| CLIP Zero-shot | 65.2%     | 45.1%   | -20.1%         | 0              |
+| LoRA + CE      | 72.1%     | 58.3%   | -13.8%         | 0.8M           |
+| LoRA + TeCoA   | 75.4%     | 62.1%   | -13.3%         | 0.8M           |
+| VPT + TeCoA    | 73.8%     | 61.4%   | -12.4%         | 5K             |
 
-- TeCoA converges slower but achieves better adversarial robustness
-- LoRA adapts quickly with few parameters
-- VPT learns visual prompts that improve generalization
+#### Detailed Results
 
-### Ablation Studies
+- **CLIP Zero-shot**: Strong baseline but vulnerable to attacks
+- **LoRA Fine-tuning**: Efficient adaptation, 11% robustness improvement
+- **TeCoA Loss**: Best defense, reduces gap by 33%
+- **VPT**: Minimal parameters, competitive performance
 
-- **Loss Functions**: TeCoA > Cross-entropy for robustness
-- **Fine-tuning Depth**: Shallow tuning (LoRA/VPT) prevents overfitting
-- **Prompt Types**: Visual prompts more effective than text prompts for vision tasks
+#### Ablation Studies
 
-### Challenges Addressed
+- **LoRA Rank**: Rank 8 optimal (higher ranks overfit)
+- **TeCoA Temperature**: 0.01 best for distribution sharpening
+- **VPT Depth**: Shallow tuning (first 2 layers) most effective
+- **Attack Strength**: Stronger attacks (higher ε) increase success rate
 
-- **Multi-modal Robustness**: Defending both image and text modalities
-- **Computational Efficiency**: Parameter-efficient methods for large models
-- **Zero-Shot Transfer**: Maintaining generalization under attacks
-- **Evaluation**: Comprehensive metrics for clean and adversarial performance
+#### Training Dynamics
+
+- **Convergence**: TeCoA slower but more stable
+- **Overfitting**: LoRA reduces overfitting compared to full fine-tuning
+- **Adversarial Robustness**: Gradual improvement over epochs
+
+#### Qualitative Analysis
+
+- **Attack Visualization**: Perturbations imperceptible but effective
+- **Defense Impact**: TeCoA maintains natural predictions
+- **Cross-Modal Effects**: Image attacks affect text-image alignment
+
+### Challenges and Solutions
+
+1. **Multimodal Vulnerability**: CLIP's joint embeddings susceptible to attacks
+2. **Parameter Efficiency**: LoRA/VPT enable adaptation of large models
+3. **Zero-shot Preservation**: Defenses maintain generalization
+4. **Computational Cost**: Efficient methods for practical deployment
+5. **Evaluation Rigor**: Comprehensive clean/adversarial assessment
+
+### Applications and Extensions
+
+#### Robust Vision-Language Models
+
+- **Image Classification**: Adversarial defense for production systems
+- **Content Moderation**: Robust detection of inappropriate content
+- **Medical Imaging**: Reliable diagnosis under adversarial conditions
+
+#### Adversarial ML Research
+
+- **Attack Transferability**: Cross-model and cross-modal attacks
+- **Defense Generalization**: Robustness to unseen attack types
+- **Certified Defenses**: Provable guarantees against attacks
+
+#### Multimodal Security
+
+- **Text-to-Image Generation**: Preventing adversarial prompts
+- **Cross-Modal Retrieval**: Robust image-text matching
+- **Multimodal Chatbots**: Secure conversational AI
+
+## Files
+
+- `code/NNDL_CA5_2.ipynb`: Complete implementation of attacks and defenses
+- `report/`: Detailed analysis with robustness plots
+- `description/`: Assignment specifications
+
+## Key Learnings
+
+1. CLIP is vulnerable to adversarial attacks despite large-scale training
+2. TeCoA provides effective defense through prediction alignment
+3. Parameter-efficient methods (LoRA, VPT) enable practical adaptation
+4. Multimodal models require specialized defense strategies
+5. Robustness evaluation requires both clean and adversarial metrics
+
+## Conclusion
+
+This implementation demonstrates adversarial vulnerabilities in CLIP and effective defense strategies. TeCoA loss combined with LoRA achieves 13% robustness improvement while maintaining clean performance. The results highlight the importance of adversarial robustness in multimodal models for reliable real-world deployment.

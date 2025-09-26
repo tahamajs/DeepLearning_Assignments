@@ -419,5 +419,5 @@ If you use this repository for academic purposes, please cite the relevant assig
 ---
 
 **Course**: Neural Networks and Deep Learning
-**Institution**: Sharif University of Technology
+**Institution**: University of Tehran
 **Date**: September 2025

@@ -45,12 +45,6 @@ from google.colab import files
 files.upload()
 
 
-!mkdir -p ~/.kaggle
-!cp kaggle.json ~/.kaggle/
-!chmod 600 ~/.kaggle/kaggle.json
-
-
-!pip install scikeras
 
 
 import pandas as pd
@@ -82,8 +76,6 @@ from tensorflow.keras.models import Model, Sequential
 
 
 
-!kaggle datasets download -d mlg-ulb/creditcardfraud
-!unzip creditcardfraud.zip
 
 
 

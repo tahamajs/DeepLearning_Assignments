@@ -92,7 +92,6 @@ def compare_models(results_dict):
     plt.show()
 
 
-pip install torchinfo
 
 
 import numpy as np

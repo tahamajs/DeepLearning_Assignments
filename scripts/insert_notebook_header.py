@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Insert a top markdown cell into multiple Jupyter notebooks with course/author info.
 Creates a .bak copy of each notebook before modifying.
@@ -26,13 +25,11 @@ NOTEBOOKS = [
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# Assumption: use this exact course name. If you'd like a different phrasing, update COURSE_NAME.
 COURSE_NAME = "Neural Networks and Deep Learning"
 UNIVERSITY = "University of Tehran"
 AUTHOR = "Mohammad Taha Majlesi"
 STUDENT_ID = "810101504"
 
-# HTML header block provided by the user. This will be inserted as a markdown cell so the HTML renders in notebooks.
 HEADER_HTML = (
     '<div style="display:block;width:100%;margin:auto;" direction=rtl align=center><br><br>'
     '    <div  style="width:100%;margin:100;display:block;background-color:#fff0;"  display=block align=center>'
@@ -52,7 +49,6 @@ HEADER_HTML = (
     "    </div>"
 )
 
-# A small Topics placeholder cell inserted after the HTML header.
 TOPICS_MARKDOWN = "## Topics\n\n- Add topic 1\n- Add topic 2\n- Add topic 3\n"
 
 html_cell = {
@@ -77,8 +73,6 @@ def insert_header(nb_path: Path):
         return (False, f"json-error: {e}")
 
     cells = nb.get("cells", [])
-    # If the first or second cell contains header-like markers (course/title/university/author/id),
-    # remove the first two cells and replace them with our html header + topics. Otherwise insert at top.
     replace_two = False
     if cells:
         first_src = "".join(cells[0].get("source", [])).lower()
@@ -95,22 +89,17 @@ def insert_header(nb_path: Path):
             STUDENT_ID,
         ]
 
-        # If either of the first two cells contains any marker, we'll replace the first two cells
         if any(m in first_src for m in markers) or any(
             m in second_src for m in markers
         ):
             replace_two = True
 
-    # Backup
     bak = nb_path.with_suffix(nb_path.suffix + ".bak")
     bak.write_text(text, encoding="utf-8")
 
-    # Insert or replace
     if replace_two:
-        # Replace the first two cells (clean first and second sections)
         nb["cells"] = [html_cell, topics_cell] + cells[2:]
     else:
-        # Insert at top
         nb["cells"] = [html_cell, topics_cell] + cells
 
     try:
@@ -118,7 +107,6 @@ def insert_header(nb_path: Path):
             json.dumps(nb, ensure_ascii=False, indent=1), encoding="utf-8"
         )
     except Exception as e:
-        # restore backup
         bak.rename(nb_path)
         return (False, f"write-error: {e}")
 
@@ -131,11 +119,9 @@ if __name__ == "__main__":
         p = ROOT / rel
         ok, msg = insert_header(p)
         results[str(rel)] = (ok, msg)
-    # Print summary
     for k, (ok, msg) in results.items():
         status = "OK" if ok else "SKIP"
         print(f"{status}: {k} -> {msg}")
-    # Exit code non-zero if any failed (excluding skips)
     any_failed = any(
         not ok and msg not in ("already-has-header", "missing: " + str(ROOT / ""))
         for ok, msg in results.values()

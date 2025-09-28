@@ -15,6 +15,7 @@ The assignment consists of two specialized projects:
 - `Oriented_RCNN/`: Arbitrary-oriented object detection system
 
 Each subfolder contains:
+
 - `code/`: PyTorch implementations
 - `description/`: Assignment specifications
 - `paper/`: Research papers and references
@@ -23,18 +24,21 @@ Each subfolder contains:
 ## Fast-SCNN: Real-Time Semantic Segmentation
 
 ### Key Features
+
 - **Efficient Architecture**: Depthwise separable convolutions for computational efficiency
 - **Multi-Scale Processing**: Pyramid pooling module for global context
 - **Real-Time Performance**: Optimized for mobile and embedded deployment
 - **Urban Scene Understanding**: Segmentation of roads, buildings, vehicles, pedestrians
 
 ### Technical Details
+
 - **Learning to Downsample**: Initial downsampling module with skip connections
 - **Global Feature Extractor**: Pyramid pooling with multiple kernel sizes (1×1, 2×2, 3×3, 6×6)
 - **Feature Fusion**: Concatenation of multi-scale features with channel attention
 - **Loss Function**: Cross-entropy with class balancing for imbalanced segmentation
 
 ### Results
+
 - **IoU Score**: 0.62 average across all classes
 - **Model Size**: 1.2M parameters (vs. 50M+ for standard segmentation models)
 - **Inference Speed**: 30+ FPS on mobile GPUs
@@ -43,18 +47,21 @@ Each subfolder contains:
 ## Oriented R-CNN: Arbitrary-Oriented Object Detection
 
 ### Key Features
+
 - **Oriented Anchors**: 5-parameter anchor representation (x, y, w, h, θ)
 - **Rotated ROI Align**: Rotation-aware feature extraction
 - **Geometric Transformations**: Proper handling of oriented bounding boxes
 - **IoU Computation**: Specialized intersection-over-union for rotated rectangles
 
 ### Technical Details
+
 - **Region Proposal Network (RPN)**: Oriented anchor generation and classification
 - **Rotated RoI Align**: Bilinear sampling with rotation compensation
 - **Bounding Box Regression**: 5-parameter regression (dx, dy, dw, dh, dθ)
 - **Orientation Encoding**: Angle representation and normalization
 
 ### Results
+
 - **Detection Accuracy**: Superior performance on oriented objects vs. axis-aligned methods
 - **Geometric Precision**: Accurate localization of rotated objects
 - **Robustness**: Handles various orientations and aspect ratios
@@ -63,18 +70,21 @@ Each subfolder contains:
 ## Key Concepts Demonstrated
 
 ### Semantic Segmentation
+
 - **Pixel-wise Classification**: Assigning class labels to every pixel
 - **Encoder-Decoder Architectures**: U-Net style networks for segmentation
 - **Efficient Convolutions**: Depthwise separable and grouped convolutions
 - **Multi-Scale Features**: Pyramid pooling and feature fusion
 
 ### Object Detection
+
 - **Region Proposal Networks**: Generating candidate object locations
 - **RoI Pooling/Align**: Feature extraction from proposed regions
 - **Bounding Box Regression**: Refining object localization
 - **Orientation Handling**: 5-DoF bounding box representation
 
 ### Geometric Transformations
+
 - **Rotation Matrices**: Mathematical representation of orientations
 - **IoU for Rotated Boxes**: Intersection computation for oriented rectangles
 - **Spatial Transformations**: Affine and projective transformations
@@ -83,6 +93,7 @@ Each subfolder contains:
 ## Educational Value
 
 This assignment provides deep understanding of:
+
 - **Advanced CV Architectures**: State-of-the-art detection and segmentation models
 - **Geometric Computer Vision**: Handling rotations and orientations
 - **Efficient Deep Learning**: Model compression and mobile optimization
@@ -101,12 +112,14 @@ This assignment provides deep understanding of:
 ## Usage
 
 ### Fast-SCNN
+
 1. Navigate to `Fast_SCNN/code/`
 2. Run data preprocessing and model training
 3. Evaluate segmentation performance on test sets
 4. Review results in `Fast_SCNN/report/`
 
 ### Oriented R-CNN
+
 1. Navigate to `Oriented_RCNN/code/`
 2. Execute the training pipeline for oriented detection
 3. Test on oriented object datasets

@@ -4,18 +4,37 @@ This repository contains comprehensive implementations of advanced deep learning
 
 ## Repository Structure
 
-The repository is organized by assignment number, with each folder containing:
+The repository is organized into 7 main assignment folders with descriptive names, each containing:
 
-- `code/`: Complete PyTorch/TensorFlow implementations
-- `report/`: Detailed analysis and results
+- `code/` or subfolders with code implementations
 - `description/`: Assignment specifications
+- `paper/`: Research papers and references
+- `report/`: Detailed analysis and results
 - `README.md`: Comprehensive technical documentation
 
 ## Assignments Overview
 
-### CA2 - Convolutional Neural Networks for Classification
+### CA1: Neural Networks Basics
 
-#### NNDL_CA2_Covid-19_CNN
+**Fundamental Neural Network Concepts**
+
+This assignment covers essential neural network principles including architecture, forward/backward propagation, activation functions, and optimization algorithms.
+
+**Contents:**
+
+- Custom neural network implementation from scratch
+- Comparison with deep learning frameworks
+- Hyperparameter analysis and convergence studies
+
+**Key Results:**
+
+- Demonstrated understanding of gradient descent and backpropagation
+- Analysis of activation functions and their impact on learning
+- Performance evaluation on benchmark datasets
+
+### CA2: CNN Applications
+
+#### Covid_Detection
 
 **Medical Image Classification with Deep CNNs**
 
@@ -42,7 +61,7 @@ This project implements a comprehensive COVID-19 detection system using chest X-
 - **Custom CNN**: 87.6% accuracy, 0.86 AUC-ROC
 - **Clinical Relevance**: Demonstrates practical applicability in medical diagnosis
 
-#### NNDL_CA2_vehicle_classificattion_CNN
+#### Vehicle_Classification
 
 **Multi-Class Vehicle Classification System**
 
@@ -69,9 +88,9 @@ This assignment implements a robust vehicle classification system exploring both
 - **End-to-end CNN**: 85.4% accuracy, single-model simplicity
 - **Key Insight**: Feature extraction approach provides better generalization than end-to-end training
 
-### CA3 - Advanced Computer Vision (Detection & Segmentation)
+### CA3: Object Detection
 
-#### NNDL_CA3_Fast-SCNN_implementation
+#### Fast_SCNN
 
 **Real-Time Semantic Segmentation with Efficient CNNs**
 
@@ -98,7 +117,7 @@ This project implements Fast-SCNN, a lightweight CNN architecture designed for r
 - **Inference Speed**: 30+ FPS on mobile GPUs
 - **Memory Efficiency**: 50MB model size suitable for edge deployment
 
-#### NNDL_CA3_Oriented-R-CNN_implementation
+#### Oriented_RCNN
 
 **Arbitrary-Oriented Object Detection**
 
@@ -125,9 +144,9 @@ This assignment implements Oriented R-CNN for detecting objects with arbitrary o
 - **Robustness**: Handles various orientations and aspect ratios
 - **Application**: Ship detection in satellite imagery, text detection in documents
 
-### CA4 - Sequence Modeling with RNNs
+### CA4: Sequence Modeling
 
-#### NNDL_CA4_LSTM-GRU_image_captioning
+#### Image_Captioning
 
 **Attention-Based Image Captioning**
 
@@ -154,7 +173,7 @@ This project implements an encoder-decoder architecture with attention mechanism
 - **Attention Maps**: Clear focus on relevant image regions
 - **Semantic Quality**: Generated captions capture main objects and actions
 
-#### NNDL_CA4_time_series_prediction_RNN
+#### Time_Series_Prediction
 
 **Uncertainty-Aware Time Series Forecasting**
 
@@ -181,9 +200,9 @@ This assignment implements RNN-based models for time series prediction with unce
 - **Robustness**: Handles missing data and outliers effectively
 - **Interpretability**: Attention weights show temporal focus regions
 
-### CA5 - Transformers and Multimodal Learning
+### CA5: Vision Transformers
 
-#### NNDL_CA5_classification_with_VIT
+#### VIT_Classification
 
 **Vision Transformer for Image Classification**
 
@@ -210,7 +229,7 @@ This project implements Vision Transformer (ViT) from scratch and compares its p
 - **Attention Patterns**: Global receptive field captures long-range dependencies
 - **Data Efficiency**: Benefits from larger datasets more than CNNs
 
-#### NNDL_CA5_CLIP_adversarial_attack
+#### CLIP_Adversarial_Attack
 
 **Adversarial Attacks on Multimodal Models**
 
@@ -237,9 +256,9 @@ This assignment explores adversarial vulnerabilities in CLIP (Contrastive Langua
 - **Defense Improvement**: TeCoA achieves 62.1% robust accuracy
 - **Parameter Efficiency**: LoRA uses only 0.8M trainable parameters
 
-### CA6 - Generative Models
+### CA6: Generative Models
 
-#### NNDL_CA6_unsupervised_domain_adaptation_GAN
+#### Unsupervised_Domain_Adaptation_GAN
 
 **GAN-Based Unsupervised Domain Adaptation**
 
@@ -266,7 +285,7 @@ This project implements CycleGAN for domain adaptation, enabling models trained 
 - **Generated Quality**: FID score of 38.7 indicates realistic samples
 - **Feature Alignment**: t-SNE visualization shows domain-invariant representations
 
-#### NNDL_CA6_VAE
+#### VAE
 
 **Variational Autoencoder for Anomaly Detection**
 
@@ -293,9 +312,9 @@ This assignment implements VAE for generative modeling and demonstrates its appl
 - **Latent Space**: Well-structured manifold for interpolation
 - **Medical Utility**: Reliable polyp detection with low false positive rate
 
-### CAe - Advanced Topics and Extensions
+### CA7: Advanced Topics
 
-#### NNDL_CAe_CNN_VIT_adversarial_attack
+#### CNN_VIT_Adversarial_Attack
 
 **Comparative Adversarial Analysis: CNNs vs. ViTs**
 
@@ -322,7 +341,7 @@ This extra assignment provides a comprehensive comparison of adversarial vulnera
 - **Attack Transferability**: High transfer rate between architectures
 - **Computational Trade-offs**: ViT requires more compute but offers better robustness
 
-#### NNDL_CAe_image_captioning
+#### Image_Captioning
 
 **Multilingual Image Captioning in Persian**
 
@@ -393,8 +412,15 @@ This advanced project extends image captioning to Persian language, addressing t
 
 1. **Prerequisites**: Python 3.8+, PyTorch 1.9+, CUDA-compatible GPU
 2. **Installation**: `pip install -r requirements.txt` (if available)
-3. **Navigation**: Each assignment folder is self-contained
-4. **Execution**: Run Jupyter notebooks in `code/` directories
+3. **Navigation**: Each assignment folder is self-contained with descriptive names:
+   - `CA1_Neural_Networks_Basics/`
+   - `CA2_CNN_Applications/`
+   - `CA3_Object_Detection/`
+   - `CA4_Sequence_Modeling/`
+   - `CA5_Vision_Transformers/`
+   - `CA6_Generative_Models/`
+   - `CA7_Advanced_Topics/`
+4. **Execution**: Run Jupyter notebooks in `code/` directories or subfolders
 5. **Documentation**: Refer to individual README.md files for detailed guides
 
 ## Educational Value

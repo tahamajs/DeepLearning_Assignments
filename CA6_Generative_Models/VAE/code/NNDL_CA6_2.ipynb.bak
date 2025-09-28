@@ -2,6 +2,24 @@
  "cells": [
   {
    "cell_type": "markdown",
+   "metadata": {
+    "language": "markdown"
+   },
+   "source": [
+    "<div style=\"display:block;width:100%;margin:auto;\" direction=rtl align=center><br><br>    <div  style=\"width:100%;margin:100;display:block;background-color:#fff0;\"  display=block align=center>        <table style=\"border-style:hidden;border-collapse:collapse;\">             <tr>                <td  style=\"border: none!important;\">                    <img width=130 align=right src=\"https://i.ibb.co/yXKQmtZ/logo1.png\" style=\"margin:0;\" />                </td>                <td style=\"text-align:center;border: none!important;\">                    <h1 align=center><font size=5 color=\"#025F5F\"> <b>Neural Networks and Deep Learning</b><br><br> </i></font></h1>                </td>                <td style=\"border: none!important;\">                    <img width=170 align=left  src=\"https://i.ibb.co/wLjqFkw/logo2.png\" style=\"margin:0;\" />                </td>           </tr></div>        </table>    </div>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "language": "markdown"
+   },
+   "source": [
+    "## Topics\n\n- Add topic 1\n- Add topic 2\n- Add topic 3\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
    "metadata": {},
    "source": [
     "# Problem overview\n",

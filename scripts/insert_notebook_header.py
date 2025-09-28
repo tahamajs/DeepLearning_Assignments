@@ -39,24 +39,32 @@ HEADER_HTML = (
     '        <table style="border-style:hidden;border-collapse:collapse;">             <tr>'
     '                <td  style="border: none!important;">'
     '                    <img width=130 align=right src="https://i.ibb.co/yXKQmtZ/logo1.png" style="margin:0;" />'
-    '                </td>'
+    "                </td>"
     '                <td style="text-align:center;border: none!important;">'
-    '                    <h1 align=center><font size=5 color="#025F5F"> <b>Deep Generative Models</b><br><br>Project 3 DDPM and DDIM implementation </i></font></h1>'
-    '                </td>'
+    '                    <h1 align=center><font size=5 color="#025F5F"> <b>Neural Networks and Deep Learning</b><br><br> </i></font></h1>'
+    "                </td>"
     '                <td style="border: none!important;">'
     '                    <img width=170 align=left  src="https://i.ibb.co/wLjqFkw/logo2.png" style="margin:0;" />'
-    '                </td>'
-    '           </tr>'
-    '</div>'
-    '        </table>'
-    '    </div>'
+    "                </td>"
+    "           </tr>"
+    "</div>"
+    "        </table>"
+    "    </div>"
 )
 
 # A small Topics placeholder cell inserted after the HTML header.
 TOPICS_MARKDOWN = "## Topics\n\n- Add topic 1\n- Add topic 2\n- Add topic 3\n"
 
-html_cell = {"cell_type": "markdown", "metadata": {}, "source": [HEADER_HTML]}
-topics_cell = {"cell_type": "markdown", "metadata": {}, "source": [TOPICS_MARKDOWN]}
+html_cell = {
+    "cell_type": "markdown",
+    "metadata": {"language": "markdown"},
+    "source": [HEADER_HTML],
+}
+topics_cell = {
+    "cell_type": "markdown",
+    "metadata": {"language": "markdown"},
+    "source": [TOPICS_MARKDOWN],
+}
 
 
 def insert_header(nb_path: Path):
@@ -69,24 +77,41 @@ def insert_header(nb_path: Path):
         return (False, f"json-error: {e}")
 
     cells = nb.get("cells", [])
-    # If first cell already contains the HTML header marker or university/student id, skip.
+    # If the first or second cell contains header-like markers (course/title/university/author/id),
+    # remove the first two cells and replace them with our html header + topics. Otherwise insert at top.
+    replace_two = False
     if cells:
         first_src = "".join(cells[0].get("source", [])).lower()
-        if (
-            "deep generative models" in first_src
-            or "project 3 ddpm" in first_src
-            or UNIVERSITY.lower() in first_src
-            or AUTHOR.lower() in first_src
-            or STUDENT_ID in first_src
+        second_src = ""
+        if len(cells) > 1:
+            second_src = "".join(cells[1].get("source", [])).lower()
+
+        markers = [
+            "deep generative models",
+            "neural networks and deep learning",
+            "project 3 ddpm",
+            UNIVERSITY.lower(),
+            AUTHOR.lower(),
+            STUDENT_ID,
+        ]
+
+        # If either of the first two cells contains any marker, we'll replace the first two cells
+        if any(m in first_src for m in markers) or any(
+            m in second_src for m in markers
         ):
-            return (False, "already-has-header")
+            replace_two = True
 
     # Backup
     bak = nb_path.with_suffix(nb_path.suffix + ".bak")
     bak.write_text(text, encoding="utf-8")
 
-    # Insert at top: first the HTML header, then the Topics placeholder, then existing cells
-    nb["cells"] = [html_cell, topics_cell] + cells
+    # Insert or replace
+    if replace_two:
+        # Replace the first two cells (clean first and second sections)
+        nb["cells"] = [html_cell, topics_cell] + cells[2:]
+    else:
+        # Insert at top
+        nb["cells"] = [html_cell, topics_cell] + cells
 
     try:
         nb_path.write_text(

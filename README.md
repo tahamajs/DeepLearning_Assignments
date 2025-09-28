@@ -12,6 +12,13 @@ The repository is organized into 7 main assignment folders with descriptive name
 - `report/`: Detailed analysis and results
 - `README.md`: Comprehensive technical documentation
 
+### Additional Resources
+
+- `NNDL_Slides/`: Course slides covering theoretical foundations and advanced topics
+- `python_files/`: Standalone Python implementations of key assignments for easy execution (mirroring the notebook structure)
+- `LICENSE`: MIT License file
+- `README.md`: This main documentation file
+
 ## Assignments Overview
 
 ### CA1: Neural Networks Basics
@@ -420,7 +427,9 @@ This advanced project extends image captioning to Persian language, addressing t
    - `CA5_Vision_Transformers/`
    - `CA6_Generative_Models/`
    - `CA7_Advanced_Topics/`
-4. **Execution**: Run Jupyter notebooks in `code/` directories or subfolders
+4. **Execution**:
+   - Run Jupyter notebooks in `code/` directories or subfolders
+   - Alternatively, execute Python scripts in `python_files/` for standalone implementations
 5. **Documentation**: Refer to individual README.md files for detailed guides
 
 ## Educational Value

@@ -297,71 +297,83 @@ Both models trained with identical hyperparameters:
 
 ## 🖼️ Visualizations
 
-### Training Curves
+This section includes all visualizations extracted from the notebook. These images demonstrate the dataset characteristics, training process, and model performance.
 
-The notebook includes comprehensive visualizations:
+### Dataset Samples
+
+![Dataset Samples](images/dataset_samples.png)
+
+**Sample images from each disease category** - Representative examples from all 10 disease classes in the dataset, showing the variety of medical images used for classification.
+
+### Class Distribution
+
+![Class Distribution](images/class_distribution.png)
+
+**Dataset class distribution visualization** - Bar chart showing the number of images per disease category, illustrating the natural class imbalance present in medical imaging datasets.
+
+### Data Augmentation Examples
+
+![Data Augmentation](images/data_augmentation.png)
+
+**Data augmentation visualization** - Examples showing the effects of augmentation techniques:
+
+- Random brightness adjustment (±10%)
+- Random rotation (±45 degrees)
+- Random zoom (±5%)
+- Random horizontal flip
+
+### Patch Visualization
+
+![Patch Comparison](images/patch_comparison.png)
+
+**Image patch comparison** - Visualization of different patch sizes (4×4, 6×6, 8×8) demonstrating how Vision Transformer divides images into patches for processing.
+
+### Training Curves
 
 #### Vision Transformer Training Curves
 
-![ViT Training Curves](visualizations/vit_training_curves.png)
+![ViT Training Curves](images/vit_training_curves.png)
+
+**Vision Transformer training dynamics**:
 
 - Training and validation accuracy over 30 epochs
 - Training and validation loss curves
 - Smooth convergence with minimal overfitting
+- Demonstrates stable learning with consistent improvement
 
 #### InceptionV3 Training Curves
 
-![InceptionV3 Training Curves](visualizations/inceptionv3_training_curves.png)
+![InceptionV3 Training Curves](images/cnn_training_curves.png)
+
+**InceptionV3 training dynamics**:
 
 - Training and validation accuracy over 30 epochs
 - Training and validation loss curves
 - More volatile training with occasional performance dips
+- Shows faster initial convergence but higher overfitting tendency
 
 ### Confusion Matrices
 
 #### Vision Transformer Confusion Matrix
 
-![ViT Confusion Matrix](visualizations/vit_confusion_matrix.png)
+![ViT Confusion Matrix](images/vit_confusion_matrix.png)
 
-- Per-class performance analysis
+**Vision Transformer performance analysis**:
+
+- Per-class performance breakdown
 - Fewer errors across all disease categories
 - Better balance between classes
+- Superior performance on minority classes (Labels 5 and 9)
 
 #### InceptionV3 Confusion Matrix
 
-![InceptionV3 Confusion Matrix](visualizations/inceptionv3_confusion_matrix.png)
+![InceptionV3 Confusion Matrix](images/cnn_confusion_matrix.png)
 
-- Per-class performance analysis
-- Comparison with ViT results
+**InceptionV3 performance analysis**:
 
-### Class Distribution
-
-![Class Distribution](visualizations/class_distribution.png)
-
-- Visualization of dataset class imbalance
-- 10 disease categories with varying sample sizes
-
-### Data Augmentation Examples
-
-![Augmentation Examples](visualizations/augmentation_examples.png)
-
-- Sample images showing augmentation effects
-- Random brightness, rotation, zoom, and flip transformations
-
-### Attention Maps (Vision Transformer)
-
-![Attention Maps](visualizations/attention_maps.png)
-
-- Visualization of attention patterns
-- Highlights diagnostically relevant regions
-- Shows global context understanding
-
-### Performance Comparison Charts
-
-![Performance Comparison](visualizations/performance_comparison.png)
-
-- Side-by-side comparison of metrics
-- Bar charts showing improvement percentages
+- Per-class performance breakdown
+- Comparison baseline for ViT results
+- Shows areas where ViT shows improvement
 
 ---
 
@@ -451,15 +463,15 @@ VIT_Classification/
 │   └── agronomy-14-00327.pdf         # Related paper
 ├── report/
 │   └── NNDL_UT_CA5_1.pdf             # Project report
-└── visualizations/                    # Generated plots and images (create this folder)
-    ├── vit_training_curves.png
-    ├── inceptionv3_training_curves.png
-    ├── vit_confusion_matrix.png
-    ├── inceptionv3_confusion_matrix.png
-    ├── class_distribution.png
-    ├── augmentation_examples.png
-    ├── attention_maps.png
-    └── performance_comparison.png
+└── images/                            # Extracted visualizations from notebook
+    ├── dataset_samples.png            # Sample images from each disease category
+    ├── class_distribution.png         # Class distribution bar chart
+    ├── data_augmentation.png          # Augmentation examples
+    ├── patch_comparison.png           # Patch size comparison
+    ├── vit_training_curves.png       # Vision Transformer training curves
+    ├── cnn_training_curves.png       # InceptionV3 training curves
+    ├── vit_confusion_matrix.png      # Vision Transformer confusion matrix
+    └── cnn_confusion_matrix.png      # InceptionV3 confusion matrix
 ```
 
 ---

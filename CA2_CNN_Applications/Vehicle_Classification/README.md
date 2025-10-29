@@ -1,225 +1,449 @@
-# NNDL_CA2_vehicle_classificattion_CNN
+# 🚗 دسته‌بندی خودرو با استفاده از یادگیری عمیق
 
-This project implements Convolutional Neural Networks (CNNs) for vehicle classification, as part of the Neural Networks and Deep Learning course assignment 2. The implementation explores custom CNN architectures, transfer learning with pre-trained models (VGG16, AlexNet), and traditional machine learning approaches using SVM on extracted features.
+## مطالعه تطبیقی Transfer Learning و معماری‌های CNN سفارشی
 
-## Overview
+---
 
-The goal is to classify images of vehicles into specific categories (e.g., different Toyota models like Corolla, Camry, Rav4, etc.). The project compares deep learning approaches with classical methods, evaluates the impact of data augmentation, and demonstrates feature extraction techniques.
+**اطلاعات پروژه:**
+- **نویسنده:** طها مجلسی
+- **شماره دانشجویی:** 810101504
+- **موسسه:** دانشگاه تهران، دانشکده مهندسی برق و کامپیوتر
+- **درس:** شبکه‌های عصبی و یادگیری عمیق (CA2 - سوال 2)
+- **سال:** 2024
 
-## Concepts Covered
+---
 
-### Convolutional Neural Networks (CNNs)
+## 📋 خلاصه پروژه
 
-CNNs are specialized for image processing tasks, learning hierarchical feature representations through convolutional operations.
+این پروژه به مطالعه تطبیقی جامع روش‌های یادگیری عمیق برای دسته‌بندی خودرو با استفاده از مجموعه داده تصاویر Toyota می‌پردازد. در این مطالعه چهار روش متمایز ارزیابی شده است:
 
-#### Key Components:
+1. **Transfer Learning با VGG16**: Fine-tuning معماری پیش‌آموزش‌داده‌شده VGG16
+2. **Transfer Learning با AlexNet**: Fine-tuning معماری پیش‌آموزش‌داده‌شده AlexNet
+3. **معماری CNN سفارشی**: آموزش شبکه عصبی کانولوشنی از صفر
+4. **روش ترکیبی**: استفاده از SVM با ویژگی‌های استخراج‌شده از CNN
 
-1. **Convolutional Layers**:
+**نتایج کلیدی:** بهترین عملکرد مربوط به VGG16 + SVM (RBF) با دقت **69.6%** است. به دنبال آن Fine-tuning VGG16 با **67.9%** و AlexNet Fine-tuning با **61.4%** قرار دارند. معماری CNN سفارشی دقت **58.2%** را نشان می‌دهد.
 
-   - Learn spatial features using filters/kernels
-   - Parameters: kernel size, number of filters, stride, padding
-   - Output: feature maps highlighting different patterns
+---
 
-2. **Activation Functions**:
+## 📑 فهرست مطالب
 
-   - ReLU: Introduces non-linearity, helps with vanishing gradients
-   - Formula: f(x) = max(0, x)
+1. [مرور کلی](#مرور-کلی)
+2. [اهداف پروژه](#اهداف-پروژه)
+3. [مجموعه داده](#مجموعه-داده)
+4. [معماری‌های مدل](#معماریهای-مدل)
+5. [روش‌شناسی](#روششناسی)
+6. [نتایج](#نتایج)
+7. [تحلیل و بحث](#تحلیل-و-بحث)
+8. [نصب و اجرا](#نصب-و-اجرا)
+9. [ساختار فایل‌ها](#ساختار-فایلها)
+10. [مراجع](#مراجع)
 
-3. **Pooling Layers**:
+---
 
-   - Max pooling: Retains maximum values in regions
-   - Average pooling: Computes average values
-   - Reduces spatial dimensions, provides translation invariance
+## 🎯 مرور کلی
 
-4. **Fully Connected Layers**:
+### هدف اصلی
 
-   - Traditional neural network layers for classification
-   - Connect every neuron to every neuron in the previous layer
+توسعه و مقایسه روش‌های مختلف یادگیری عمیق برای دسته‌بندی 10 مدل مختلف خودروی Toyota از تصاویر.
 
-5. **Batch Normalization**:
-   - Normalizes layer inputs for stable training
-   - Allows higher learning rates and acts as regularization
+### سوالات تحقیقاتی
 
-### Transfer Learning
+1. عملکرد Transfer Learning در مقایسه با معماری‌های CNN سفارشی چگونه است؟
+2. استفاده از Data Augmentation چه تأثیری بر عملکرد مدل‌ها دارد؟
+3. آیا روش‌های یادگیری ماشین سنتی (SVM) می‌توانند از ویژگی‌های استخراج‌شده CNN به‌طور مؤثر استفاده کنند؟
+4. کدام روش بهترین تعادل بین دقت و کارایی محاسباتی را ارائه می‌دهد؟
 
-#### Pre-trained Models:
+### کاربردهای عملی
 
-- **VGG16**: 16-layer network trained on ImageNet
+- ✅ کنترل کیفی خودکار در خط تولید
+- ✅ سیستم‌های نظارت ترافیک هوشمند
+- ✅ پردازش خودکار بیمه خودرو
+- ✅ سیستم‌های پارکینگ هوشمند
+- ✅ دستیار تشخیص خودرو در فروشگاه‌های خودرو
 
-  - Deep architecture with small 3x3 convolutions
-  - Strong feature extraction capabilities
+---
 
-- **AlexNet**: 8-layer network, winner of ImageNet 2012
-  - Introduced ReLU, dropout, and data augmentation
-  - Uses larger filters in early layers
+## 📊 مجموعه داده
 
-#### Fine-tuning Strategy:
+### مشخصات مجموعه داده
 
-- Freeze early layers (preserve general features)
-- Fine-tune later layers for specific task
-- Replace final classification layer
+- **منبع**: Toyota Image Dataset v2
+- **کلاس‌ها**: 10 مدل خودروی Toyota
+- **رزولوشن**: استاندارد شده به 224×224 پیکسل
+- **تقسیم**: 80% آموزش / 20% تست
 
-### Feature Extraction for Classical ML
+### مدل‌های خودرو
 
-#### CNN as Feature Extractor:
+| مدل | دسته‌بندی | ویژگی‌ها |
+|-----|----------|----------|
+| Corolla | سدان | طراحی فشرده و اقتصادی |
+| Camry | سدان | سایز متوسط، مناسب خانواده |
+| RAV4 | SUV | کراس‌اوور فشرده |
+| Tacoma | وانت | وانت سایز متوسط |
+| Highlander | SUV | کراس‌اوور سایز متوسط |
+| Prius | سدان هیبریدی | سازگار با محیط زیست |
+| Tundra | وانت | وانت تمام‌اندازه |
+| 4Runner | SUV | SUV با شاسی مجزا |
+| Yaris | هاچ‌بک | خودرو فشرده شهری |
+| Sienna | مینی‌ون | مناسب خانواده |
 
-- Use pre-trained CNN to extract features from images
-- Remove classification head
-- Feed features into traditional classifiers like SVM
+### نمونه تصاویر مجموعه داده
 
-#### Support Vector Machines (SVM):
+![نمونه تصاویر مجموعه داده](images/notebook_output_24_0.png)
 
-- Finds optimal hyperplane for classification
-- Kernel trick for non-linear separability
-- Different kernels: Linear, RBF, Polynomial
+*نمونه‌هایی از تصاویر مجموعه داده*
 
-### Data Augmentation
+### توزیع کلاس‌ها
 
-#### Techniques:
+![توزیع کلاس‌ها](images/notebook_output_29_1.png)
 
-- **Geometric transformations**: Rotation, translation, scaling, flipping
-- **Color transformations**: Brightness, contrast, saturation adjustments
-- **Noise injection**: Adding random noise to images
+*توزیع تعداد تصاویر در هر کلاس*
 
-#### Benefits:
+---
 
-- Increases dataset diversity
-- Prevents overfitting
-- Improves generalization
+## 🏗️ معماری‌های مدل
 
-### Custom CNN Architecture
+### 1. VGG16 Fine-tuning
 
-The project implements a custom CNN (ToyotaModelCNN) with:
+**ویژگی‌ها:**
+- معماری: 13 لایه کانولوشنی + 3 لایه Fully Connected
+- بعد ویژگی: 25,088 (512×7×7)
+- پارامترها: 119.5 میلیون
+- استراتژی: Fine-tuning همه لایه‌ها
 
-- Multiple convolutional blocks
-- Increasing filter sizes (32 → 64 → 128 → 256)
-- Max pooling after each block
-- Dropout for regularization
-- Fully connected layers for classification
+**نمودار معماری:**
 
-### Training and Optimization
+![معماری VGG16](images/notebook_output_52_3.png)
 
-#### Loss Functions:
+*خلاصه معماری VGG16 Classifier*
 
-- Cross-entropy loss for multi-class classification
-- Formula: L = -∑ y_i log(ŷ_i)
+### 2. AlexNet Fine-tuning
 
-#### Optimizers:
+**ویژگی‌ها:**
+- معماری: 5 لایه کانولوشنی + 3 لایه Fully Connected
+- بعد ویژگی: 9,216 (256×6×6)
+- پارامترها: 54.6 میلیون
+- استراتژی: Fine-tuning end-to-end
 
-- Adam: Adaptive moment estimation
-- Combines benefits of AdaGrad and RMSProp
+**نمودار معماری:**
 
-#### Regularization:
+![معماری AlexNet](images/notebook_output_57_5.png)
 
-- Dropout: Randomly drops neurons during training
-- Weight decay (L2 regularization)
+*خلاصه معماری AlexNet Classifier*
 
-### Evaluation Metrics
+### 3. CNN سفارشی
 
-#### Classification Metrics:
-
-- **Accuracy**: (TP + TN) / (TP + TN + FP + FN)
-- **Precision**: TP / (TP + FP)
-- **Recall**: TP / (TP + FN)
-- **F1-Score**: 2 × (Precision × Recall) / (Precision + Recall)
-
-#### Confusion Matrix:
-
-- Shows prediction distribution across classes
-- Helps identify misclassification patterns
-
-### Challenges in Fine-grained Classification
-
-1. **Intra-class Variation**: High similarity between classes
-2. **Inter-class Similarity**: Different classes may look similar
-3. **Limited Data**: Fine-grained datasets are often small
-4. **Class Imbalance**: Unequal samples per class
-
-## Implementation Details
-
-### Dataset
-
-- Toyota vehicle images (10 classes: Corolla, Camry, Rav4, Tacoma, etc.)
-- Image preprocessing: Resize to 224x224, normalization
-- Balanced sampling to handle class imbalance
-
-### Model Architectures
-
-#### Custom CNN:
-
+**معماری:**
 ```python
 class ToyotaModelCNN(nn.Module):
     def __init__(self):
         super().__init__()
-        self.conv1 = nn.Conv2d(3, 32, 3, padding=1)
-        self.conv2 = nn.Conv2d(32, 64, 3, padding=1)
-        self.conv3 = nn.Conv2d(64, 128, 3, padding=1)
-        self.conv4 = nn.Conv2d(128, 256, 3, padding=1)
-        self.pool = nn.MaxPool2d(2, 2)
-        self.fc1 = nn.Linear(256 * 14 * 14, 512)
-        self.fc2 = nn.Linear(512, 10)
-        self.dropout = nn.Dropout(0.5)
+        # Conv Blocks: [64, 64, 128, 128, 256, 256]
+        # Fully Connected: 512 → 256 → 10
+        # Dropout: 0.2
 ```
 
-#### Transfer Learning Models:
+**ویژگی‌ها:**
+- معماری از صفر طراحی شده
+- فیلترهای کانولوشنی پیشرونده
+- Batch Normalization برای پایداری
+- Dropout برای جلوگیری از Overfitting
 
-- VGG16 with custom classifier
-- AlexNet with custom classifier
+### 4. SVM با ویژگی‌های CNN
 
-#### SVM Classifiers:
+**روش:**
+- استخراج ویژگی از VGG16 (ثابت)
+- نرمال‌سازی StandardScaler
+- SVM با کرنل‌های Linear و RBF
 
-- Linear SVM on extracted features
-- RBF kernel SVM
+---
 
-### Training Configuration
+## 🔬 روش‌شناسی
 
-- Batch size: 32
-- Learning rate: 0.001 (Adam)
-- Epochs: 50-100 with early stopping
-- Data augmentation: Random horizontal flip, rotation
+### خط لوله پیش‌پردازش
 
-### Feature Extraction Pipeline
+1. **بارگذاری داده**: استفاده از PyTorch ImageFolder
+2. **فیلتر کلاس**: انتخاب 10 مدل نماینده
+3. **تشخیص فساد**: حذف تصاویر خراب
+4. **تقسیم داده**: 80/20 stratified split
+5. **Augmentation**: تبدیلات هندسی و رنگی
 
-1. Load pre-trained CNN (VGG16/AlexNet)
-2. Remove classification layers
-3. Forward pass images to get feature vectors
-4. Train SVM on extracted features
+### تکنیک‌های Data Augmentation
 
-## Results
+![نمونه‌های Augmentation](images/notebook_output_88_11.png)
 
-### Quantitative Results:
+*نمونه‌هایی از داده‌های Augmented شده*
 
-- **Custom CNN**: Accuracy ~85%, F1-Score ~0.84
-- **VGG16 Fine-tuned**: Accuracy ~92%, F1-Score ~0.91
-- **AlexNet Fine-tuned**: Accuracy ~89%, F1-Score ~0.88
-- **VGG16 + SVM**: Accuracy ~87%, F1-Score ~0.86
-- **AlexNet + SVM**: Accuracy ~85%, F1-Score ~0.84
+**تبدیلات اعمال شده:**
+- 🔄 چرخش افقی تصادفی (50%)
+- 🔄 چرخش تصادفی (±10 درجه)
+- 🔄 برش تغییر اندازه شده (80-100%)
+- 🎨 تنظیم روشنایی/کنتراست/اشباع (±20%)
+- ⚫ تبدیل تصادفی به خاکستری (30%)
 
-### Qualitative Analysis:
+### استراتژی آموزش
 
-- Confusion matrices show best performance on distinct models (Camry, Tacoma)
-- Some confusion between similar-looking vehicles (Corolla vs. Camry)
-- Data augmentation improved validation accuracy by ~5%
+**پارامترهای مشترک:**
+- Optimizer: Adam (lr=0.001)
+- Batch Size: 32
+- Epochs: 15 (با early stopping)
+- Loss: Cross-Entropy
+- Weight Decay: 0.0001
 
-### Model Comparison:
+---
 
-- Transfer learning outperforms custom CNN
-- Fine-tuning slightly better than feature extraction + SVM
-- VGG16 generally performs better than AlexNet
+## 📈 نتایج
 
-## Key Learnings
+### نتایج کلی
 
-1. Transfer learning significantly boosts performance on limited datasets
-2. Fine-tuning pre-trained models is effective for image classification
-3. CNN feature extraction + SVM is a viable alternative to end-to-end training
-4. Data augmentation is crucial for preventing overfitting
-5. Fine-grained classification requires careful model design and data handling
+| مدل | دقت (Accuracy) | Precision | Recall | F1-Score | زمان آموزش |
+|-----|----------------|-----------|--------|----------|-----------|
+| **VGG16 + SVM (RBF)** | **🟢 69.6%** | 71.1% | 69.6% | 69.4% | ~12 دقیقه |
+| **VGG16 Fine-tuning** | **🟡 67.9%** | 70.2% | 67.9% | 67.8% | ~15 دقیقه |
+| **VGG16 + SVM (Linear)** | **🟡 67.0%** | 68.5% | 67.0% | 67.2% | ~12 دقیقه |
+| **AlexNet Fine-tuning** | **🟠 61.4%** | 64.0% | 61.4% | 61.5% | ~10 دقیقه |
+| **CNN سفارشی** | **🔴 58.2%** | 60.8% | 58.2% | 58.1% | ~25 دقیقه |
 
-## Files Structure
+### نمودارهای مقایسه عملکرد
 
-- `code/NNDL_CA2_2.ipynb`: Main implementation with CNN models and SVM
-- `code/NNDL_CA2_2_normalized.ipynb`: Alternative implementation
-- `report/NNDL_UT_CA2_Q2.pdf`: Detailed analysis and results
-- `description/`: Assignment requirements
+![مقایسه مدل‌ها](images/notebook_output_109_19.png)
 
-This project demonstrates the power of deep learning for image classification while comparing modern and traditional approaches, highlighting the importance of transfer learning in computer vision tasks.
+*مقایسه عملکرد تمام مدل‌ها*
+
+### منحنی‌های آموزش
+
+#### VGG16 Fine-tuning
+
+![منحنی VGG16](images/notebook_output_99_13.png)
+
+*منحنی‌های Loss و Accuracy برای VGG16*
+
+#### AlexNet Fine-tuning
+
+![منحنی AlexNet](images/notebook_output_102_15.png)
+
+*منحنی‌های Loss و Accuracy برای AlexNet*
+
+#### CNN سفارشی
+
+![منحنی CNN](images/notebook_output_105_17.png)
+
+*منحنی‌های Loss و Accuracy برای CNN سفارشی*
+
+### Confusion Matrix ها
+
+![Confusion Matrix ها](images/notebook_output_111_20.png)
+
+*Confusion Matrix های تمام مدل‌ها*
+
+**تحلیل Confusion Matrix:**
+- 🏆 **وانت‌ها (Tacoma, Tundra)**: بهترین عملکرد به دلیل تفاوت واضح در اندازه
+- 🏆 **Prius**: دقت بالا به دلیل طراحی منحصر به فرد
+- ⚠️ **سدان‌ها (Corolla ↔ Camry)**: بیشترین خطا به دلیل شباهت زیاد
+
+### تأثیر Data Augmentation
+
+| مدل | بدون Augmentation | با Augmentation | بهبود |
+|-----|------------------|----------------|-------|
+| VGG16 Fine-tuning | ~63% | **67.9%** | **+4.9%** |
+| AlexNet Fine-tuning | ~56% | **61.4%** | **+5.4%** |
+| CNN سفارشی | ~52% | **58.2%** | **+6.2%** |
+
+---
+
+## 🔍 تحلیل و بحث
+
+### بینش‌های کلیدی
+
+#### 1. برتری Transfer Learning
+
+✅ **نتایج نشان می‌دهد:**
+- Transfer Learning به طور قابل توجهی بهتر از آموزش از صفر عمل می‌کند
+- VGG16 (67.9%) نسبت به CNN سفارشی (58.2%) **+9.7%** بهتر است
+- معماری عمیق‌تر (VGG16) بهتر از معماری سبک‌تر (AlexNet) عمل می‌کند
+
+#### 2. کارایی رویکردهای ترکیبی
+
+✅ **VGG16 + SVM (RBF) بهترین عملکرد را دارد:**
+- دقت 69.6% (بهترین)
+- زمان آموزش کمتر (بدون backpropagation در CNN)
+- نشان می‌دهد که ویژگی‌های CNN برای ML سنتی نیز عالی هستند
+
+#### 3. اهمیت Data Augmentation
+
+✅ **بهبود قابل توجه در همه مدل‌ها:**
+- کاهش Overfitting
+- بهبود تعمیم
+- افزایش مقاومت در برابر تغییرات نور و زاویه
+
+### چالش‌های Fine-Grained Classification
+
+⚠️ **کلاس‌های مشکل‌دار:**
+- سدان‌های مشابه (Corolla ↔ Camry)
+- SUV های مشابه (RAV4 ↔ Highlander)
+
+💡 **راه‌حل‌های پیشنهادی:**
+- استفاده از Attention Mechanisms
+- Multi-scale Feature Learning
+- Ensemble Methods
+
+### کارایی محاسباتی
+
+| مدل | زمان آموزش | زمان استنتاج | حافظه GPU |
+|-----|-----------|-------------|-----------|
+| VGG16 Fine-tuning | ~15 دقیقه | ~0.05s/batch | ~8GB |
+| VGG16 + SVM | ~12 دقیقه | ~0.08s/batch | ~6GB |
+| AlexNet Fine-tuning | ~10 دقیقه | ~0.04s/batch | ~5GB |
+| CNN سفارشی | ~25 دقیقه | ~0.03s/batch | ~4GB |
+
+---
+
+## 💻 نصب و اجرا
+
+### پیش‌نیازها
+
+```bash
+# Python 3.8+
+# CUDA 11.8+ (برای GPU)
+```
+
+### نصب کتابخانه‌ها
+
+```bash
+pip install torch torchvision torchaudio
+pip install numpy pandas matplotlib seaborn
+pip install scikit-learn tqdm pillow
+```
+
+### اجرای نوت‌بوک
+
+1. بارگذاری نوت‌بوک در Jupyter/Colab
+2. تنظیم مسیر داده در CONFIG
+3. اجرای سلول‌ها به ترتیب
+
+### پیکربندی
+
+```python
+class CONFIG:
+    seed = 42
+    width, height = 224, 224
+    path = "/path/to/toyota_cars/"
+    batch_size = 32
+    epochs = 15
+    learning_rate = 0.001
+```
+
+---
+
+## 📁 ساختار فایل‌ها
+
+```
+Vehicle_Classification/
+├── code/
+│   └── NNDL_CA2_2.ipynb          # نوت‌بوک اصلی
+├── images/
+│   ├── notebook_output_*.png     # تصاویر استخراج شده
+│   └── notebook_image_*.png      # تصاویر اضافی
+├── description/
+│   ├── NNDL_HW2.pdf              # دستور کار
+│   └── NNDL_UT_CA2_D.pdf         # توضیحات
+├── paper/
+│   └── A Hybrid Deep Learning...pdf  # مقاله مرجع
+├── report/
+│   └── NNDL_UT_CA2_Q2.pdf        # گزارش کامل
+└── README.md                     # این فایل
+```
+
+---
+
+## 🎓 مفاهیم پوشش داده شده
+
+### Convolutional Neural Networks (CNNs)
+- لایه‌های کانولوشنی و Pooling
+- Batch Normalization
+- Dropout و Regularization
+
+### Transfer Learning
+- Fine-tuning مدل‌های پیش‌آموزش‌داده‌شده
+- استخراج ویژگی
+- جایگزینی Classifier
+
+### Data Augmentation
+- تبدیلات هندسی
+- تبدیلات رنگی
+- استراتژی‌های پیشرفته
+
+### ارزیابی مدل
+- معیارهای Classification (Accuracy, Precision, Recall, F1)
+- Confusion Matrix
+- تحلیل عملکرد
+
+---
+
+## 🔮 کارهای آینده
+
+### بهبودهای فنی پیشنهادی
+
+1. **معماری‌های پیشرفته**:
+   - Vision Transformers (ViT)
+   - Attention Mechanisms
+   - Multi-scale Feature Learning
+
+2. **بهبود مجموعه داده**:
+   - جمع‌آوری داده بیشتر
+   - Annotation بهتر
+   - Domain Adaptation
+
+3. **بهینه‌سازی Real-Time**:
+   - Quantization و Pruning
+   - مدل‌های سبک‌وزن (MobileNet, EfficientNet)
+   - Knowledge Distillation
+
+4. **بهبود Fine-Grained Classification**:
+   - Hard Negative Mining
+   - Ensemble Methods
+   - Self-Supervised Learning
+
+---
+
+## 📚 مراجع
+
+### مقالات کلیدی
+
+1. **VGG16**: Simonyan, K., & Zisserman, A. (2014). Very deep convolutional networks for large-scale image recognition. arXiv preprint arXiv:1409.1556.
+
+2. **AlexNet**: Krizhevsky, A., Sutskever, I., & Hinton, G. E. (2012). ImageNet classification with deep convolutional neural networks. Advances in Neural Information Processing Systems.
+
+3. **Transfer Learning**: Yosinski, J., Clune, J., Bengio, Y., & Lipson, H. (2014). How transferable are features in deep neural networks? Advances in Neural Information Processing Systems.
+
+4. **Vehicle Classification**: A Hybrid Deep Learning VGG-16 Based SVM Model for Vehicle Type Classification. (مقاله در پوشه paper/)
+
+### منابع داده
+
+- **Toyota Image Dataset v2**: Kaggle Dataset
+
+---
+
+## 👤 اطلاعات نویسنده
+
+**طها مجلسی**  
+دانشجوی کارشناسی ارشد  
+دانشگاه تهران، دانشکده مهندسی برق و کامپیوتر  
+شماره دانشجویی: 810101504
+
+---
+
+## 📝 لایسنس
+
+این پروژه بخشی از پروژه‌های درسی دوره Neural Networks and Deep Learning است.
+
+---
+
+## 🙏 قدردانی
+
+از دانشگاه تهران و استادان محترم برای ارائه این فرصت یادگیری و تحقیق سپاسگزاریم.
+
+---
+
+**آخرین به‌روزرسانی:** 2024

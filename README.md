@@ -69,21 +69,21 @@ This project implements a comprehensive COVID-19 detection system using chest X-
 
 **Key Features:**
 
-- **Custom CNN Architecture**: 
+- **Custom CNN Architecture**:
   - 6 convolutional blocks with increasing filters (64→128→256→512)
   - Batch normalization for stable training
   - Dropout (0.2-0.5) for regularization
   - Input: 150×150×3 RGB images
   - Architecture: Conv blocks → Global Average Pooling → Dense(512) → Dense(256) → Dense(3) with Softmax
-- **Transfer Learning**: 
+- **Transfer Learning**:
   - **VGG16**: Pre-trained on ImageNet, fine-tuned on medical data
   - **MobileNetV2**: Lightweight architecture optimized for mobile deployment
   - Fine-tuning strategy: Freeze early layers, train later layers
-- **Data Augmentation**: 
+- **Data Augmentation**:
   - Geometric transformations: Rotation, width/height shift, shear, zoom
   - Color adjustments: Brightness and contrast modifications
   - Horizontal flipping for augmentation
-- **Medical Imaging Pipeline**: 
+- **Medical Imaging Pipeline**:
   - Proper preprocessing for chest X-ray images
   - Intensity normalization (0-1 range)
   - Resize to 150×150 pixels
@@ -91,13 +91,13 @@ This project implements a comprehensive COVID-19 detection system using chest X-
 **Technical Details:**
 
 - **Loss Function**: Categorical cross-entropy with class weights for handling imbalanced data
-- **Optimization**: 
+- **Optimization**:
   - Adam optimizer (β1=0.9, β2=0.999)
   - Learning rate scheduling (constant and exponential decay)
-- **Regularization**: 
+- **Regularization**:
   - Dropout: 0.2-0.5 depending on layer
   - L2 weight decay: 1e-4
-- **Training Strategy**: 
+- **Training Strategy**:
   - Early stopping to prevent overfitting
   - Model checkpointing for best performance
   - Validation monitoring
@@ -107,11 +107,11 @@ This project implements a comprehensive COVID-19 detection system using chest X-
 - **VGG16 Fine-tuned**: 92.1% accuracy, 0.91 AUC-ROC, 0.89 F1-score
 - **MobileNetV2**: 89.3% accuracy, 0.88 AUC-ROC, 0.86 F1-score
 - **Custom CNN**: 87.6% accuracy, 0.86 AUC-ROC, 0.84 F1-score
-- **Clinical Relevance**: 
+- **Clinical Relevance**:
   - Demonstrates practical applicability in medical diagnosis
   - High sensitivity for COVID-19 detection
   - Robust performance on diverse chest X-ray images
-- **Key Insights**: 
+- **Key Insights**:
   - Transfer learning significantly improves performance
   - VGG16 provides best accuracy but MobileNetV2 offers better efficiency
   - Custom CNN achieves competitive results with architectural simplicity
@@ -126,37 +126,37 @@ This assignment implements a robust vehicle classification system exploring both
 
 **Key Features:**
 
-- **Dual Approach**: 
+- **Dual Approach**:
   - Pure CNN classification (end-to-end learning)
   - CNN feature extraction + SVM (hybrid approach)
-- **Architecture Comparison**: 
+- **Architecture Comparison**:
   - **Custom CNN (ToyotaModelCNN)**: Multiple convolutional blocks with increasing filters (32→64→128→256)
   - **VGG16**: 16-layer network with strong feature extraction
   - **AlexNet**: 8-layer network, winner of ImageNet 2012
-- **Feature Engineering**: 
+- **Feature Engineering**:
   - Feature extraction from conv5 layer (512×7×7 → 25,088 features)
   - Multiple CNN layers analyzed for optimal feature representation
-- **Data Augmentation**: 
+- **Data Augmentation**:
   - Geometric transformations: Rotation, translation, scaling, flipping
   - Color transformations: Brightness, contrast, saturation adjustments
   - Noise injection for robustness
 
 **Technical Details:**
 
-- **CNN Architecture**: 
+- **CNN Architecture**:
   - Convolutional blocks with batch normalization
   - Max pooling after each block
   - Dropout for regularization
   - Fully connected layers for classification
-- **SVM Classification**: 
+- **SVM Classification**:
   - RBF kernel with grid search hyperparameter optimization
   - Support for linear, RBF, and polynomial kernels
   - Hyperparameter tuning: C, gamma parameters
-- **Fine-tuning Strategy**: 
+- **Fine-tuning Strategy**:
   - Freeze early layers (preserve general features)
   - Fine-tune later layers for vehicle-specific features
   - Replace final classification layer
-- **Evaluation**: 
+- **Evaluation**:
   - 5-fold cross-validation
   - Detailed per-class metrics (precision, recall, F1-score)
   - Confusion matrix analysis
@@ -167,7 +167,7 @@ This assignment implements a robust vehicle classification system exploring both
 - **AlexNet + SVM**: 87.1% accuracy, faster inference, good balance
 - **End-to-end CNN**: 85.4% accuracy, single-model simplicity
 - **Custom CNN**: Competitive performance with architectural flexibility
-- **Key Insights**: 
+- **Key Insights**:
   - Feature extraction approach provides better generalization than end-to-end training
   - SVM on CNN features often outperforms pure CNN classifiers
   - Transfer learning significantly boosts performance
@@ -185,18 +185,18 @@ This project implements Fast-SCNN (Fast Semantic Segmentation Convolutional Neur
 
 **Key Features:**
 
-- **Efficient Architecture**: 
+- **Efficient Architecture**:
   - Depthwise separable convolutions reduce parameters by ~9×
   - Total parameters: ~1.2M (vs. ~50M for DeepLabV3+)
   - Optimized for mobile and embedded devices
-- **Multi-Scale Processing**: 
+- **Multi-Scale Processing**:
   - **Learning to Downsample Module**: Initial downsampling with standard and depthwise separable convolutions
   - **Pyramid Pooling Module (PPM)**: Multi-scale context at 1×1, 2×2, 3×3, 6×6 scales
   - **Global Feature Extractor**: Bottleneck blocks inspired by MobileNetV2
-- **Real-Time Performance**: 
+- **Real-Time Performance**:
   - ~120 FPS inference speed on mobile GPUs
   - 50MB model size suitable for edge deployment
-- **Urban Scene Understanding**: 
+- **Urban Scene Understanding**:
   - Segmentation of 11 semantic classes: Sky, Building, Pole, Road, Pavement, Tree, SignSymbol, Fence, Car, Pedestrian, Bicyclist
   - CamVid dataset: 367 training, 101 validation, 233 test images (360×480 resolution)
 
@@ -204,18 +204,18 @@ This project implements Fast-SCNN (Fast Semantic Segmentation Convolutional Neur
 
 - **Architecture Components**:
   1. **Learning to Downsample**: Standard conv + DSConv for initial feature extraction
-  2. **Global Feature Extractor**: 
+  2. **Global Feature Extractor**:
      - Expansion (1×1 conv): 32→96 channels
      - Depthwise (3×3): Efficient convolution
      - Projection (1×1 conv): 96→16 channels
      - Residual connections when input/output channels match
   3. **Feature Fusion Module**: Combines high-res (1/8) and low-res (1/32) features with dilated depthwise conv
   4. **Classifier**: DSConv layers + final Conv2D(num_classes) with Dropout(0.3) and Softmax
-- **Loss Functions**: 
+- **Loss Functions**:
   - Cross-entropy loss: `L_CE = -∑_c y_c log(ŷ_c)`
   - IoU loss: `L_IoU = 1 - IoU_score`
   - Dice loss: `L_Dice = 1 - (2∑ y_i ŷ_i + ε) / (∑ y_i + ∑ ŷ_i + ε)`
-- **Optimization**: 
+- **Optimization**:
   - Adam optimizer (β1=0.9, β2=0.999)
   - Polynomial learning rate decay: `lr = initial_lr × (1 - step/max_steps)^power`
   - Batch size: 16
@@ -225,14 +225,14 @@ This project implements Fast-SCNN (Fast Semantic Segmentation Convolutional Neur
 
 - **Mean IoU (mIoU)**: 0.62 average across all classes
 - **Pixel Accuracy**: 91.3% overall pixel classification accuracy
-- **Model Efficiency**: 
+- **Model Efficiency**:
   - 1.2M parameters (91% reduction vs. standard models)
   - 50MB model size
   - ~120 FPS on mobile GPUs
-- **Per-Class Performance**: 
+- **Per-Class Performance**:
   - High performance on large objects (Sky, Building, Road)
   - Challenges with small objects (Pole, Bicyclist)
-- **Key Insights**: 
+- **Key Insights**:
   - Depthwise separable convolutions enable real-time performance
   - Multi-scale features crucial for accurate segmentation
   - Balance between accuracy and efficiency achieved
@@ -247,40 +247,40 @@ This assignment implements Oriented R-CNN for detecting objects with arbitrary o
 
 **Key Features:**
 
-- **Oriented Bounding Box Representation**: 
+- **Oriented Bounding Box Representation**:
   - **5-parameter format**: (x_c, y_c, w, h, θ) where θ is rotation angle
   - **8-parameter format**: Four corner coordinates (x1,y1, x2,y2, x3,y3, x4,y4)
   - Conversion between representations using rotation matrices
-- **Oriented Anchors**: 
+- **Oriented Anchors**:
   - Pre-defined oriented boxes at multiple positions
   - Scales: [32, 64, 128, 256, 512]
   - Aspect ratios: [0.5, 1, 2]
   - Angles: [-90°, -45°, 0°, 45°, 90°] (5 orientations)
-- **Rotated ROI Align**: 
+- **Rotated ROI Align**:
   - Handles rotated regions using spatial transformer
   - Bilinear sampling with rotation compensation
   - Output: 7×7×256 features for each proposal
-- **Geometric Transformations**: 
+- **Geometric Transformations**:
   - Proper handling of oriented bounding boxes
   - Rotation-aware feature extraction
   - Specialized IoU computation for rotated rectangles
 
 **Technical Details:**
 
-- **Backbone Network**: 
+- **Backbone Network**:
   - **ResNet-50**: Deep residual network for feature extraction
   - **Feature Pyramid Network (FPN)**: Multi-scale feature maps (P2-P6)
   - Lateral connections and top-down pathway for multi-scale detection
-- **Region Proposal Network (RPN)**: 
+- **Region Proposal Network (RPN)**:
   - **Oriented Anchor Generation**: Places anchors at each spatial position
   - **Classification Head**: Binary classification (object vs. background)
   - **Regression Head**: 5-parameter refinement (Δx, Δy, Δw, Δh, Δθ)
   - Regression targets: Normalized relative to anchor boxes
-- **RCNN Head**: 
+- **RCNN Head**:
   - Fully connected layers: 1024 → 1024 neurons
   - Classification branch: Object class probabilities
   - Regression branch: Oriented bounding box refinements
-- **Loss Functions**: 
+- **Loss Functions**:
   - **RPN Classification**: Binary cross-entropy `L_cls = -∑ (y log ŷ + (1-y) log(1-ŷ))`
   - **RPN Regression**: Smooth L1 loss for oriented boxes
   - **RCNN Loss**: Combined classification and regression losses
@@ -290,12 +290,12 @@ This assignment implements Oriented R-CNN for detecting objects with arbitrary o
 - **Detection Accuracy**: Superior performance on oriented objects vs. axis-aligned methods
 - **Geometric Precision**: Accurate localization of rotated objects
 - **Robustness**: Handles various orientations and aspect ratios
-- **Application Areas**: 
+- **Application Areas**:
   - Ship detection in satellite imagery
   - Text detection in documents
   - Vehicle detection in aerial photography
   - Medical image analysis
-- **Key Insights**: 
+- **Key Insights**:
   - 5-parameter representation more efficient than 8-parameter
   - Oriented anchors crucial for good initialization
   - Rotated ROI Align essential for accurate feature extraction
@@ -307,57 +307,137 @@ See [detailed README](CA3_Object_Detection/Oriented_RCNN/README.md) for complete
 
 #### Image_Captioning
 
-**Attention-Based Image Captioning**
+**Attention-Based Image Captioning with LSTM/GRU**
 
-This project implements an encoder-decoder architecture with attention mechanisms for generating natural language descriptions from images.
+This project implements an encoder-decoder architecture with attention mechanisms for generating natural language descriptions from images. The system bridges computer vision and natural language processing to create coherent captions that describe image content.
 
 **Key Features:**
 
-- **Visual Encoder**: ResNet-based CNN for image feature extraction
-- **Attention Decoder**: LSTM/GRU with Bahdanau attention
-- **Sequence Generation**: Autoregressive text generation with beam search
-- **Multimodal Alignment**: Attention visualization for interpretability
+- **Visual Encoder**:
+  - ResNet-50 or VGG16 pre-trained CNN for image feature extraction
+  - Global average pooling of final convolutional layer
+  - Output: Feature vector v ∈ ℝ^d (d=2048 for ResNet-50)
+  - Captures semantic and spatial information from images
+- **Attention Decoder**:
+  - **LSTM**: Long Short-Term Memory with gating mechanisms
+    - Forget gate: `f_t = σ(W_f · [h_{t-1}, x_t] + b_f)`
+    - Input gate: `i_t = σ(W_i · [h_{t-1}, x_t] + b_i)`
+    - Cell state: `C_t = f_t * C_{t-1} + i_t * C̃_t`
+  - **GRU**: Gated Recurrent Unit with reset and update gates
+    - Reset gate: `r_t = σ(W_r · [h_{t-1}, x_t])`
+    - Update gate: `z_t = σ(W_z · [h_{t-1}, x_t])`
+- **Attention Mechanisms**:
+  - **Bahdanau Attention (Additive)**: `e_{t,i} = v_a^T tanh(W_a h_{t-1} + U_a v_i)`
+  - **Luong Attention (Multiplicative)**: `e_{t,i} = h_t^T W_a v_i`
+  - Context vector: `c_t = ∑_i α_{t,i} v_i` where `α_{t,i} = softmax(e_{t,i})`
+- **Sequence Generation**:
+  - Autoregressive text generation
+  - Beam search for diverse caption generation
+  - Vocabulary management and tokenization
 
 **Technical Details:**
 
-- **Encoder**: ResNet-50 → Adaptive pooling → 2048-dim features
-- **Attention Mechanism**: Bahdanau attention with MLP scoring
-- **Decoder**: 512-dim LSTM with attention context concatenation
-- **Training**: Teacher forcing with scheduled sampling
+- **Encoder**:
+  - ResNet-50 → Adaptive pooling → 2048-dim features
+  - Features extracted from multiple spatial locations
+- **Attention Mechanism**:
+  - Bahdanau attention with MLP scoring
+  - Attention weights visualize focus regions
+- **Decoder**:
+  - 512-dim LSTM/GRU with attention context concatenation
+  - Word embeddings + context vector as input
+  - Output: Probability distribution over vocabulary
+- **Training Strategy**:
+  - **Teacher Forcing**: Use ground truth tokens during training
+  - **Scheduled Sampling**: Gradually decrease teacher forcing probability
+  - Exposure bias mitigation
+  - Cross-entropy loss on predicted tokens
 
 **Results & Analysis:**
 
-- **BLEU-1 Score**: 0.72 (unigram overlap)
-- **BLEU-4 Score**: 0.18 (4-gram overlap)
-- **Attention Maps**: Clear focus on relevant image regions
-- **Semantic Quality**: Generated captions capture main objects and actions
+- **BLEU Scores**:
+  - **BLEU-1**: 0.72 (unigram overlap)
+  - **BLEU-4**: 0.18 (4-gram overlap)
+- **Attention Visualization**:
+  - Clear focus on relevant image regions
+  - Attention maps highlight objects mentioned in captions
+- **Semantic Quality**:
+  - Generated captions capture main objects and actions
+  - Proper object relationships described
+  - Coherent sentence structure
+- **Model Comparison**:
+  - LSTM vs. GRU performance analysis
+  - Attention vs. non-attention comparison
+  - Impact of different attention mechanisms
+
+See [detailed README](CA4_Sequence_Modeling/Image_Captioning/README.md) for complete results and visualizations.
 
 #### Time_Series_Prediction
 
-**Uncertainty-Aware Time Series Forecasting**
+**Uncertainty-Aware Time Series Forecasting with RNNs**
 
-This assignment implements RNN-based models for time series prediction with uncertainty quantification using Monte Carlo dropout.
+This assignment implements RNN-based models for time series prediction with uncertainty quantification using Maximum Likelihood Estimation (MLE). The system predicts future values based on historical observations while providing confidence intervals for forecasts.
 
 **Key Features:**
 
-- **Bidirectional RNNs**: LSTM and GRU variants for sequence modeling
-- **Uncertainty Estimation**: Monte Carlo dropout for prediction confidence
-- **Temporal Dependencies**: Capturing long-range patterns in sequential data
-- **Robust Forecasting**: Handling noisy and irregular time series
+- **Bidirectional RNNs**:
+  - LSTM and GRU variants for sequence modeling
+  - Process sequences in both forward and backward directions
+  - Richer temporal context for predictions
+- **Uncertainty Estimation**:
+  - **Maximum Likelihood Estimation (MLE)**: Learn both mean (μ) and variance (σ²)
+  - Gaussian assumption: `y ~ N(μ, σ²)`
+  - Dual-head architecture: Separate outputs for mean and log-variance
+  - Negative log-likelihood loss: `L = ∑ [logσ² + (y-μ)²/σ²]`
+- **Temporal Dependencies**:
+  - Capturing long-range patterns in sequential data
+  - Handling non-stationary time series
+  - Multiple forecast horizons (short-term and long-term)
+- **Robust Forecasting**:
+  - Handling noisy and irregular time series
+  - Missing data handling
+  - Outlier robustness
 
 **Technical Details:**
 
-- **Architecture**: Bidirectional LSTM/GRU with multiple layers
-- **Uncertainty Quantification**: MC Dropout with 50 forward passes
-- **Loss Function**: Maximum likelihood estimation with Gaussian likelihood
-- **Regularization**: Dropout, recurrent dropout, and L2 regularization
+- **Architecture**:
+  - Bidirectional LSTM/GRU with multiple layers
+  - Encoder RNN processes input sequence: `h_T = RNN(x1, ..., xT)`
+  - Dual prediction heads:
+    - Mean head: `μ = W_μ h_T + b_μ`
+    - Variance head: `logσ² = W_σ h_T + b_σ` (log for numerical stability)
+- **Uncertainty Quantification**:
+  - Probabilistic forecasts with confidence intervals
+  - Well-calibrated prediction intervals
+  - Uncertainty reflects model confidence
+- **Loss Function**:
+  - Negative log-likelihood (MLE objective)
+  - Balances accuracy and uncertainty calibration
+- **Regularization**:
+  - Dropout for preventing overfitting
+  - Recurrent dropout for RNN layers
+  - L2 regularization on weights
 
 **Results & Analysis:**
 
-- **R² Score**: 0.85 on test data
-- **Uncertainty Calibration**: Well-calibrated prediction intervals
-- **Robustness**: Handles missing data and outliers effectively
-- **Interpretability**: Attention weights show temporal focus regions
+- **Performance Metrics**:
+  - **R² Score**: 0.85 on test data
+  - Mean Absolute Error (MAE) and Root Mean Squared Error (RMSE)
+  - Prediction interval coverage
+- **Uncertainty Calibration**:
+  - Well-calibrated prediction intervals
+  - Uncertainty increases for extrapolation regions
+  - Captures temporal uncertainty patterns
+- **Robustness**:
+  - Handles missing data effectively
+  - Outlier detection and handling
+  - Stable predictions on noisy data
+- **Model Comparison**:
+  - LSTM vs. GRU performance
+  - Bidirectional vs. unidirectional
+  - Impact of uncertainty modeling
+
+See [detailed README](CA4_Sequence_Modeling/Time_Series_Prediction/README.md) for complete results and visualizations.
 
 ### CA5: Vision Transformers
 

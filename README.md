@@ -432,6 +432,34 @@ This advanced project extends image captioning to Persian language, addressing t
    - Alternatively, execute Python scripts in `python_files/` for standalone implementations
 5. **Documentation**: Refer to individual README.md files for detailed guides
 
+## How to Run
+
+برای اجرای اسکریپت `main.py`، دستور زیر را در ترمینال اجرا کنید:
+
+```bash
+python main.py
+```
+
+یا اگر از Python 3 استفاده می‌کنید:
+
+```bash
+python3 main.py
+```
+
+## How to Test
+
+برای اجرای تست‌های این پروژه، دستور زیر را در ترمینال اجرا کنید:
+
+```bash
+pytest test_main.py
+```
+
+یا اگر `pytest` به صورت پیش‌فرض نصب نیست، می‌توانید از `python -m pytest` استفاده کنید:
+
+```bash
+python -m pytest test_main.py
+```
+
 ## Educational Value
 
 This repository serves as a comprehensive resource for:

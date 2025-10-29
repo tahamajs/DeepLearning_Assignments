@@ -49,6 +49,10 @@ This assignment covers essential neural network principles including architectur
 - Analysis of activation functions and their impact on learning
 - Performance evaluation on benchmark datasets
 
+![Neural Network Training](CA1_Neural_Networks_Basics/code/notebook_images/image_cell027_output001.png)
+
+_Training dynamics and loss curves demonstrating backpropagation learning_
+
 **📊 Notebook Images**: 4 visualizations extracted
 
 - Loss curves and training dynamics
@@ -87,6 +91,10 @@ This project implements a comprehensive COVID-19 detection system using chest X-
 - **MobileNetV2**: 89.3% accuracy, 0.88 AUC-ROC
 - **Custom CNN**: 87.6% accuracy, 0.86 AUC-ROC
 
+![COVID-19 Detection](CA2_CNN_Applications/Covid_Detection/code/notebook_images/image_cell035_output000.png)
+
+_X-ray image classification results showing model predictions_
+
 **📊 Notebook Images**: 59 visualizations extracted
 
 - Training/validation curves
@@ -121,6 +129,10 @@ This assignment implements a robust vehicle classification system exploring both
 - **VGG16 + SVM**: 89.2% accuracy, superior generalization
 - **AlexNet + SVM**: 87.1% accuracy, faster inference
 - **End-to-end CNN**: 85.4% accuracy, single-model simplicity
+
+![Vehicle Classification](CA2_CNN_Applications/Vehicle_Classification/code/notebook_images/image_cell029_output001.png)
+
+_Vehicle classification results demonstrating multi-class recognition_
 
 **📊 Notebook Images**: 21 visualizations extracted
 
@@ -162,6 +174,10 @@ This project implements Fast-SCNN, a lightweight CNN architecture designed for r
 - **Inference Speed**: 30+ FPS on mobile GPUs
 - **Memory Efficiency**: 50MB model size suitable for edge deployment
 
+![Semantic Segmentation](CA3_Object_Detection/Fast_SCNN/images/image_cell020_output000.png)
+
+_Real-time semantic segmentation results on urban scenes_
+
 **📊 Notebook Images**: 28 visualizations extracted
 
 - Segmentation masks
@@ -196,6 +212,10 @@ This assignment implements Oriented R-CNN for detecting objects with arbitrary o
 - **Detection Accuracy**: Superior performance on oriented objects vs. axis-aligned methods
 - **Geometric Precision**: Accurate localization of rotated objects
 - **Robustness**: Handles various orientations and aspect ratios
+
+![Oriented Object Detection](CA3_Object_Detection/Oriented_RCNN/code/notebook_images/image_cell021_output000.png)
+
+_Oriented bounding boxes demonstrating rotation-aware object detection_
 
 **📊 Notebook Images**: 2 visualizations extracted
 
@@ -235,6 +255,10 @@ This project implements an encoder-decoder architecture using ResNet50 for featu
 - **Optimal Configuration**: Embedding size 150-300 provides best trade-off
 - **Beam Search**: Consistently outperforms greedy decoding
 
+![Image Captioning Results](CA4_Sequence_Modeling/Image_Captioning/code/notebook_images/image_cell015_output001.png)
+
+_Example generated captions using encoder-decoder architecture_
+
 **📊 Notebook Images**: 18 visualizations extracted
 
 - Sample caption generations
@@ -269,6 +293,10 @@ This assignment implements RNN-based models for time series prediction with unce
 - **R² Score**: 0.85 on test data
 - **Uncertainty Calibration**: Well-calibrated prediction intervals
 - **Robustness**: Handles missing data and outliers effectively
+
+![Time Series Prediction](CA4_Sequence_Modeling/Time_Series_Prediction/images/image_cell008_output000.png)
+
+_Time series forecasting with uncertainty quantification using Monte Carlo dropout_
 
 **📊 Notebook Images**: 20 visualizations extracted
 
@@ -310,6 +338,10 @@ This project implements Vision Transformer (ViT) from scratch and compares its p
 - **Attention Patterns**: Global receptive field captures long-range dependencies
 - **Data Efficiency**: Benefits from larger datasets more than CNNs
 
+![Vision Transformer](CA5_Vision_Transformers/VIT_Classification/images/image_cell015_output000.png)
+
+_Attention heatmaps showing how ViT focuses on different image regions_
+
 **📊 Notebook Images**: 13 visualizations extracted
 
 - Attention heatmaps
@@ -345,6 +377,10 @@ This assignment explores adversarial vulnerabilities in CLIP (Contrastive Langua
 - **Adversarial Drop**: 20.1% accuracy loss under attack
 - **Defense Improvement**: TeCoA achieves 62.1% robust accuracy
 - **Parameter Efficiency**: LoRA uses only 0.8M trainable parameters
+
+![CLIP Adversarial Attack](CA5_Vision_Transformers/CLIP_Adversarial_Attack/images/image_cell020_output000.png)
+
+_Adversarial examples and defense mechanisms for multimodal CLIP model_
 
 **📊 Notebook Images**: 14 visualizations extracted
 
@@ -386,6 +422,10 @@ This project implements CycleGAN for domain adaptation, enabling models trained 
 - **Generated Quality**: FID score of 38.7 indicates realistic samples
 - **Feature Alignment**: t-SNE visualization shows domain-invariant representations
 
+![Domain Adaptation GAN](CA6_Generative_Models/Unsupervised_Domain_Adaptation_GAN/images/image_cell015_output000.png)
+
+_CycleGAN domain transfer results showing style translation between domains_
+
 **📊 Notebook Images**: 28 visualizations extracted
 
 - Domain transfer examples
@@ -421,6 +461,10 @@ This assignment implements VAE for generative modeling and demonstrates its appl
 - **Anomaly Detection**: AUC 0.90, superior to reconstruction-based methods
 - **Latent Space**: Well-structured manifold for interpolation
 - **Medical Utility**: Reliable polyp detection with low false positive rate
+
+![VAE Reconstruction](CA6_Generative_Models/VAE/images/image_cell015_output000.png)
+
+_Variational Autoencoder reconstruction and latent space visualization_
 
 **📊 Notebook Images**: 8 visualizations extracted
 
@@ -462,6 +506,10 @@ This extra assignment provides a comprehensive comparison of adversarial vulnera
 - **Attack Transferability**: High transfer rate between architectures
 - **Computational Trade-offs**: ViT requires more compute but offers better robustness
 
+![CNN vs ViT Adversarial](CA7_Advanced_Topics/CNN_VIT_Adversarial_Attack/images/image_cell015_output000.png)
+
+_Comparative analysis of adversarial robustness between CNNs and Vision Transformers_
+
 **📊 Notebook Images**: 34 visualizations extracted
 
 - Adversarial examples comparison
@@ -496,6 +544,14 @@ This advanced project extends image captioning to Persian language, addressing t
 - **BLEU-4 Score**: 0.195 (competitive for low-resource language)
 - **Persian Fluency**: Natural Persian sentence generation
 - **Cultural Relevance**: Captions reflect Persian linguistic and cultural context
+
+![Persian Image Captioning](CA7_Advanced_Topics/Image_Captioning/images/image_cell19_output0.png)
+
+_Sample Persian captions generated with attention mechanisms_
+
+![Persian Caption Attention](CA7_Advanced_Topics/Image_Captioning/images/image_cell54_output0.png)
+
+_Attention visualization showing focus regions for Persian caption generation_
 
 **📊 Notebook Images**: 89 visualizations extracted (largest collection!)
 

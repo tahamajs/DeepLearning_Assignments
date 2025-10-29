@@ -25,19 +25,39 @@ The repository is organized into 7 main assignment folders with descriptive name
 
 **Fundamental Neural Network Concepts**
 
-This assignment covers essential neural network principles including architecture, forward/backward propagation, activation functions, and optimization algorithms.
+This assignment covers essential neural network principles including architecture, forward/backward propagation, activation functions, and optimization algorithms. The implementation provides hands-on experience with mathematical foundations of neural networks, from basic building blocks to complete training pipelines.
 
-**Contents:**
+**Key Features:**
 
-- Custom neural network implementation from scratch
-- Comparison with deep learning frameworks
-- Hyperparameter analysis and convergence studies
+- **Neural Network Architecture**: Understanding neurons, layers, and network topology
+- **Activation Functions**: Implementation and comparison of Sigmoid, ReLU, Tanh
+- **Loss Functions**: Mean Squared Error (MSE) and Cross-Entropy implementations
+- **Optimization Algorithms**: Gradient Descent, Stochastic Gradient Descent (SGD)
+- **Weight Initialization**: Proper initialization techniques for stable training
+- **Learning Rate Scheduling**: Adaptive learning rate methods
 
-**Key Results:**
+**Technical Implementation:**
 
-- Demonstrated understanding of gradient descent and backpropagation
-- Analysis of activation functions and their impact on learning
-- Performance evaluation on benchmark datasets
+- **Custom Implementation**: Neural network from scratch using NumPy
+- **Forward Propagation**: Computing network outputs through layers
+- **Backpropagation**: Computing gradients for parameter updates
+- **Framework Comparison**: Validation against PyTorch/TensorFlow implementations
+
+**Results and Analysis:**
+
+- **Convergence Analysis**: Learning curves and optimization behavior visualization
+- **Hyperparameter Impact**: Effect of learning rate, batch size, and network architecture
+- **Generalization**: Training vs. validation performance analysis
+- **Computational Efficiency**: Time and memory complexity evaluation
+
+**Educational Value:**
+
+- Mathematical foundations of neural networks
+- Implementation challenges and best practices
+- Debugging and troubleshooting techniques
+- Performance optimization strategies
+
+See [detailed README](CA1_Neural_Networks_Basics/README.md) for complete documentation.
 
 ### CA2: CNN Applications
 
@@ -45,55 +65,115 @@ This assignment covers essential neural network principles including architectur
 
 **Medical Image Classification with Deep CNNs**
 
-This project implements a comprehensive COVID-19 detection system using chest X-ray images. The implementation explores multiple CNN architectures and transfer learning approaches to address the critical challenge of automated COVID-19 diagnosis.
+This project implements a comprehensive COVID-19 detection system using chest X-ray images. The implementation explores multiple CNN architectures and transfer learning approaches to address the critical challenge of automated COVID-19 diagnosis. The system classifies chest X-ray images into three categories: Normal, Pneumonia, and COVID-19.
 
 **Key Features:**
 
-- **Custom CNN Architecture**: 6 convolutional blocks with batch normalization and dropout for robust feature extraction
-- **Transfer Learning**: Fine-tuning of VGG16 and MobileNetV2 pretrained on ImageNet
-- **Data Augmentation**: Extensive augmentation pipeline including rotation, flipping, scaling, and brightness adjustments
-- **Medical Imaging Pipeline**: Proper preprocessing for chest X-ray images with intensity normalization
+- **Custom CNN Architecture**: 
+  - 6 convolutional blocks with increasing filters (64→128→256→512)
+  - Batch normalization for stable training
+  - Dropout (0.2-0.5) for regularization
+  - Input: 150×150×3 RGB images
+  - Architecture: Conv blocks → Global Average Pooling → Dense(512) → Dense(256) → Dense(3) with Softmax
+- **Transfer Learning**: 
+  - **VGG16**: Pre-trained on ImageNet, fine-tuned on medical data
+  - **MobileNetV2**: Lightweight architecture optimized for mobile deployment
+  - Fine-tuning strategy: Freeze early layers, train later layers
+- **Data Augmentation**: 
+  - Geometric transformations: Rotation, width/height shift, shear, zoom
+  - Color adjustments: Brightness and contrast modifications
+  - Horizontal flipping for augmentation
+- **Medical Imaging Pipeline**: 
+  - Proper preprocessing for chest X-ray images
+  - Intensity normalization (0-1 range)
+  - Resize to 150×150 pixels
 
 **Technical Details:**
 
-- **Architecture**: Conv blocks (64→128→256→512 channels) + Global Average Pooling + Dense layers
-- **Loss Function**: Binary cross-entropy with class weights for imbalanced data
-- **Optimization**: Adam optimizer with learning rate scheduling
-- **Regularization**: Dropout (0.5) and L2 weight decay (1e-4)
+- **Loss Function**: Categorical cross-entropy with class weights for handling imbalanced data
+- **Optimization**: 
+  - Adam optimizer (β1=0.9, β2=0.999)
+  - Learning rate scheduling (constant and exponential decay)
+- **Regularization**: 
+  - Dropout: 0.2-0.5 depending on layer
+  - L2 weight decay: 1e-4
+- **Training Strategy**: 
+  - Early stopping to prevent overfitting
+  - Model checkpointing for best performance
+  - Validation monitoring
 
 **Results & Analysis:**
 
-- **VGG16 Fine-tuned**: 92.1% accuracy, 0.91 AUC-ROC
-- **MobileNetV2**: 89.3% accuracy, 0.88 AUC-ROC
-- **Custom CNN**: 87.6% accuracy, 0.86 AUC-ROC
-- **Clinical Relevance**: Demonstrates practical applicability in medical diagnosis
+- **VGG16 Fine-tuned**: 92.1% accuracy, 0.91 AUC-ROC, 0.89 F1-score
+- **MobileNetV2**: 89.3% accuracy, 0.88 AUC-ROC, 0.86 F1-score
+- **Custom CNN**: 87.6% accuracy, 0.86 AUC-ROC, 0.84 F1-score
+- **Clinical Relevance**: 
+  - Demonstrates practical applicability in medical diagnosis
+  - High sensitivity for COVID-19 detection
+  - Robust performance on diverse chest X-ray images
+- **Key Insights**: 
+  - Transfer learning significantly improves performance
+  - VGG16 provides best accuracy but MobileNetV2 offers better efficiency
+  - Custom CNN achieves competitive results with architectural simplicity
+
+See [detailed README](CA2_CNN_Applications/Covid_Detection/README.md) for complete results and visualizations.
 
 #### Vehicle_Classification
 
 **Multi-Class Vehicle Classification System**
 
-This assignment implements a robust vehicle classification system exploring both end-to-end CNN training and traditional machine learning approaches on CNN-extracted features.
+This assignment implements a robust vehicle classification system exploring both end-to-end CNN training and traditional machine learning approaches on CNN-extracted features. The project classifies vehicle images into specific categories (e.g., different Toyota models like Corolla, Camry, Rav4, etc.) and compares deep learning approaches with classical machine learning methods.
 
 **Key Features:**
 
-- **Dual Approach**: Pure CNN classification vs. CNN feature extraction + SVM
-- **Architecture Comparison**: Custom CNN vs. VGG16 vs. AlexNet backbones
-- **Feature Engineering**: Comprehensive feature extraction from multiple CNN layers
-- **Ensemble Methods**: Combining multiple classifiers for improved performance
+- **Dual Approach**: 
+  - Pure CNN classification (end-to-end learning)
+  - CNN feature extraction + SVM (hybrid approach)
+- **Architecture Comparison**: 
+  - **Custom CNN (ToyotaModelCNN)**: Multiple convolutional blocks with increasing filters (32→64→128→256)
+  - **VGG16**: 16-layer network with strong feature extraction
+  - **AlexNet**: 8-layer network, winner of ImageNet 2012
+- **Feature Engineering**: 
+  - Feature extraction from conv5 layer (512×7×7 → 25,088 features)
+  - Multiple CNN layers analyzed for optimal feature representation
+- **Data Augmentation**: 
+  - Geometric transformations: Rotation, translation, scaling, flipping
+  - Color transformations: Brightness, contrast, saturation adjustments
+  - Noise injection for robustness
 
 **Technical Details:**
 
-- **CNN Feature Extraction**: Features from conv5 layer (512×7×7 → 25088 features)
-- **SVM Classification**: RBF kernel with grid search hyperparameter optimization
-- **Data Pipeline**: Vehicle dataset preprocessing with normalization and augmentation
-- **Evaluation**: 5-fold cross-validation with detailed per-class metrics
+- **CNN Architecture**: 
+  - Convolutional blocks with batch normalization
+  - Max pooling after each block
+  - Dropout for regularization
+  - Fully connected layers for classification
+- **SVM Classification**: 
+  - RBF kernel with grid search hyperparameter optimization
+  - Support for linear, RBF, and polynomial kernels
+  - Hyperparameter tuning: C, gamma parameters
+- **Fine-tuning Strategy**: 
+  - Freeze early layers (preserve general features)
+  - Fine-tune later layers for vehicle-specific features
+  - Replace final classification layer
+- **Evaluation**: 
+  - 5-fold cross-validation
+  - Detailed per-class metrics (precision, recall, F1-score)
+  - Confusion matrix analysis
 
 **Results & Analysis:**
 
-- **VGG16 + SVM**: 89.2% accuracy, superior generalization
-- **AlexNet + SVM**: 87.1% accuracy, faster inference
+- **VGG16 + SVM**: 89.2% accuracy, superior generalization, best overall performance
+- **AlexNet + SVM**: 87.1% accuracy, faster inference, good balance
 - **End-to-end CNN**: 85.4% accuracy, single-model simplicity
-- **Key Insight**: Feature extraction approach provides better generalization than end-to-end training
+- **Custom CNN**: Competitive performance with architectural flexibility
+- **Key Insights**: 
+  - Feature extraction approach provides better generalization than end-to-end training
+  - SVM on CNN features often outperforms pure CNN classifiers
+  - Transfer learning significantly boosts performance
+  - VGG16 features are most discriminative for vehicle classification
+
+See [detailed README](CA2_CNN_Applications/Vehicle_Classification/README.md) for complete results and visualizations.
 
 ### CA3: Object Detection
 
@@ -101,55 +181,127 @@ This assignment implements a robust vehicle classification system exploring both
 
 **Real-Time Semantic Segmentation with Efficient CNNs**
 
-This project implements Fast-SCNN, a lightweight CNN architecture designed for real-time semantic segmentation on mobile and embedded devices.
+This project implements Fast-SCNN (Fast Semantic Segmentation Convolutional Neural Network), a lightweight CNN architecture designed for real-time semantic segmentation on mobile and embedded devices. Fast-SCNN balances speed and accuracy for applications requiring pixel-level scene understanding.
 
 **Key Features:**
 
-- **Efficient Architecture**: Depthwise separable convolutions for computational efficiency
-- **Multi-Scale Processing**: Pyramid pooling module for global context
-- **Real-Time Performance**: Optimized for mobile deployment
-- **Urban Scene Understanding**: Segmentation of roads, buildings, vehicles, pedestrians
+- **Efficient Architecture**: 
+  - Depthwise separable convolutions reduce parameters by ~9×
+  - Total parameters: ~1.2M (vs. ~50M for DeepLabV3+)
+  - Optimized for mobile and embedded devices
+- **Multi-Scale Processing**: 
+  - **Learning to Downsample Module**: Initial downsampling with standard and depthwise separable convolutions
+  - **Pyramid Pooling Module (PPM)**: Multi-scale context at 1×1, 2×2, 3×3, 6×6 scales
+  - **Global Feature Extractor**: Bottleneck blocks inspired by MobileNetV2
+- **Real-Time Performance**: 
+  - ~120 FPS inference speed on mobile GPUs
+  - 50MB model size suitable for edge deployment
+- **Urban Scene Understanding**: 
+  - Segmentation of 11 semantic classes: Sky, Building, Pole, Road, Pavement, Tree, SignSymbol, Fence, Car, Pedestrian, Bicyclist
+  - CamVid dataset: 367 training, 101 validation, 233 test images (360×480 resolution)
 
 **Technical Details:**
 
-- **Learning to Downsample**: Initial downsampling module with skip connections
-- **Global Feature Extractor**: Pyramid pooling with multiple kernel sizes (1×1, 2×2, 3×3, 6×6)
-- **Feature Fusion**: Concatenation of multi-scale features with channel attention
-- **Loss Function**: Cross-entropy with class balancing for imbalanced segmentation
+- **Architecture Components**:
+  1. **Learning to Downsample**: Standard conv + DSConv for initial feature extraction
+  2. **Global Feature Extractor**: 
+     - Expansion (1×1 conv): 32→96 channels
+     - Depthwise (3×3): Efficient convolution
+     - Projection (1×1 conv): 96→16 channels
+     - Residual connections when input/output channels match
+  3. **Feature Fusion Module**: Combines high-res (1/8) and low-res (1/32) features with dilated depthwise conv
+  4. **Classifier**: DSConv layers + final Conv2D(num_classes) with Dropout(0.3) and Softmax
+- **Loss Functions**: 
+  - Cross-entropy loss: `L_CE = -∑_c y_c log(ŷ_c)`
+  - IoU loss: `L_IoU = 1 - IoU_score`
+  - Dice loss: `L_Dice = 1 - (2∑ y_i ŷ_i + ε) / (∑ y_i + ∑ ŷ_i + ε)`
+- **Optimization**: 
+  - Adam optimizer (β1=0.9, β2=0.999)
+  - Polynomial learning rate decay: `lr = initial_lr × (1 - step/max_steps)^power`
+  - Batch size: 16
+  - Learning rate: 0.045 (decays to 0)
 
 **Results & Analysis:**
 
-- **IoU Score**: 0.62 average across all classes
-- **Model Size**: 1.2M parameters (vs. 50M+ for standard segmentation models)
-- **Inference Speed**: 30+ FPS on mobile GPUs
-- **Memory Efficiency**: 50MB model size suitable for edge deployment
+- **Mean IoU (mIoU)**: 0.62 average across all classes
+- **Pixel Accuracy**: 91.3% overall pixel classification accuracy
+- **Model Efficiency**: 
+  - 1.2M parameters (91% reduction vs. standard models)
+  - 50MB model size
+  - ~120 FPS on mobile GPUs
+- **Per-Class Performance**: 
+  - High performance on large objects (Sky, Building, Road)
+  - Challenges with small objects (Pole, Bicyclist)
+- **Key Insights**: 
+  - Depthwise separable convolutions enable real-time performance
+  - Multi-scale features crucial for accurate segmentation
+  - Balance between accuracy and efficiency achieved
+
+See [detailed README](CA3_Object_Detection/Fast_SCNN/README.md) for complete results and visualizations.
 
 #### Oriented_RCNN
 
 **Arbitrary-Oriented Object Detection**
 
-This assignment implements Oriented R-CNN for detecting objects with arbitrary orientations, crucial for applications like aerial imagery analysis and document layout detection.
+This assignment implements Oriented R-CNN for detecting objects with arbitrary orientations, crucial for applications like aerial imagery analysis and document layout detection. The system extends Faster R-CNN to handle rotated bounding boxes throughout the entire detection pipeline.
 
 **Key Features:**
 
-- **Oriented Anchors**: 5-parameter anchor representation (x, y, w, h, θ)
-- **Rotated ROI Align**: Rotation-aware feature extraction
-- **Geometric Transformations**: Proper handling of oriented bounding boxes
-- **IoU Computation**: Specialized intersection-over-union for rotated rectangles
+- **Oriented Bounding Box Representation**: 
+  - **5-parameter format**: (x_c, y_c, w, h, θ) where θ is rotation angle
+  - **8-parameter format**: Four corner coordinates (x1,y1, x2,y2, x3,y3, x4,y4)
+  - Conversion between representations using rotation matrices
+- **Oriented Anchors**: 
+  - Pre-defined oriented boxes at multiple positions
+  - Scales: [32, 64, 128, 256, 512]
+  - Aspect ratios: [0.5, 1, 2]
+  - Angles: [-90°, -45°, 0°, 45°, 90°] (5 orientations)
+- **Rotated ROI Align**: 
+  - Handles rotated regions using spatial transformer
+  - Bilinear sampling with rotation compensation
+  - Output: 7×7×256 features for each proposal
+- **Geometric Transformations**: 
+  - Proper handling of oriented bounding boxes
+  - Rotation-aware feature extraction
+  - Specialized IoU computation for rotated rectangles
 
 **Technical Details:**
 
-- **Region Proposal Network (RPN)**: Oriented anchor generation and classification
-- **Rotated RoI Align**: Bilinear sampling with rotation compensation
-- **Bounding Box Regression**: 5-parameter regression (dx, dy, dw, dh, dθ)
-- **Orientation Encoding**: Angle representation and normalization
+- **Backbone Network**: 
+  - **ResNet-50**: Deep residual network for feature extraction
+  - **Feature Pyramid Network (FPN)**: Multi-scale feature maps (P2-P6)
+  - Lateral connections and top-down pathway for multi-scale detection
+- **Region Proposal Network (RPN)**: 
+  - **Oriented Anchor Generation**: Places anchors at each spatial position
+  - **Classification Head**: Binary classification (object vs. background)
+  - **Regression Head**: 5-parameter refinement (Δx, Δy, Δw, Δh, Δθ)
+  - Regression targets: Normalized relative to anchor boxes
+- **RCNN Head**: 
+  - Fully connected layers: 1024 → 1024 neurons
+  - Classification branch: Object class probabilities
+  - Regression branch: Oriented bounding box refinements
+- **Loss Functions**: 
+  - **RPN Classification**: Binary cross-entropy `L_cls = -∑ (y log ŷ + (1-y) log(1-ŷ))`
+  - **RPN Regression**: Smooth L1 loss for oriented boxes
+  - **RCNN Loss**: Combined classification and regression losses
 
 **Results & Analysis:**
 
 - **Detection Accuracy**: Superior performance on oriented objects vs. axis-aligned methods
 - **Geometric Precision**: Accurate localization of rotated objects
 - **Robustness**: Handles various orientations and aspect ratios
-- **Application**: Ship detection in satellite imagery, text detection in documents
+- **Application Areas**: 
+  - Ship detection in satellite imagery
+  - Text detection in documents
+  - Vehicle detection in aerial photography
+  - Medical image analysis
+- **Key Insights**: 
+  - 5-parameter representation more efficient than 8-parameter
+  - Oriented anchors crucial for good initialization
+  - Rotated ROI Align essential for accurate feature extraction
+  - Significant improvement over axis-aligned detection for rotated objects
+
+See [detailed README](CA3_Object_Detection/Oriented_RCNN/README.md) for complete results and visualizations.
 
 ### CA4: Sequence Modeling
 

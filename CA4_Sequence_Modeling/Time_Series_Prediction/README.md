@@ -317,79 +317,91 @@ The validation set evaluation provides unbiased assessment of model generalizati
 
 ## 📸 Visualizations
 
-The following visualizations are extracted from the notebook and demonstrate key results:
+The following visualizations are extracted from the notebook and demonstrate key results from the analysis. All images are located in the `images/` directory.
 
 ### Data Analysis Visualizations
 
+#### Feature Correlation Analysis
+
 ![Feature Correlation Heatmap](images/plot_28_1.png)
-*Feature correlation heatmap after initial correlation-based elimination*
+**Cell 28:** Feature correlation heatmap after initial correlation-based elimination. This visualization shows the inter-feature correlations after removing highly correlated pairs (threshold: 0.3). Features with higher correlation to the target variable (HR) are retained.
 
 ![Final Feature Correlation](images/plot_30_2.png)
-*Final feature correlation heatmap with 20 selected features*
+**Cell 30:** Final feature correlation heatmap with 20 selected features. After maximum correlation filtering, this shows the final feature set with minimized multicollinearity. The selected features balance predictive power, independence, and clinical relevance.
 
-### Stationarity and Autocorrelation Analysis
+### Statistical Analysis Visualizations
+
+#### Stationarity Analysis
 
 ![Heart Rate Time Series](images/plot_36_3.png)
-*Original and differentiated heart rate time series for patient 9*
+**Cell 36:** Heart rate time series analysis for a representative patient (Patient 9). Left panel shows the original non-stationary series, while the right panel shows the first-differenced series which is stationary (p-value < 0.05). This demonstrates the I(1) process nature of the data.
 
 ![ACF and PACF Plots](images/plot_37_4.png)
-*Autocorrelation Function (ACF) and Partial Autocorrelation Function (PACF) for determining ARIMA model orders*
+**Cell 37:** Autocorrelation Function (ACF) and Partial Autocorrelation Function (PACF) plots. These are used to determine ARIMA model orders:
+- **ACF (left):** Helps identify Moving Average (MA) order (q) - shows gradual decay indicating autoregressive behavior
+- **PACF (right):** Helps identify Autoregressive (AR) order (p) - shows direct relationships between time steps
 
 ### SARIMAX Model Forecasts
 
+The following plots compare SARIMAX statistical models at different complexity levels:
+
 ![SARIMAX(2,1,2) Forecast](images/plot_39_5.png)
-*SARIMAX(2,1,2) model forecast vs true heart rate values*
+**Cell 39:** SARIMAX(2,1,2) baseline model forecast comparison. This basic statistical model achieves R² ≈ 0.65. The plot shows predicted vs true heart rate values on the validation set. Demonstrates the performance ceiling of simple linear time series models.
 
 ![SARIMAX(14,1,12) Forecast](images/plot_42_6.png)
-*SARIMAX(14,1,12) model forecast vs true heart rate values*
+**Cell 42:** SARIMAX(14,1,12) complex model forecast. With higher AR and MA orders, this model captures more temporal patterns but achieves only slight improvement (R² ≈ 0.67). Shows the limitations of increasing statistical model complexity.
 
 ![SARIMAX(14,1,24) Forecast](images/plot_46_7.png)
-*SARIMAX(14,1,24) model forecast vs true heart rate values*
+**Cell 46:** SARIMAX(14,1,24) very complex model forecast. Maximum complexity statistical model (R² ≈ 0.69) demonstrating diminishing returns. The model shows potential overfitting and convergence issues, highlighting the limitations of linear approaches.
 
 ### Training Curves
 
+The following training curves show the learning dynamics of each model:
+
 ![Markov Model Loss](images/plot_71_8.png)
-*Training and validation loss curves for Markov Chain model*
+**Cell 71:** Training and validation loss curves for Markov Chain baseline model. Shows fast convergence (21 epochs with early stopping). The model reaches its performance plateau quickly, establishing the baseline performance level.
 
 ![GRU Model Loss](images/plot_72_9.png)
-*Training and validation loss curves for Unidirectional GRU model*
+**Cell 72:** Training and validation loss curves for Unidirectional GRU model. Demonstrates fast convergence (9 epochs) with stable training dynamics. Shows the efficiency of GRU architecture for time series prediction.
 
 ![LSTM Model Loss](images/plot_73_10.png)
-*Training and validation loss curves for Unidirectional LSTM model*
+**Cell 73:** Training and validation loss curves for Unidirectional LSTM model. Slightly slower convergence (11 epochs) but achieves better final performance than GRU. Demonstrates the trade-off between complexity and performance.
 
 ![Bidirectional GRU Loss](images/plot_74_11.png)
-*Training and validation loss curves for Bidirectional GRU model*
+**Cell 74:** Training and validation loss curves for Bidirectional GRU model. Shows longer training time (19 epochs) but benefits from forward and backward context. The model achieves excellent performance (R² = 0.83).
 
 ![Bidirectional LSTM Loss](images/plot_75_12.png)
-*Training and validation loss curves for Bidirectional LSTM model*
+**Cell 75:** Training and validation loss curves for Bidirectional LSTM model - the best performing architecture. Training converges in 15 epochs with R² = 0.87. The plot shows stable convergence and minimal overfitting, demonstrating optimal model training.
 
 ### Multi-Step Forecasting Comparisons
 
+These visualizations demonstrate model performance on multi-step (autoregressive) forecasting:
+
 ![Multi-Step Forecast Comparison](images/plot_83_13.png)
-*Comparison of all models for multi-step heart rate forecasting*
+**Cell 83:** Comprehensive multi-step forecasting comparison showing all models (RNN variants, Markov, and SARIMAX) predicting future heart rate values. Demonstrates error accumulation over time steps and relative model performance. Bidirectional LSTM maintains best accuracy in multi-step predictions.
 
 ![Detailed Forecast View 1](images/plot_84_14.png)
-*Detailed view of multi-step forecasts showing model performance*
+**Cell 84:** Detailed view of multi-step forecasts showing how different models track true heart rate values over extended time periods. Shows the superior tracking capability of bidirectional LSTM and GRU models.
 
 ![Detailed Forecast View 2](images/plot_85_15.png)
-*Another detailed view of forecasting performance across models*
+**Cell 85:** Extended forecast comparison demonstrating long-term prediction accuracy. Illustrates how prediction errors accumulate over multiple time steps and how bidirectional models maintain better accuracy in long-horizon forecasting.
 
 ![Detailed Forecast View 3](images/plot_86_16.png)
-*Extended forecast comparison demonstrating long-term prediction accuracy*
+**Cell 86:** Comprehensive forecast visualization across all model architectures. Provides side-by-side comparison of forecasting accuracy, showing the consistent superiority of deep learning approaches over statistical methods.
 
-### Model Performance Visualizations
+### Final Results and Model Comparisons
 
 ![Final Comparison](images/plot_92_17.png)
-*Final comprehensive comparison of all models including SARIMAX baselines*
+**Cell 92:** Final comprehensive comparison of all models including SARIMAX statistical baselines. This visualization summarizes the complete experimental results, showing the performance hierarchy from baseline Markov models through statistical methods to advanced bidirectional RNN architectures.
 
 ![Performance Analysis](images/plot_93_18.png)
-*Performance analysis visualization showing relative model effectiveness*
+**Cell 93:** Performance analysis visualization showing relative model effectiveness. Demonstrates the clear advantage of bidirectional processing and the performance gains of deep learning over traditional statistical methods.
 
 ![Results Summary](images/plot_94_19.png)
-*Summary visualization of key results and metrics*
+**Cell 94:** Results summary visualization with key metrics and model rankings. Provides a clear overview of all evaluation metrics (R², RMSE, MAE) across models, facilitating easy comparison and model selection.
 
 ![Final Results](images/plot_95_20.png)
-*Final results visualization with all model comparisons*
+**Cell 95:** Final comprehensive results visualization with all model comparisons. The culmination of the analysis, clearly showing that Bidirectional LSTM achieves the best performance (R² = 0.87) and demonstrating the 12-15% improvement over statistical baselines.
 
 ---
 

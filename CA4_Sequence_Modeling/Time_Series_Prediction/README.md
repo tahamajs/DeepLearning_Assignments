@@ -58,24 +58,24 @@ This comprehensive study presents a detailed comparison of time series predictio
 
 ### Performance Summary
 
-| Model | R² Score | RMSE | MAE | Status |
-|-------|----------|------|-----|--------|
-| **Bidirectional LSTM** | **0.87** | **0.042** | **0.021** | 🥇 Best |
-| Bidirectional GRU | 0.83 | 0.048 | 0.022 | 🥈 Excellent |
-| Unidirectional LSTM | 0.82 | 0.049 | 0.023 | 🥉 Good |
-| Unidirectional GRU | 0.80 | 0.051 | 0.024 | ✓ Acceptable |
-| Markov Chain (Baseline) | 0.74 | 0.064 | 0.026 | Baseline |
+| Model                   | R² Score | RMSE      | MAE       | Status       |
+| ----------------------- | -------- | --------- | --------- | ------------ |
+| **Bidirectional LSTM**  | **0.87** | **0.042** | **0.021** | 🥇 Best      |
+| Bidirectional GRU       | 0.83     | 0.048     | 0.022     | 🥈 Excellent |
+| Unidirectional LSTM     | 0.82     | 0.049     | 0.023     | 🥉 Good      |
+| Unidirectional GRU      | 0.80     | 0.051     | 0.024     | ✓ Acceptable |
+| Markov Chain (Baseline) | 0.74     | 0.064     | 0.026     | Baseline     |
 
 ### Multi-Step Forecasting Results
 
-| Model | R² Score | RMSE (BPM) | MAE (BPM) | Status |
-|-------|----------|------------|-----------|--------|
-| **Bidirectional LSTM** | **0.82** | **4.1** | **3.2** | 🥇 Best |
-| Bidirectional GRU | 0.82 | 4.3 | 3.4 | 🥈 Excellent |
-| Unidirectional LSTM | 0.80 | 4.6 | 3.7 | 🥉 Good |
-| Unidirectional GRU | 0.78 | 4.8 | 3.9 | ✓ Acceptable |
-| Markov Chain | 0.72 | 5.1 | 4.2 | Baseline |
-| SARIMAX (14,1,24) | 0.69 | 5.5 | 4.8 | Statistical |
+| Model                  | R² Score | RMSE (BPM) | MAE (BPM) | Status       |
+| ---------------------- | -------- | ---------- | --------- | ------------ |
+| **Bidirectional LSTM** | **0.82** | **4.1**    | **3.2**   | 🥇 Best      |
+| Bidirectional GRU      | 0.82     | 4.3        | 3.4       | 🥈 Excellent |
+| Unidirectional LSTM    | 0.80     | 4.6        | 3.7       | 🥉 Good      |
+| Unidirectional GRU     | 0.78     | 4.8        | 3.9       | ✓ Acceptable |
+| Markov Chain           | 0.72     | 5.1        | 4.2       | Baseline     |
+| SARIMAX (14,1,24)      | 0.69     | 5.5        | 4.8       | Statistical  |
 
 ### Key Findings
 
@@ -112,11 +112,13 @@ This comprehensive study presents a detailed comparison of time series predictio
 ### Data Preprocessing
 
 1. **Feature Selection:**
+
    - Correlation-based elimination (threshold: 0.3)
    - Maximum correlation filtering
    - Final feature set: 20 features (including HR and Patient_ID)
 
 2. **Normalization:**
+
    - MinMax scaling to [0, 1] range
    - Separate scalers for input features and target variable
    - Preserves relative relationships between features
@@ -141,11 +143,13 @@ This comprehensive study presents a detailed comparison of time series predictio
 ### 1. Markov Chain Predictor (Baseline)
 
 **Architecture:**
+
 - Input: Flattened 2D temporal sequences
 - Hidden Layer: Linear transformation with BatchNorm and Dropout
 - Output: Single value prediction with Sigmoid activation
 
 **Parameters:**
+
 - Window size: 2
 - Transition size: 128
 - Dropout: 0.5
@@ -153,11 +157,13 @@ This comprehensive study presents a detailed comparison of time series predictio
 ### 2. Recurrent Neural Network (Base Architecture)
 
 **Shared Architecture for RNN/LSTM/GRU:**
+
 ```python
 Recurrent Layer → Linear → BatchNorm → Dropout → Output Layer
 ```
 
 **Key Components:**
+
 - Hidden state size: 512 units
 - Fully connected size: 128 units
 - Batch normalization for stable training
@@ -166,29 +172,34 @@ Recurrent Layer → Linear → BatchNorm → Dropout → Output Layer
 ### 3. LSTM Networks
 
 **Architecture:**
+
 - Long Short-Term Memory cells with gating mechanisms
 - **Forget Gate:** Discards irrelevant information
 - **Input Gate:** Stores new information
 - **Output Gate:** Controls hidden state output
 
 **Variants:**
+
 - Unidirectional LSTM: 1,093,632 parameters
 - Bidirectional LSTM: ~2,187,264 parameters
 
 ### 4. GRU Networks
 
 **Architecture:**
+
 - Gated Recurrent Units with simplified gating
 - **Reset Gate:** Controls past information forgetting
 - **Update Gate:** Balances past and new information
 
 **Variants:**
+
 - Unidirectional GRU: 886,273 parameters
 - Bidirectional GRU: ~1,772,546 parameters
 
 ### 5. Bidirectional Processing
 
 **Mechanism:**
+
 - Forward processing: Sequence from t=1 to T
 - Backward processing: Sequence from t=T to 1
 - Output combination: Concatenated forward and backward hidden states
@@ -211,11 +222,13 @@ Recurrent Layer → Linear → BatchNorm → Dropout → Output Layer
 ### Training Process
 
 1. **Epoch-Based Training:**
+
    - Separate training and validation phases
    - Model mode switching (train/eval)
    - Gradient management and backpropagation
 
 2. **Early Stopping:**
+
    - Monitors validation loss
    - Stops training when no improvement for 3 epochs
    - Loads best model checkpoint
@@ -227,18 +240,22 @@ Recurrent Layer → Linear → BatchNorm → Dropout → Output Layer
 ### Evaluation Metrics
 
 1. **RMSE (Root Mean Square Error):**
+
    - Emphasizes large errors
    - Clinically interpretable (BPM units)
 
 2. **MAE (Mean Absolute Error):**
+
    - Robust to outliers
    - Average deviation from true value
 
 3. **R² Score:**
+
    - Proportion of variance explained
    - Standard metric for model comparison
 
 4. **Explained Variance Score:**
+
    - Complements R² for variance analysis
 
 5. **Cosine Distance:**
@@ -248,16 +265,19 @@ Recurrent Layer → Linear → BatchNorm → Dropout → Output Layer
 ### Statistical Analysis
 
 **SARIMAX Models (Baseline):**
+
 - **SARIMAX(2,1,2):** Basic model (R² = 0.65)
 - **SARIMAX(14,1,12):** Complex model (R² = 0.67)
 - **SARIMAX(14,1,24):** Very complex model (R² = 0.69)
 
 **Stationarity Testing:**
+
 - Augmented Dickey-Fuller (ADF) test
 - Original series: Non-stationary (p = 0.355)
 - First difference: Stationary (p = 2.90e-23)
 
 **Autocorrelation Analysis:**
+
 - ACF for determining MA order (q)
 - PACF for determining AR order (p)
 
@@ -272,6 +292,7 @@ Recurrent Layer → Linear → BatchNorm → Dropout → Output Layer
 The validation set evaluation provides unbiased assessment of model generalization capability. All RNN models significantly outperform the baseline Markov model, with bidirectional processing providing consistent improvements.
 
 **Key Insights:**
+
 - Bidirectional LSTM achieves the highest R² Score (0.87) and lowest error metrics
 - Bidirectional processing provides 2-4% improvement over unidirectional variants
 - LSTM performs slightly better than GRU (~0.04 in R²), but GRU trains faster
@@ -279,11 +300,13 @@ The validation set evaluation provides unbiased assessment of model generalizati
 ### Multi-Step Forecasting Analysis
 
 **Challenges:**
+
 - Error accumulation over time steps
 - Increasing uncertainty with forecast horizon
 - Regime changes in patient conditions
 
 **Performance:**
+
 - Bidirectional LSTM maintains best performance (R² = 0.82)
 - All deep learning models outperform statistical baselines
 - Error remains within clinically acceptable ranges (±5 BPM for 89% of predictions)
@@ -291,6 +314,7 @@ The validation set evaluation provides unbiased assessment of model generalizati
 ### Clinical Interpretation
 
 **Clinically Acceptable Metrics:**
+
 - ✅ Clinical Threshold: ±5 BPM error considered clinically significant
 - ✅ Bidirectional LSTM: 89% of predictions within ±5 BPM
 - ✅ Practical Application: Sufficient accuracy for clinical decision support
@@ -300,15 +324,16 @@ The validation set evaluation provides unbiased assessment of model generalizati
 
 **Training Time Comparison:**
 
-| Model | Epochs (Early Stop) | Approximate Time | Status |
-|-------|-------------------|------------------|--------|
-| Markov Chain | 21 | Fast | ⚡ |
-| GRU (Unidirectional) | 9 | Fast | ⚡ |
-| LSTM (Unidirectional) | 11 | Moderate | ⏱️ |
-| GRU (Bidirectional) | 19 | Moderate | ⏱️ |
-| LSTM (Bidirectional) | 15 | Moderate-Slow | ⏱️ |
+| Model                 | Epochs (Early Stop) | Approximate Time | Status |
+| --------------------- | ------------------- | ---------------- | ------ |
+| Markov Chain          | 21                  | Fast             | ⚡     |
+| GRU (Unidirectional)  | 9                   | Fast             | ⚡     |
+| LSTM (Unidirectional) | 11                  | Moderate         | ⏱️     |
+| GRU (Bidirectional)   | 19                  | Moderate         | ⏱️     |
+| LSTM (Bidirectional)  | 15                  | Moderate-Slow    | ⏱️     |
 
 **Efficiency Notes:**
+
 - Early stopping effectively prevents overfitting
 - Consistent convergence patterns across architectures
 - Fast inference suitable for real-time processing
@@ -338,6 +363,7 @@ The following visualizations are extracted from the notebook and demonstrate key
 
 ![ACF and PACF Plots](images/plot_37_4.png)
 **Cell 37:** Autocorrelation Function (ACF) and Partial Autocorrelation Function (PACF) plots. These are used to determine ARIMA model orders:
+
 - **ACF (left):** Helps identify Moving Average (MA) order (q) - shows gradual decay indicating autoregressive behavior
 - **PACF (right):** Helps identify Autoregressive (AR) order (p) - shows direct relationships between time steps
 
@@ -422,17 +448,20 @@ These visualizations demonstrate model performance on multi-step (autoregressive
 ### Installation Steps
 
 1. **Clone the repository:**
+
 ```bash
 cd CA4_Sequence_Modeling/Time_Series_Prediction
 ```
 
 2. **Install dependencies:**
+
 ```bash
 pip install torch torchvision torchaudio
 pip install numpy pandas matplotlib seaborn scikit-learn statsmodels torchinfo
 ```
 
 3. **Prepare dataset:**
+
    - Place CSV files in `dataset/` directory:
      - `train_data.csv`
      - `val_data.csv`
@@ -449,11 +478,13 @@ pip install numpy pandas matplotlib seaborn scikit-learn statsmodels torchinfo
 ### Running the Notebook
 
 1. **Open the notebook:**
+
 ```bash
 jupyter notebook code/NNDL_CA4_2_1.ipynb
 ```
 
 2. **Or use Google Colab:**
+
    - Upload the notebook to Google Colab
    - Ensure dataset is accessible in Google Drive
 
@@ -545,26 +576,29 @@ Time_Series_Prediction/
 
 ### Parameter Count
 
-| Model | Parameters | Complexity |
-|-------|------------|------------|
-| GRU (Unidirectional) | 886,273 | Low |
-| LSTM (Unidirectional) | 1,093,632 | Medium |
-| GRU (Bidirectional) | ~1,772,546 | High |
-| LSTM (Bidirectional) | ~2,187,264 | Very High |
+| Model                 | Parameters | Complexity |
+| --------------------- | ---------- | ---------- |
+| GRU (Unidirectional)  | 886,273    | Low        |
+| LSTM (Unidirectional) | 1,093,632  | Medium     |
+| GRU (Bidirectional)   | ~1,772,546 | High       |
+| LSTM (Bidirectional)  | ~2,187,264 | Very High  |
 
 ### Training Characteristics
 
 **GRU Models:**
+
 - Fastest training due to simplified gating
 - Fewer parameters than LSTM
 - Comparable performance in many cases
 
 **LSTM Models:**
+
 - Moderate complexity with full gating mechanism
 - Better long-term memory retention
 - Slightly better performance on complex patterns
 
 **Bidirectional Models:**
+
 - 2× computational cost for forward/backward processing
 - Higher memory requirements
 - Better temporal context utilization
@@ -576,17 +610,20 @@ Time_Series_Prediction/
 ### SARIMAX Models
 
 **Model 1: SARIMAX(2,1,2)**
+
 - **Log Likelihood:** -423.760
 - **AIC:** 859.520
 - **BIC:** 876.952
 - **R² Score:** ~0.65
 
 **Model 2: SARIMAX(14,1,12)**
+
 - Higher complexity
 - Captures more complex patterns
 - R² Score: ~0.67
 
 **Model 3: SARIMAX(14,1,24)**
+
 - Very high complexity
 - R² Score: ~0.69
 - Risk of overfitting and convergence issues
@@ -625,6 +662,7 @@ Time_Series_Prediction/
 ### Feature Selection Methodology
 
 1. **Correlation-Based Elimination:**
+
    - Threshold: 0.3
    - For correlated pairs, retain feature with higher correlation to target (HR)
 
@@ -636,11 +674,13 @@ Time_Series_Prediction/
 ### Temporal Sequence Construction
 
 **Sliding Window Approach:**
+
 - Input window: 2 hours of historical data
 - Output: 1 hour forecast
 - Maximum overlap between sequences for data utilization
 
 **Multi-Patient Sequence Generation:**
+
 - Preserves patient identity for each sequence
 - Combines data from multiple patients for better generalization
 - Prevents overfitting through diverse patient patterns
@@ -648,6 +688,7 @@ Time_Series_Prediction/
 ### Loss Function
 
 **Mean Squared Error (MSE):**
+
 - Appropriate for continuous heart rate prediction
 - Provides smooth gradients for stable training
 - Penalizes large prediction errors more heavily
@@ -660,14 +701,17 @@ Time_Series_Prediction/
 ### Main Classes
 
 1. **MarkovPredictor:**
+
    - Baseline model without temporal memory
    - Flatten + Linear layers with normalization
 
 2. **RecurrentPredictor:**
+
    - Base class for RNN-based models
    - Handles post-processing and output generation
 
 3. **LSTMPredictor:**
+
    - Inherits from RecurrentPredictor
    - Uses LSTM cells with optional bidirectional processing
 
@@ -696,6 +740,7 @@ Time_Series_Prediction/
 ### Immediate Extensions
 
 1. **Architecture Enhancements:**
+
    - Integration of attention mechanisms
    - Exploration of transformer-based approaches
    - Ensemble methods combining multiple architectures
@@ -710,6 +755,7 @@ Time_Series_Prediction/
 ### Advanced Research Directions
 
 1. **Clinical Integration:**
+
    - Real-time clinical deployment systems
    - Multi-modal integration of multiple physiological signals
    - Patient-specific model adaptation
@@ -725,11 +771,11 @@ Time_Series_Prediction/
 
 ## 📚 References
 
-1. Hochreiter, S., & Schmidhuber, J. (1997). "Long short-term memory." *Neural computation*.
+1. Hochreiter, S., & Schmidhuber, J. (1997). "Long short-term memory." _Neural computation_.
 
-2. Cho, K., et al. (2014). "Learning phrase representations using RNN encoder-decoder for statistical machine translation." *arXiv preprint arXiv:1406.1078*.
+2. Cho, K., et al. (2014). "Learning phrase representations using RNN encoder-decoder for statistical machine translation." _arXiv preprint arXiv:1406.1078_.
 
-3. Chung, J., et al. (2014). "Empirical evaluation of gated recurrent neural networks on sequence modeling." *arXiv preprint arXiv:1412.3555*.
+3. Chung, J., et al. (2014). "Empirical evaluation of gated recurrent neural networks on sequence modeling." _arXiv preprint arXiv:1412.3555_.
 
 4. PyTorch Documentation: https://pytorch.org/docs/stable/index.html
 
@@ -737,7 +783,7 @@ Time_Series_Prediction/
 
 6. Statsmodels Documentation: https://www.statsmodels.org/stable/index.html
 
-7. Lee, J. & Hauskrecht, M. (2019). "Neural approaches for time series forecasting." *AIME 2019*.
+7. Lee, J. & Hauskrecht, M. (2019). "Neural approaches for time series forecasting." _AIME 2019_.
 
 ---
 
@@ -758,7 +804,7 @@ This project is part of the Neural Networks and Deep Learning course assignment 
 
 ## ✅ Conclusion
 
-This research demonstrates the significant potential of recurrent neural networks for physiological time series prediction, establishing a foundation for advanced healthcare analytics. The comprehensive comparison of methodologies provides valuable insights for researchers and practitioners in the field of healthcare AI. 
+This research demonstrates the significant potential of recurrent neural networks for physiological time series prediction, establishing a foundation for advanced healthcare analytics. The comprehensive comparison of methodologies provides valuable insights for researchers and practitioners in the field of healthcare AI.
 
 The superior performance of bidirectional LSTM models, combined with clinically acceptable prediction accuracy, positions these approaches as viable solutions for real-world healthcare applications. The systematic methodology, rigorous evaluation framework, and detailed documentation contribute to the growing body of research in healthcare AI, providing a replicable framework for future studies.
 

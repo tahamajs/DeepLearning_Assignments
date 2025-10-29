@@ -54,14 +54,14 @@ This research aims to advance the state-of-the-art in oriented object detection 
 
 ### Performance Summary
 
-| Metric | Value | Improvement over Baseline |
-|--------|-------|---------------------------|
-| **mAP@0.5** | **87.3%** | +8.9% over axis-aligned (78.4%) |
-| **mAP@[0.5:0.95]** | **65.0%** | +7.0% over axis-aligned (58.0%) |
-| **Precision** | **92.1%** | +6.5% over axis-aligned (85.6%) |
-| **Recall** | **89.4%** | +5.8% over axis-aligned (83.6%) |
+| Metric              | Value     | Improvement over Baseline               |
+| ------------------- | --------- | --------------------------------------- |
+| **mAP@0.5**         | **87.3%** | +8.9% over axis-aligned (78.4%)         |
+| **mAP@[0.5:0.95]**  | **65.0%** | +7.0% over axis-aligned (58.0%)         |
+| **Precision**       | **92.1%** | +6.5% over axis-aligned (85.6%)         |
+| **Recall**          | **89.4%** | +5.8% over axis-aligned (83.6%)         |
 | **Orientation MAE** | **12.3°** | High accuracy in orientation prediction |
-| **FPS** | **6.7** | Real-time inference on RTX 3080 |
+| **FPS**             | **6.7**   | Real-time inference on RTX 3080         |
 
 ### Key Findings
 
@@ -72,12 +72,12 @@ This research aims to advance the state-of-the-art in oriented object detection 
 
 ### Comparison with State-of-the-Art
 
-| Method | mAP@0.5 | mAP@[0.5:0.95] | Orientation MAE |
-|--------|---------|-----------------|-----------------|
-| R2CNN | 0.73 | 0.59 | 15.2° |
-| RoI Transformer | 0.76 | 0.62 | 13.8° |
-| **Oriented R-CNN (Ours)** | **0.78** | **0.65** | **12.3°** |
-| S2A-Net | 0.80 | 0.67 | 11.5° |
+| Method                    | mAP@0.5  | mAP@[0.5:0.95] | Orientation MAE |
+| ------------------------- | -------- | -------------- | --------------- |
+| R2CNN                     | 0.73     | 0.59           | 15.2°           |
+| RoI Transformer           | 0.76     | 0.62           | 13.8°           |
+| **Oriented R-CNN (Ours)** | **0.78** | **0.65**       | **12.3°**       |
+| S2A-Net                   | 0.80     | 0.67           | 11.5°           |
 
 ---
 
@@ -89,12 +89,12 @@ The **High-Resolution Ship Collection 2016** dataset is a comprehensive benchmar
 
 #### Dataset Statistics
 
-| Split | Number of Images | Percentage |
-|-------|------------------|------------|
-| **Training** | 436 | ~41% |
-| **Validation** | 181 | ~17% |
-| **Test** | 444 | ~42% |
-| **Total** | 1,061 | 100% |
+| Split          | Number of Images | Percentage |
+| -------------- | ---------------- | ---------- |
+| **Training**   | 436              | ~41%       |
+| **Validation** | 181              | ~17%       |
+| **Test**       | 444              | ~42%       |
+| **Total**      | 1,061            | 100%       |
 
 #### Dataset Specifications
 
@@ -137,6 +137,7 @@ The Oriented R-CNN model follows a two-stage detection paradigm, extending the p
 - **Pretrained Weights**: ImageNet pretrained weights for transfer learning
 
 **FPN Output Specifications**:
+
 - **P2**: 256×256×256 (1/4 resolution)
 - **P3**: 128×128×256 (1/8 resolution)
 - **P4**: 64×64×256 (1/16 resolution)
@@ -171,11 +172,13 @@ The Oriented R-CNN model follows a two-stage detection paradigm, extending the p
 #### Box Representation
 
 An oriented bounding box is defined by 6 parameters:
+
 $$
 \mathbf{b} = (c_x, c_y, w, h, \alpha, \beta)
 $$
 
 Where:
+
 - **$c_x, c_y$**: Center coordinates of the box
 - **$w, h$**: Width and height of the box
 - **$\alpha, \beta$**: Orientation offsets for representing rotation
@@ -183,6 +186,7 @@ Where:
 #### Vertex Calculation
 
 The four vertices of the oriented box are computed as:
+
 $$
 \begin{pmatrix} v_1 \\ v_2 \\ v_3 \\ v_4 \end{pmatrix} = \begin{pmatrix} c_x + \alpha & c_y + h/2 \\ c_x + w/2 & c_y + \beta \\ c_x - \alpha & c_y - h/2 \\ c_x - w/2 & c_y - \beta \end{pmatrix}
 $$
@@ -190,6 +194,7 @@ $$
 #### Rotation Matrix
 
 The box orientation is determined by the rotation angle $\theta$ derived from vertex geometry:
+
 $$
 \theta = \tan^{-1}\left(\frac{v_{2y} - v_{1y}}{v_{2x} - v_{1x}}\right)
 $$
@@ -199,11 +204,13 @@ $$
 #### Multi-task Loss Formulation
 
 The Oriented R-CNN employs a multi-task loss function:
+
 $$
 \mathcal{L}_{total} = \mathcal{L}_{rpn}^{cls} + \lambda_1 \mathcal{L}_{rpn}^{reg} + \mathcal{L}_{rcnn}^{cls} + \lambda_2 \mathcal{L}_{rcnn}^{reg}
 $$
 
 Where:
+
 - **RPN Classification Loss**: Binary cross-entropy for objectness
 - **RPN Regression Loss**: Smooth L1 for oriented proposal generation
 - **RCNN Classification Loss**: Cross-entropy for final classification
@@ -214,6 +221,7 @@ Where:
 #### Regression Targets
 
 The regression targets are computed as:
+
 $$
 \begin{aligned}
 t_x &= (c_x^{gt} - c_x^a) / w^a \\
@@ -240,12 +248,14 @@ $$
 ### Data Augmentation
 
 #### Geometric Augmentations
+
 - **Rotation**: Random rotation between -15° and +15°
 - **Scaling**: Random scale factors between 0.8 and 1.2
 - **Translation**: Random shifts up to 10% of image dimensions
 - **Flipping**: Horizontal flipping with probability 0.5
 
 #### Photometric Augmentations
+
 - **Brightness Adjustment**: Random variation ±20%
 - **Contrast Enhancement**: Factor range [0.8, 1.2]
 - **Color Jittering**: Slight color channel variations
@@ -268,6 +278,7 @@ $$
 During training, the following behavior is observed:
 
 1. **RPN and RCNN Losses Decrease**: Indicates successful learning
+
    - RPN learns to generate high-quality proposals
    - RCNN learns to classify and refine proposals accurately
 
@@ -284,19 +295,19 @@ During training, the following behavior is observed:
 
 ### Ablation Studies
 
-| Configuration | mAP@0.5 | mAP@[0.5:0.95] |
-|---------------|---------|----------------|
-| Baseline (Axis-aligned) | 0.72 | 0.58 |
-| + Oriented RPN | 0.75 | 0.61 |
-| + Rotated RoI Align | 0.77 | 0.63 |
-| + Oriented RCNN Head | **0.78** | **0.65** |
+| Configuration           | mAP@0.5  | mAP@[0.5:0.95] |
+| ----------------------- | -------- | -------------- |
+| Baseline (Axis-aligned) | 0.72     | 0.58           |
+| + Oriented RPN          | 0.75     | 0.61           |
+| + Rotated RoI Align     | 0.77     | 0.63           |
+| + Oriented RCNN Head    | **0.78** | **0.65**       |
 
 ### Anchor Configuration Impact
 
-| Scales | Ratios | mAP@0.5 |
-|--------|--------|---------|
-| [128] | [1.0] | 0.68 |
-| [64, 128, 256] | [0.5, 1.0, 2.0] | 0.75 |
+| Scales                  | Ratios          | mAP@0.5  |
+| ----------------------- | --------------- | -------- |
+| [128]                   | [1.0]           | 0.68     |
+| [64, 128, 256]          | [0.5, 1.0, 2.0] | 0.75     |
 | [32, 64, 128, 256, 512] | [0.5, 1.0, 2.0] | **0.78** |
 
 ---
@@ -314,6 +325,7 @@ The following visualizations demonstrate the dataset characteristics and model p
 **Caption**: Sample images from the HRSC2016 dataset showing ships annotated with oriented bounding boxes (red polygons). These visualizations demonstrate the challenge of detecting arbitrarily oriented objects compared to axis-aligned boxes.
 
 **Key Observations**:
+
 - Ships appear at various orientations requiring rotated bounding boxes
 - Oriented boxes provide tighter fits than axis-aligned alternatives
 - Multiple ships may appear in a single image
@@ -323,10 +335,12 @@ The following visualizations demonstrate the dataset characteristics and model p
 ![Oriented Box Conversion Test](code/notebook_images/image_cell026_output000.png)
 
 **Caption**: Demonstration of converting oriented bounding boxes (red polygons) to axis-aligned rectangles (green rectangles). This visualization shows:
+
 - **Red Polygons**: True oriented bounding boxes
 - **Green Rectangles**: Minimum bounding rectangles
 
 **Analysis**:
+
 - Oriented boxes occupy less background area
 - Better precision for rotated object localization
 - Essential for accurate ship detection in aerial imagery
@@ -358,12 +372,14 @@ pip install pillow
 ### Setup
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd CA3_Object_Detection/Oriented_RCNN
 ```
 
 2. Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -381,6 +397,7 @@ pip install -r requirements.txt
 1. Open the notebook: `code/NNDL_CA3_2.ipynb`
 
 2. Configure dataset path:
+
 ```python
 dataset_path = "/path/to/HRSC2016"
 ```
@@ -408,6 +425,7 @@ with torch.no_grad():
 ### Evaluation
 
 The notebook includes comprehensive evaluation scripts that compute:
+
 - Oriented mAP at various IoU thresholds
 - Precision-Recall curves
 - Orientation error analysis
@@ -455,16 +473,19 @@ Oriented_RCNN/
 ## 🔬 Applications
 
 ### Maritime Surveillance
+
 - **Ship Detection**: Automated monitoring of vessel traffic in ports and waterways
 - **Illegal Activity Detection**: Identification of suspicious maritime behavior
 - **Navigation Safety**: Collision avoidance systems for autonomous vessels
 
 ### Aerial Imagery Analysis
+
 - **Aircraft Detection**: Oriented detection of airplanes on runways and in flight
 - **Infrastructure Monitoring**: Detection of oriented structures (buildings, bridges)
 - **Disaster Response**: Rapid assessment of damaged infrastructure
 
 ### Industrial Applications
+
 - **Quality Control**: Oriented defect detection on rotated parts
 - **Assembly Line Monitoring**: Detection of oriented components
 - **Warehouse Automation**: Object tracking and manipulation planning
@@ -495,15 +516,15 @@ Oriented_RCNN/
 
 ### Papers
 
-1. **Oriented R-CNN**: Yang, X., Yan, J., Feng, Z., & He, T. (2021). R3det: Refined single-stage detector with feature refinement for rotating object. *AAAI*.
+1. **Oriented R-CNN**: Yang, X., Yan, J., Feng, Z., & He, T. (2021). R3det: Refined single-stage detector with feature refinement for rotating object. _AAAI_.
 
-2. **RoI Transformer**: Ding, J., et al. (2019). "Learning RoI Transformer for Oriented Object Detection in Aerial Images," *CVPR*.
+2. **RoI Transformer**: Ding, J., et al. (2019). "Learning RoI Transformer for Oriented Object Detection in Aerial Images," _CVPR_.
 
-3. **HRSC2016 Dataset**: Liu, Z., et al. (2017). "HRSC2016: High Resolution Ship Collection 2016," *Remote Sensing*.
+3. **HRSC2016 Dataset**: Liu, Z., et al. (2017). "HRSC2016: High Resolution Ship Collection 2016," _Remote Sensing_.
 
-4. **Faster R-CNN**: Ren, S., et al. (2015). "Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks," *NIPS*.
+4. **Faster R-CNN**: Ren, S., et al. (2015). "Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks," _NIPS_.
 
-5. **Feature Pyramid Network**: Lin, T. Y., et al. (2017). "Feature Pyramid Networks for Object Detection," *CVPR*.
+5. **Feature Pyramid Network**: Lin, T. Y., et al. (2017). "Feature Pyramid Networks for Object Detection," _CVPR_.
 
 ### Tools and Libraries
 

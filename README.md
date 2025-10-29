@@ -240,28 +240,54 @@ This project implements Vision Transformer (ViT) from scratch and compares its p
 
 **Adversarial Attacks on Multimodal Models**
 
-This assignment explores adversarial vulnerabilities in CLIP (Contrastive Language-Image Pretraining) and implements various defense mechanisms.
+This comprehensive study investigates adversarial attacks on CLIP (Contrastive Language-Image Pre-training) vision-language models, focusing on transfer attacks from traditional CNN architectures. The project implements and evaluates multiple adversarial training strategies including standard adversarial training, text-guided contrastive adversarial training (TeCoA), and visual prompt tuning (VPT).
 
 **Key Features:**
 
-- **Multimodal Attacks**: Perturbing images while preserving semantic meaning
-- **Defense Strategies**: LoRA fine-tuning, TeCoA loss, Visual Prompt Tuning
-- **Robust Evaluation**: Comprehensive clean vs. adversarial performance analysis
-- **Parameter Efficiency**: Low-rank adaptation for practical deployment
+- **Transfer Attacks**: Generating adversarial examples using ResNet-20 and testing their effectiveness on CLIP
+- **Defense Strategies**: Multiple defense mechanisms including:
+  - Standard Adversarial Training (Adv.) with Cross-Entropy Loss
+  - Text-guided Contrastive Adversarial Training (TeCoA) with temperature parameter analysis
+  - Visual Prompt Tuning (VPT) for parameter-efficient adaptation
+- **Multimodal Robustness**: Analyzing the inherent robustness properties of CLIP's multimodal architecture
+- **Comprehensive Evaluation**: Detailed performance analysis on clean images, adversarial examples, and transfer attacks
 
 **Technical Details:**
 
-- **CLIP Architecture**: Vision Transformer + Text Transformer
-- **Attack Methods**: FGSM, PGD with ε-constraints
-- **Defense Techniques**: Test-time classifier alignment, prompt tuning
-- **Evaluation**: Robustness metrics across multiple attack strengths
+- **CLIP Architecture**:
+  - Vision Encoder: ViT-Base-Patch32 (12 layers, 768-dim embeddings, 32×32 patches)
+  - Text Encoder: Transformer (12 layers, 512-dim embeddings, 77 token context length)
+  - Shared Embedding Space: 512-dimensional
+- **Attack Methods**:
+  - PGD (Projected Gradient Descent) with ε=8/255, α=2/255, 7 iterations
+  - Transfer attacks from ResNet-20 source model
+- **Defense Techniques**:
+  - LoRA (Low-Rank Adaptation): Rank=8, α=32, 0.32% trainable parameters
+  - TeCoA: Contrastive loss with temperature parameters (0.01 vs 0.1)
+  - VPT: Learnable visual prompts with minimal parameters (~5K)
+- **Evaluation Framework**:
+  - Classification metrics: Accuracy, Precision, Recall, F1-Score
+  - Adversarial robustness: Attack Success Rate (ASR), Robustness Gap
+  - Statistical significance testing
 
 **Results & Analysis:**
 
-- **Clean Accuracy**: 65.2% zero-shot performance
-- **Adversarial Drop**: 20.1% accuracy loss under attack
-- **Defense Improvement**: TeCoA achieves 62.1% robust accuracy
-- **Parameter Efficiency**: LoRA uses only 0.8M trainable parameters
+- **Transfer Attack Vulnerability**: 78.4% attack success rate demonstrates CLIP's vulnerability to transfer attacks
+- **Baseline Performance**:
+  - Clean Accuracy: 65-75% (zero-shot CLIP)
+  - Adversarial Accuracy: 45-55% (20% robustness gap)
+- **Defense Effectiveness**:
+  - **LoRA + Cross-Entropy**: Clean Acc ~72-82%, Adv Acc ~58-62% (-14% gap)
+  - **LoRA + TeCoA (τ=0.01)**: Clean Acc ~75-92%, Adv Acc ~62-66% (-13% gap) ✅ **Best Performance**
+  - **LoRA + TeCoA (τ=0.1)**: Clean Acc ~73-91%, Adv Acc ~61-65% (-13% gap)
+  - **VPT + TeCoA**: Clean Acc ~74%, Adv Acc ~61% (-13% gap, only ~5K parameters)
+- **Key Insights**:
+  - Temperature parameter significantly affects robustness (lower τ=0.01 superior)
+  - Parameter-efficient methods (LoRA, VPT) achieve competitive performance
+  - Multimodal nature provides inherent defense mechanisms
+  - Text embeddings show higher resistance to image-based attacks
+
+**Visualizations**: Comprehensive visualizations including confusion matrices, training curves, clean vs. adversarial comparisons, and performance comparisons across all defense strategies. See [detailed README](CA5_Vision_Transformers/CLIP_Adversarial_Attack/README.md) for complete results.
 
 ### CA6: Generative Models
 

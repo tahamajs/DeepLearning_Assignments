@@ -5,6 +5,7 @@
 ---
 
 **اطلاعات پروژه:**
+
 - **نویسنده:** طها مجلسی
 - **شماره دانشجویی:** 810101504
 - **موسسه:** دانشگاه تهران، دانشکده مهندسی برق و کامپیوتر
@@ -75,42 +76,42 @@
 
 ### مدل‌های خودرو
 
-| مدل | دسته‌بندی | ویژگی‌ها |
-|-----|----------|----------|
-| Corolla | سدان | طراحی فشرده و اقتصادی |
-| Camry | سدان | سایز متوسط، مناسب خانواده |
-| RAV4 | SUV | کراس‌اوور فشرده |
-| Tacoma | وانت | وانت سایز متوسط |
-| Highlander | SUV | کراس‌اوور سایز متوسط |
-| Prius | سدان هیبریدی | سازگار با محیط زیست |
-| Tundra | وانت | وانت تمام‌اندازه |
-| 4Runner | SUV | SUV با شاسی مجزا |
-| Yaris | هاچ‌بک | خودرو فشرده شهری |
-| Sienna | مینی‌ون | مناسب خانواده |
+| مدل        | دسته‌بندی    | ویژگی‌ها                  |
+| ---------- | ------------ | ------------------------- |
+| Corolla    | سدان         | طراحی فشرده و اقتصادی     |
+| Camry      | سدان         | سایز متوسط، مناسب خانواده |
+| RAV4       | SUV          | کراس‌اوور فشرده           |
+| Tacoma     | وانت         | وانت سایز متوسط           |
+| Highlander | SUV          | کراس‌اوور سایز متوسط      |
+| Prius      | سدان هیبریدی | سازگار با محیط زیست       |
+| Tundra     | وانت         | وانت تمام‌اندازه          |
+| 4Runner    | SUV          | SUV با شاسی مجزا          |
+| Yaris      | هاچ‌بک       | خودرو فشرده شهری          |
+| Sienna     | مینی‌ون      | مناسب خانواده             |
 
 ### نمونه تصاویر مجموعه داده
 
 ![نمونه تصاویر مجموعه داده](images/notebook_output_24_0.png)
 
-*نمونه‌هایی از تصاویر مجموعه داده*
+_نمونه‌هایی از تصاویر مجموعه داده_
 
 ### توزیع کلاس‌ها
 
 ![توزیع کلاس‌ها](images/notebook_output_29_1.png)
 
-*توزیع تعداد تصاویر در هر کلاس*
+_توزیع تعداد تصاویر در هر کلاس_
 
 ### توزیع کلاس‌ها بعد از متعادل‌سازی
 
 ![توزیع کلاس‌ها متعادل شده](images/notebook_output_89_12.png)
 
-*توزیع کلاس‌ها بعد از Data Augmentation و متعادل‌سازی*
+_توزیع کلاس‌ها بعد از Data Augmentation و متعادل‌سازی_
 
 ### نمونه تصاویر بعد از Augmentation
 
 ![نمونه‌های Augmented](images/notebook_output_30_2.png)
 
-*نمونه‌هایی از تصاویر بعد از اعمال Data Augmentation*
+_نمونه‌هایی از تصاویر بعد از اعمال Data Augmentation_
 
 ---
 
@@ -119,6 +120,7 @@
 ### 1. VGG16 Fine-tuning
 
 **ویژگی‌ها:**
+
 - معماری: 13 لایه کانولوشنی + 3 لایه Fully Connected
 - بعد ویژگی: 25,088 (512×7×7)
 - پارامترها: 119.5 میلیون
@@ -128,15 +130,16 @@
 
 ![معماری VGG16](images/notebook_output_52_3.png)
 
-*خلاصه معماری VGG16 Classifier*
+_خلاصه معماری VGG16 Classifier_
 
 ![جزئیات VGG16](images/notebook_output_52_4.png)
 
-*جزئیات بیشتر معماری VGG16*
+_جزئیات بیشتر معماری VGG16_
 
 ### 2. AlexNet Fine-tuning
 
 **ویژگی‌ها:**
+
 - معماری: 5 لایه کانولوشنی + 3 لایه Fully Connected
 - بعد ویژگی: 9,216 (256×6×6)
 - پارامترها: 54.6 میلیون
@@ -146,15 +149,16 @@
 
 ![معماری AlexNet](images/notebook_output_57_5.png)
 
-*خلاصه معماری AlexNet Classifier*
+_خلاصه معماری AlexNet Classifier_
 
 ![جزئیات AlexNet](images/notebook_output_57_6.png)
 
-*جزئیات بیشتر معماری AlexNet*
+_جزئیات بیشتر معماری AlexNet_
 
 ### 3. CNN سفارشی
 
 **معماری:**
+
 ```python
 class ToyotaModelCNN(nn.Module):
     def __init__(self):
@@ -165,6 +169,7 @@ class ToyotaModelCNN(nn.Module):
 ```
 
 **ویژگی‌ها:**
+
 - معماری از صفر طراحی شده
 - فیلترهای کانولوشنی پیشرونده
 - Batch Normalization برای پایداری
@@ -173,6 +178,7 @@ class ToyotaModelCNN(nn.Module):
 ### 4. SVM با ویژگی‌های CNN
 
 **روش:**
+
 - استخراج ویژگی از VGG16 (ثابت)
 - نرمال‌سازی StandardScaler
 - SVM با کرنل‌های Linear و RBF
@@ -193,9 +199,14 @@ class ToyotaModelCNN(nn.Module):
 
 ![نمونه‌های Augmentation](images/notebook_output_88_11.png)
 
-*نمونه‌هایی از داده‌های Augmented شده*
+_نمونه‌هایی از داده‌های Augmented شده - نمایش تبدیلات مختلف_
+
+![مقایسه Augmentation](images/notebook_output_77_10.png)
+
+_مقایسه تصاویر قبل و بعد از Augmentation_
 
 **تبدیلات اعمال شده:**
+
 - 🔄 چرخش افقی تصادفی (50%)
 - 🔄 چرخش تصادفی (±10 درجه)
 - 🔄 برش تغییر اندازه شده (80-100%)
@@ -205,6 +216,7 @@ class ToyotaModelCNN(nn.Module):
 ### استراتژی آموزش
 
 **پارامترهای مشترک:**
+
 - Optimizer: Adam (lr=0.001)
 - Batch Size: 32
 - Epochs: 15 (با early stopping)
@@ -217,19 +229,19 @@ class ToyotaModelCNN(nn.Module):
 
 ### نتایج کلی
 
-| مدل | دقت (Accuracy) | Precision | Recall | F1-Score | زمان آموزش |
-|-----|----------------|-----------|--------|----------|-----------|
-| **VGG16 + SVM (RBF)** | **🟢 69.6%** | 71.1% | 69.6% | 69.4% | ~12 دقیقه |
-| **VGG16 Fine-tuning** | **🟡 67.9%** | 70.2% | 67.9% | 67.8% | ~15 دقیقه |
-| **VGG16 + SVM (Linear)** | **🟡 67.0%** | 68.5% | 67.0% | 67.2% | ~12 دقیقه |
-| **AlexNet Fine-tuning** | **🟠 61.4%** | 64.0% | 61.4% | 61.5% | ~10 دقیقه |
-| **CNN سفارشی** | **🔴 58.2%** | 60.8% | 58.2% | 58.1% | ~25 دقیقه |
+| مدل                      | دقت (Accuracy) | Precision | Recall | F1-Score | زمان آموزش |
+| ------------------------ | -------------- | --------- | ------ | -------- | ---------- |
+| **VGG16 + SVM (RBF)**    | **🟢 69.6%**   | 71.1%     | 69.6%  | 69.4%    | ~12 دقیقه  |
+| **VGG16 Fine-tuning**    | **🟡 67.9%**   | 70.2%     | 67.9%  | 67.8%    | ~15 دقیقه  |
+| **VGG16 + SVM (Linear)** | **🟡 67.0%**   | 68.5%     | 67.0%  | 67.2%    | ~12 دقیقه  |
+| **AlexNet Fine-tuning**  | **🟠 61.4%**   | 64.0%     | 61.4%  | 61.5%    | ~10 دقیقه  |
+| **CNN سفارشی**           | **🔴 58.2%**   | 60.8%     | 58.2%  | 58.1%    | ~25 دقیقه  |
 
 ### نمودارهای مقایسه عملکرد
 
 ![مقایسه مدل‌ها](images/notebook_output_109_19.png)
 
-*مقایسه عملکرد تمام مدل‌ها*
+_مقایسه عملکرد تمام مدل‌ها_
 
 ### منحنی‌های آموزش
 
@@ -237,50 +249,55 @@ class ToyotaModelCNN(nn.Module):
 
 ![منحنی Loss VGG16](images/notebook_output_99_13.png)
 
-*منحنی Loss برای VGG16*
+_منحنی Loss برای VGG16_
 
 ![منحنی Accuracy VGG16](images/notebook_output_99_14.png)
 
-*منحنی Accuracy برای VGG16*
+_منحنی Accuracy برای VGG16_
 
 #### AlexNet Fine-tuning
 
 ![منحنی Loss AlexNet](images/notebook_output_102_15.png)
 
-*منحنی Loss برای AlexNet*
+_منحنی Loss برای AlexNet_
 
 ![منحنی Accuracy AlexNet](images/notebook_output_102_16.png)
 
-*منحنی Accuracy برای AlexNet*
+_منحنی Accuracy برای AlexNet_
 
 #### CNN سفارشی
 
 ![منحنی Loss CNN](images/notebook_output_105_17.png)
 
-*منحنی Loss برای CNN سفارشی*
+_منحنی Loss برای CNN سفارشی_
 
 ![منحنی Accuracy CNN](images/notebook_output_105_18.png)
 
-*منحنی Accuracy برای CNN سفارشی*
+_منحنی Accuracy برای CNN سفارشی_
 
 ### Confusion Matrix ها
 
 ![Confusion Matrix ها](images/notebook_output_111_20.png)
 
-*Confusion Matrix های تمام مدل‌ها*
+_Confusion Matrix های تمام مدل‌ها - مقایسه عملکرد در هر کلاس_
+
+![تحلیل تفصیلی Confusion Matrix](images/notebook_output_75_9.png)
+
+_تحلیل تفصیلی الگوهای خطا در Confusion Matrix_
 
 **تحلیل Confusion Matrix:**
+
 - 🏆 **وانت‌ها (Tacoma, Tundra)**: بهترین عملکرد به دلیل تفاوت واضح در اندازه
 - 🏆 **Prius**: دقت بالا به دلیل طراحی منحصر به فرد
 - ⚠️ **سدان‌ها (Corolla ↔ Camry)**: بیشترین خطا به دلیل شباهت زیاد
 
 ### تأثیر Data Augmentation
 
-| مدل | بدون Augmentation | با Augmentation | بهبود |
-|-----|------------------|----------------|-------|
-| VGG16 Fine-tuning | ~63% | **67.9%** | **+4.9%** |
-| AlexNet Fine-tuning | ~56% | **61.4%** | **+5.4%** |
-| CNN سفارشی | ~52% | **58.2%** | **+6.2%** |
+| مدل                 | بدون Augmentation | با Augmentation | بهبود     |
+| ------------------- | ----------------- | --------------- | --------- |
+| VGG16 Fine-tuning   | ~63%              | **67.9%**       | **+4.9%** |
+| AlexNet Fine-tuning | ~56%              | **61.4%**       | **+5.4%** |
+| CNN سفارشی          | ~52%              | **58.2%**       | **+6.2%** |
 
 ---
 
@@ -291,6 +308,7 @@ class ToyotaModelCNN(nn.Module):
 #### 1. برتری Transfer Learning
 
 ✅ **نتایج نشان می‌دهد:**
+
 - Transfer Learning به طور قابل توجهی بهتر از آموزش از صفر عمل می‌کند
 - VGG16 (67.9%) نسبت به CNN سفارشی (58.2%) **+9.7%** بهتر است
 - معماری عمیق‌تر (VGG16) بهتر از معماری سبک‌تر (AlexNet) عمل می‌کند
@@ -298,6 +316,7 @@ class ToyotaModelCNN(nn.Module):
 #### 2. کارایی رویکردهای ترکیبی
 
 ✅ **VGG16 + SVM (RBF) بهترین عملکرد را دارد:**
+
 - دقت 69.6% (بهترین)
 - زمان آموزش کمتر (بدون backpropagation در CNN)
 - نشان می‌دهد که ویژگی‌های CNN برای ML سنتی نیز عالی هستند
@@ -305,6 +324,7 @@ class ToyotaModelCNN(nn.Module):
 #### 3. اهمیت Data Augmentation
 
 ✅ **بهبود قابل توجه در همه مدل‌ها:**
+
 - کاهش Overfitting
 - بهبود تعمیم
 - افزایش مقاومت در برابر تغییرات نور و زاویه
@@ -312,22 +332,24 @@ class ToyotaModelCNN(nn.Module):
 ### چالش‌های Fine-Grained Classification
 
 ⚠️ **کلاس‌های مشکل‌دار:**
+
 - سدان‌های مشابه (Corolla ↔ Camry)
 - SUV های مشابه (RAV4 ↔ Highlander)
 
 💡 **راه‌حل‌های پیشنهادی:**
+
 - استفاده از Attention Mechanisms
 - Multi-scale Feature Learning
 - Ensemble Methods
 
 ### کارایی محاسباتی
 
-| مدل | زمان آموزش | زمان استنتاج | حافظه GPU |
-|-----|-----------|-------------|-----------|
-| VGG16 Fine-tuning | ~15 دقیقه | ~0.05s/batch | ~8GB |
-| VGG16 + SVM | ~12 دقیقه | ~0.08s/batch | ~6GB |
-| AlexNet Fine-tuning | ~10 دقیقه | ~0.04s/batch | ~5GB |
-| CNN سفارشی | ~25 دقیقه | ~0.03s/batch | ~4GB |
+| مدل                 | زمان آموزش | زمان استنتاج | حافظه GPU |
+| ------------------- | ---------- | ------------ | --------- |
+| VGG16 Fine-tuning   | ~15 دقیقه  | ~0.05s/batch | ~8GB      |
+| VGG16 + SVM         | ~12 دقیقه  | ~0.08s/batch | ~6GB      |
+| AlexNet Fine-tuning | ~10 دقیقه  | ~0.04s/batch | ~5GB      |
+| CNN سفارشی          | ~25 دقیقه  | ~0.03s/batch | ~4GB      |
 
 ---
 
@@ -392,21 +414,25 @@ Vehicle_Classification/
 ## 🎓 مفاهیم پوشش داده شده
 
 ### Convolutional Neural Networks (CNNs)
+
 - لایه‌های کانولوشنی و Pooling
 - Batch Normalization
 - Dropout و Regularization
 
 ### Transfer Learning
+
 - Fine-tuning مدل‌های پیش‌آموزش‌داده‌شده
 - استخراج ویژگی
 - جایگزینی Classifier
 
 ### Data Augmentation
+
 - تبدیلات هندسی
 - تبدیلات رنگی
 - استراتژی‌های پیشرفته
 
 ### ارزیابی مدل
+
 - معیارهای Classification (Accuracy, Precision, Recall, F1)
 - Confusion Matrix
 - تحلیل عملکرد
@@ -418,16 +444,19 @@ Vehicle_Classification/
 ### بهبودهای فنی پیشنهادی
 
 1. **معماری‌های پیشرفته**:
+
    - Vision Transformers (ViT)
    - Attention Mechanisms
    - Multi-scale Feature Learning
 
 2. **بهبود مجموعه داده**:
+
    - جمع‌آوری داده بیشتر
    - Annotation بهتر
    - Domain Adaptation
 
 3. **بهینه‌سازی Real-Time**:
+
    - Quantization و Pruning
    - مدل‌های سبک‌وزن (MobileNet, EfficientNet)
    - Knowledge Distillation

@@ -692,30 +692,76 @@ See [detailed README](CA6_Generative_Models/VAE/README.md) for complete results 
 
 #### CNN_VIT_Adversarial_Attack
 
-**Comparative Adversarial Analysis: CNNs vs. ViTs**
+**Comparative Adversarial Analysis: CNNs vs. Vision Transformers**
 
-This extra assignment provides a comprehensive comparison of adversarial vulnerabilities between convolutional and transformer-based vision models.
+This comprehensive study investigates the vulnerability of deep learning models to adversarial attacks, specifically comparing Convolutional Neural Networks (CNNs) and Vision Transformers (ViTs) under Fast Gradient Sign Method (FGSM) and Projected Gradient Descent (PGD) attacks. The project implements adversarial training as a defense mechanism and analyzes model robustness using Grad-CAM visualizations.
 
 **Key Features:**
 
-- **Architecture Comparison**: ResNet-50 vs. ViT-Base side-by-side analysis
-- **Attack Suite**: FGSM, PGD, CW attacks with multiple strengths
-- **Defense Evaluation**: Adversarial training and input preprocessing
-- **Robustness Metrics**: Detailed analysis of clean vs. robust performance
+- **Architecture Comparison**: 
+  - **ResNet-50**: CNN with 25M parameters
+  - **ViT-Base**: 12-layer transformer with 86M parameters
+  - Side-by-side vulnerability analysis
+- **Attack Suite**: 
+  - **FGSM (Fast Gradient Sign Method)**: Single-step attack `x' = x + ε × sign(∇_x J(θ, x, y))`
+  - **PGD (Projected Gradient Descent)**: Multi-step iterative attack with projection
+  - Multiple attack strengths (ε values)
+- **Defense Evaluation**: 
+  - Adversarial training with adversarial examples
+  - Input preprocessing techniques
+  - Robust optimization strategies
+- **Robustness Metrics**: 
+  - Detailed analysis of clean vs. adversarial performance
+  - Robustness gap quantification
+  - Attack success rate analysis
+- **Interpretability**: 
+  - Grad-CAM visualizations to understand model decisions
+  - Attention pattern analysis for ViT
+  - Feature visualization for CNN
 
 **Technical Details:**
 
-- **CNN Model**: ResNet-50 with 25M parameters
-- **ViT Model**: 12-layer transformer with 86M parameters
-- **Attack Implementation**: Torchattacks library with custom modifications
-- **Defense Methods**: Adversarial training with PGD-based augmentation
+- **CNN Model (ResNet-50)**: 
+  - 25M parameters
+  - Residual connections for deep networks
+  - Batch normalization
+- **ViT Model (Vision Transformer-Base)**: 
+  - 12-layer transformer, 86M parameters
+  - Patch-based processing (16×16 patches)
+  - Multi-head self-attention (12 heads)
+- **Attack Implementation**: 
+  - Torchattacks library with custom modifications
+  - L∞ constraint (ε-bounded perturbations)
+  - Random start for PGD attacks
+- **Defense Methods**: 
+  - Adversarial training with PGD-based augmentation
+  - Training on mixture of clean and adversarial examples
+  - Robust optimization techniques
 
 **Results & Analysis:**
 
-- **Clean Performance**: ViT 84.7% vs. ResNet 76.2% accuracy
-- **Adversarial Robustness**: ViT 57.4% vs. ResNet 52.1% under strong attacks
-- **Attack Transferability**: High transfer rate between architectures
-- **Computational Trade-offs**: ViT requires more compute but offers better robustness
+- **Clean Performance**: 
+  - **ViT**: 84.7% accuracy on CIFAR-100
+  - **ResNet**: 76.2% accuracy on CIFAR-100
+  - ViT shows superior baseline performance
+- **Adversarial Robustness**: 
+  - **ViT**: 57.4% adversarial accuracy under strong attacks
+  - **ResNet**: 52.1% adversarial accuracy under strong attacks
+  - ViT more robust despite higher clean accuracy
+- **Attack Transferability**: 
+  - High transfer rate between architectures
+  - Cross-architectural vulnerabilities demonstrated
+  - Shared adversarial feature space
+- **Defense Effectiveness**: 
+  - Adversarial training improves robustness (up to 15.2% improvement)
+  - ViT benefits more from adversarial training
+  - Computational trade-offs: ViT requires more compute but offers better robustness
+- **Grad-CAM Insights**: 
+  - ViT attention patterns more robust to perturbations
+  - CNN feature maps more susceptible to adversarial noise
+  - Interpretability reveals robustness differences
+
+See [detailed README](CA7_Advanced_Topics/CNN_VIT_Adversarial_Attack/README.md) for complete results and visualizations.
 
 #### Image_Captioning
 

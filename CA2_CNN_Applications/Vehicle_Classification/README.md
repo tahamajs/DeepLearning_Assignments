@@ -130,6 +130,10 @@
 
 *خلاصه معماری VGG16 Classifier*
 
+![جزئیات VGG16](images/notebook_output_52_4.png)
+
+*جزئیات بیشتر معماری VGG16*
+
 ### 2. AlexNet Fine-tuning
 
 **ویژگی‌ها:**
@@ -143,6 +147,10 @@
 ![معماری AlexNet](images/notebook_output_57_5.png)
 
 *خلاصه معماری AlexNet Classifier*
+
+![جزئیات AlexNet](images/notebook_output_57_6.png)
+
+*جزئیات بیشتر معماری AlexNet*
 
 ### 3. CNN سفارشی
 
@@ -227,21 +235,33 @@ class ToyotaModelCNN(nn.Module):
 
 #### VGG16 Fine-tuning
 
-![منحنی VGG16](images/notebook_output_99_13.png)
+![منحنی Loss VGG16](images/notebook_output_99_13.png)
 
-*منحنی‌های Loss و Accuracy برای VGG16*
+*منحنی Loss برای VGG16*
+
+![منحنی Accuracy VGG16](images/notebook_output_99_14.png)
+
+*منحنی Accuracy برای VGG16*
 
 #### AlexNet Fine-tuning
 
-![منحنی AlexNet](images/notebook_output_102_15.png)
+![منحنی Loss AlexNet](images/notebook_output_102_15.png)
 
-*منحنی‌های Loss و Accuracy برای AlexNet*
+*منحنی Loss برای AlexNet*
+
+![منحنی Accuracy AlexNet](images/notebook_output_102_16.png)
+
+*منحنی Accuracy برای AlexNet*
 
 #### CNN سفارشی
 
-![منحنی CNN](images/notebook_output_105_17.png)
+![منحنی Loss CNN](images/notebook_output_105_17.png)
 
-*منحنی‌های Loss و Accuracy برای CNN سفارشی*
+*منحنی Loss برای CNN سفارشی*
+
+![منحنی Accuracy CNN](images/notebook_output_105_18.png)
+
+*منحنی Accuracy برای CNN سفارشی*
 
 ### Confusion Matrix ها
 

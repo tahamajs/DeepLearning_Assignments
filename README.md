@@ -53,6 +53,10 @@ This assignment covers essential neural network principles including architectur
 
 _Training dynamics and loss curves demonstrating backpropagation learning_
 
+![Activation Functions](CA1_Neural_Networks_Basics/code/notebook_images/image_cell027_output003.png)
+
+_Comparison of different activation functions and their impact on learning_
+
 **📊 Notebook Images**: 4 visualizations extracted
 
 - Loss curves and training dynamics
@@ -95,6 +99,10 @@ This project implements a comprehensive COVID-19 detection system using chest X-
 
 _X-ray image classification results showing model predictions_
 
+![Training Progress](CA2_CNN_Applications/Covid_Detection/code/notebook_images/image_cell056_output001.png)
+
+_Training and validation accuracy/loss curves for COVID detection models_
+
 **📊 Notebook Images**: 59 visualizations extracted
 
 - Training/validation curves
@@ -133,6 +141,10 @@ This assignment implements a robust vehicle classification system exploring both
 ![Vehicle Classification](CA2_CNN_Applications/Vehicle_Classification/code/notebook_images/image_cell029_output001.png)
 
 _Vehicle classification results demonstrating multi-class recognition_
+
+![Feature Visualization](CA2_CNN_Applications/Vehicle_Classification/code/notebook_images/image_cell052_output001.png)
+
+_CNN feature maps showing learned representations for vehicle recognition_
 
 **📊 Notebook Images**: 21 visualizations extracted
 
@@ -178,6 +190,10 @@ This project implements Fast-SCNN, a lightweight CNN architecture designed for r
 
 _Real-time semantic segmentation results on urban scenes_
 
+![Segmentation Examples](CA3_Object_Detection/Fast_SCNN/code/notebook_images/image_cell051_output000.png)
+
+_Additional segmentation examples showing multi-class pixel-level classification_
+
 **📊 Notebook Images**: 28 visualizations extracted
 
 - Segmentation masks
@@ -217,6 +233,10 @@ This assignment implements Oriented R-CNN for detecting objects with arbitrary o
 
 _Oriented bounding boxes demonstrating rotation-aware object detection_
 
+![Oriented Detection Example](CA3_Object_Detection/Oriented_RCNN/code/notebook_images/image_cell026_output000.png)
+
+_Additional example showing precise localization of rotated objects_
+
 **📊 Notebook Images**: 2 visualizations extracted
 
 - Oriented bounding box visualizations
@@ -255,9 +275,13 @@ This project implements an encoder-decoder architecture using ResNet50 for featu
 - **Optimal Configuration**: Embedding size 150-300 provides best trade-off
 - **Beam Search**: Consistently outperforms greedy decoding
 
-![Image Captioning Results](CA4_Sequence_Modeling/Image_Captioning/code/notebook_images/image_cell015_output001.png)
+![Image Captioning Results](CA4_Sequence_Modeling/Image_Captioning/code/notebook_images/image_cell029_output001.png)
 
 _Example generated captions using encoder-decoder architecture_
+
+![Training Curves](CA4_Sequence_Modeling/Image_Captioning/code/notebook_images/image_cell063_output000.png)
+
+_Training and validation loss curves showing model convergence_
 
 **📊 Notebook Images**: 18 visualizations extracted
 
@@ -294,9 +318,13 @@ This assignment implements RNN-based models for time series prediction with unce
 - **Uncertainty Calibration**: Well-calibrated prediction intervals
 - **Robustness**: Handles missing data and outliers effectively
 
-![Time Series Prediction](CA4_Sequence_Modeling/Time_Series_Prediction/images/image_cell008_output000.png)
+![Time Series Prediction](CA4_Sequence_Modeling/Time_Series_Prediction/code/notebook_images/image_cell036_output000.png)
 
 _Time series forecasting with uncertainty quantification using Monte Carlo dropout_
+
+![Uncertainty Visualization](CA4_Sequence_Modeling/Time_Series_Prediction/code/notebook_images/image_cell071_output000.png)
+
+_Prediction intervals demonstrating calibrated uncertainty estimates_
 
 **📊 Notebook Images**: 20 visualizations extracted
 
@@ -342,6 +370,10 @@ This project implements Vision Transformer (ViT) from scratch and compares its p
 
 _Attention heatmaps showing how ViT focuses on different image regions_
 
+![ViT Training](CA5_Vision_Transformers/VIT_Classification/code/notebook_images/image_cell024_output000.png)
+
+_Training curves comparing ViT performance with CNN baselines_
+
 **📊 Notebook Images**: 13 visualizations extracted
 
 - Attention heatmaps
@@ -381,6 +413,10 @@ This assignment explores adversarial vulnerabilities in CLIP (Contrastive Langua
 ![CLIP Adversarial Attack](CA5_Vision_Transformers/CLIP_Adversarial_Attack/images/image_cell020_output000.png)
 
 _Adversarial examples and defense mechanisms for multimodal CLIP model_
+
+![Attack Robustness](CA5_Vision_Transformers/CLIP_Adversarial_Attack/code/notebook_images/image_cell032_output001.png)
+
+_Attack success rates and robustness metrics across different defense strategies_
 
 **📊 Notebook Images**: 14 visualizations extracted
 
@@ -426,6 +462,10 @@ This project implements CycleGAN for domain adaptation, enabling models trained 
 
 _CycleGAN domain transfer results showing style translation between domains_
 
+![Generated Samples](CA6_Generative_Models/Unsupervised_Domain_Adaptation_GAN/code/notebook_images/image_cell057_output000.png)
+
+_Generated samples demonstrating realistic domain transfer quality_
+
 **📊 Notebook Images**: 28 visualizations extracted
 
 - Domain transfer examples
@@ -465,6 +505,10 @@ This assignment implements VAE for generative modeling and demonstrates its appl
 ![VAE Reconstruction](CA6_Generative_Models/VAE/images/image_cell015_output000.png)
 
 _Variational Autoencoder reconstruction and latent space visualization_
+
+![VAE Latent Space](CA6_Generative_Models/VAE/code/notebook_images/image_cell034_output001.png)
+
+_Latent space interpolation showing smooth transitions between generated samples_
 
 **📊 Notebook Images**: 8 visualizations extracted
 
@@ -510,6 +554,10 @@ This extra assignment provides a comprehensive comparison of adversarial vulnera
 
 _Comparative analysis of adversarial robustness between CNNs and Vision Transformers_
 
+![Adversarial Examples](CA7_Advanced_Topics/CNN_VIT_Adversarial_Attack/code/notebook_images/image_cell040_output000.png)
+
+_Adversarial examples and attack success rates comparison_
+
 **📊 Notebook Images**: 34 visualizations extracted
 
 - Adversarial examples comparison
@@ -549,9 +597,17 @@ This advanced project extends image captioning to Persian language, addressing t
 
 _Sample Persian captions generated with attention mechanisms_
 
+![Dataset Analysis](CA7_Advanced_Topics/Image_Captioning/images/image_cell20_output0.png)
+
+_Caption length distribution in the Persian dataset_
+
 ![Persian Caption Attention](CA7_Advanced_Topics/Image_Captioning/images/image_cell54_output0.png)
 
 _Attention visualization showing focus regions for Persian caption generation_
+
+![Training Progress](CA7_Advanced_Topics/Image_Captioning/images/image_cell47_output0.png)
+
+_Training and validation BLEU scores showing model improvement over epochs_
 
 **📊 Notebook Images**: 89 visualizations extracted (largest collection!)
 

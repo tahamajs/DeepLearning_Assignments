@@ -443,30 +443,61 @@ See [detailed README](CA4_Sequence_Modeling/Time_Series_Prediction/README.md) fo
 
 #### VIT_Classification
 
-**Vision Transformer for Image Classification**
+**Vision Transformer for Medical Image Classification**
 
-This project implements Vision Transformer (ViT) from scratch and compares its performance with traditional CNNs on image classification tasks.
+This project presents a comprehensive implementation comparing Vision Transformers (ViT) with Convolutional Neural Networks (CNNs) for medical image classification tasks. The implementation demonstrates the superior performance of transformer-based architectures in medical imaging applications with interpretable attention mechanisms.
 
 **Key Features:**
 
-- **Patch Embedding**: Image divided into fixed-size patches (16×16)
-- **Self-Attention**: Multi-head attention for global context modeling
-- **Position Encoding**: Learnable positional embeddings
-- **Class Token**: Special token for classification
+- **Vision Transformer Architecture**: 
+  - **Patch Embedding**: Image divided into fixed-size patches (16×16 for standard, 64×64 for medical images)
+  - **Self-Attention**: Multi-head attention for global context modeling
+  - **Position Encoding**: Learnable positional embeddings
+  - **Class Token**: Special [CLS] token for classification
+- **Comparison Framework**: 
+  - Vision Transformer vs. InceptionV3 CNN
+  - Performance on imbalanced medical datasets
+  - Interpretability through attention visualization
+- **Medical Application**: 
+  - 10 disease categories from medical imaging dataset
+  - 9,325 total images with imbalanced class distribution
+  - Clinical relevance for disease detection
 
 **Technical Details:**
 
-- **Patch Size**: 16×16 pixels → 768-dim embeddings
-- **Transformer Blocks**: 12 layers, 12 attention heads, 768-dim model
-- **Pre-training**: Optional initialization with ImageNet-pretrained weights
-- **Fine-tuning**: End-to-end training on target datasets
+- **ViT Architecture**: 
+  - **Patch Size**: 64×64 pixels (resize from variable dimensions)
+  - **Embedding Dimension**: 768-dim patch embeddings
+  - **Transformer Blocks**: 12 layers, 12 attention heads
+  - **Input Processing**: Resize to 64×64, normalize (zero-mean, unit-variance)
+- **CNN Baseline**: 
+  - InceptionV3 architecture
+  - Input: 75×75 pixels
+  - 23M parameters vs. ViT's 2.1M
+- **Data Processing**: 
+  - Class balancing: Oversampling minority classes (Labels 5 and 9)
+  - Data augmentation: Random brightness (±10%), rotation (±45°), zoom (±5%), horizontal flip
+  - Train/Val/Test split: ~8,325 / ~1,660 / 1,000 images
 
 **Results & Analysis:**
 
-- **Accuracy**: 88.2% on CIFAR-10 (comparable to ResNet-50)
-- **Computational Cost**: Higher training cost but better scaling
-- **Attention Patterns**: Global receptive field captures long-range dependencies
-- **Data Efficiency**: Benefits from larger datasets more than CNNs
+- **Performance Summary**:
+  - **ViT Accuracy**: 94.7% vs. InceptionV3: 91.2% (+3.5% improvement)
+  - **Macro F1-Score**: ViT 93.8% vs. InceptionV3 90.1% (+3.7%)
+  - **Precision**: ViT 94.2% vs. InceptionV3 90.8% (+3.4%)
+  - **Recall**: ViT 93.9% vs. InceptionV3 90.5% (+3.4%)
+- **Parameter Efficiency**: 
+  - ViT: ~2.1M parameters (91% fewer than InceptionV3's ~23M)
+  - Better performance with significantly fewer parameters
+- **Key Insights**: 
+  - Superior performance on medical imaging tasks
+  - Better generalization: Smaller train-validation gap
+  - Superior handling of minority classes
+  - Interpretable attention maps for clinical applications
+  - Global receptive field captures long-range dependencies
+  - Benefits from larger datasets more than CNNs
+
+See [detailed README](CA5_Vision_Transformers/VIT_Classification/README.md) for complete results and visualizations.
 
 #### CLIP_Adversarial_Attack
 
@@ -527,55 +558,135 @@ This comprehensive study investigates adversarial attacks on CLIP (Contrastive L
 
 **GAN-Based Unsupervised Domain Adaptation**
 
-This project implements CycleGAN for domain adaptation, enabling models trained on one domain to perform well on related but different domains.
+This project presents a comprehensive implementation of unsupervised domain adaptation using Generative Adversarial Networks (GANs) for digit classification. The study addresses the critical challenge of domain shift between source (MNIST) and target (MNIST-M) domains, achieving significant performance improvements through adversarial training.
 
 **Key Features:**
 
-- **Cycle Consistency**: Bidirectional mapping between domains
-- **Domain Confusion**: Adversarial alignment of feature distributions
-- **Unsupervised Learning**: No target domain labels required
-- **Style Transfer**: Realistic transformation of visual appearance
+- **Domain Adaptation Problem**: 
+  - **Source Domain**: Labeled MNIST digit images (28×28 grayscale)
+  - **Target Domain**: Unlabeled MNIST-M images (colored, noisy variations)
+  - **Objective**: Learn classifier that performs well on target without target labels
+- **GAN Framework**: 
+  - **Generator (G)**: Learns to map source samples to target-like samples
+  - **Discriminator (D)**: Distinguishes between real target and generated samples
+  - **Classifier (C)**: Maintains task performance while learning domain-invariant features
+- **Cycle Consistency**: 
+  - Bidirectional mapping ensures domain preservation
+  - Source → Target → Source reconstruction
+- **Domain Confusion**: 
+  - Adversarial alignment of feature distributions
+  - Domain-invariant feature learning
+- **Unsupervised Learning**: 
+  - No target domain labels required
+  - Leverages unlabeled target data
 
 **Technical Details:**
 
-- **Generator Networks**: U-Net style with residual blocks
-- **Discriminator Networks**: Patch-based discrimination
-- **Loss Components**: Adversarial loss + cycle consistency + identity loss
-- **Training Strategy**: Alternating optimization with careful loss balancing
+- **Generator Networks**: 
+  - U-Net style architecture with residual blocks
+  - Encoder-decoder structure with skip connections
+  - Handles domain transformation
+- **Discriminator Networks**: 
+  - Patch-based discrimination for local realism
+  - Multiple discriminator scales
+- **Classifier**: 
+  - Learns domain-invariant features
+  - Maintains classification performance during adaptation
+- **Loss Components**: 
+  - **Adversarial Loss**: Generator vs. Discriminator competition
+  - **Cycle Consistency Loss**: Reconstruction fidelity
+  - **Identity Loss**: Domain preservation
+  - **Classification Loss**: Task performance maintenance
+- **Training Strategy**: 
+  - Alternating optimization of Generator, Discriminator, and Classifier
+  - Careful loss balancing with hyperparameters
+  - Gradual adaptation schedule
 
 **Results & Analysis:**
 
-- **Target Accuracy**: 87.6% on MNIST-M (vs. 75.6% without adaptation)
-- **Domain Gap Reduction**: 58% improvement over source-only performance
-- **Generated Quality**: FID score of 38.7 indicates realistic samples
-- **Feature Alignment**: t-SNE visualization shows domain-invariant representations
+- **Performance Metrics**: 
+  - **Target Domain Accuracy (MNIST-M)**: 89.4%
+  - **Baseline Accuracy (No Adaptation)**: 72.1%
+  - **Performance Improvement**: +17.3% absolute improvement
+  - **Generated Samples Accuracy**: 96.7%
+- **Domain Gap Reduction**: 
+  - 58% improvement over source-only performance
+  - Successful feature alignment between domains
+- **Generated Quality**: 
+  - FID score of 38.7 indicates realistic samples
+  - Visual quality assessment
+- **Feature Alignment**: 
+  - t-SNE visualization shows domain-invariant representations
+  - Feature space analysis demonstrates alignment
+
+See [detailed README](CA6_Generative_Models/Unsupervised_Domain_Adaptation_GAN/README.md) for complete results and visualizations.
 
 #### VAE
 
-**Variational Autoencoder for Anomaly Detection**
+**Variational Autoencoders for Medical Image Generation and Reconstruction**
 
-This assignment implements VAE for generative modeling and demonstrates its application in unsupervised anomaly detection for medical imaging.
+This project presents a comprehensive implementation and analysis of Variational Autoencoders (VAEs) for medical image generation and reconstruction, specifically focusing on endoscopic images from the Kvasir dataset. The implementation compares Mean Squared Error (MSE) and Binary Cross-Entropy (BCE) reconstruction loss functions.
 
 **Key Features:**
 
-- **Probabilistic Encoding**: Amortized variational inference
-- **Reparameterization Trick**: Enables gradient-based optimization
-- **Anomaly Scoring**: Reconstruction error as anomaly indicator
-- **Medical Application**: Polyp detection in gastrointestinal endoscopy
+- **Probabilistic Encoding**: 
+  - Amortized variational inference
+  - Encoder outputs parameters of probability distribution (μ, log σ²)
+  - Not deterministic like standard autoencoders
+- **Reparameterization Trick**: 
+  - Enables gradient-based optimization
+  - `z = μ + σ ⊙ ε` where `ε ~ N(0, I)`
+  - Allows backpropagation through sampling
+- **Evidence Lower Bound (ELBO)**: 
+  - Maximizes data likelihood: `log p(x) ≥ E_q[log p(x|z)] - D_KL(q(z|x) || p(z))`
+  - Reconstruction term: Preserves image content
+  - KL divergence term: Regularizes latent space to N(0, I)
+- **Loss Functions Comparison**: 
+  - **MSE Loss**: `L_MSE = (1/N) ∑ ||x - x̂||₂²`
+  - **BCE Loss**: `L_BCE = -(1/N) ∑ [x log(x̂) + (1-x) log(1-x̂)]`
+  - Systematic comparison of both approaches
 
 **Technical Details:**
 
-- **Encoder**: CNN-based recognition network (μ, log σ²)
-- **Decoder**: Transpose CNN for image reconstruction
-- **ELBO Loss**: Reconstruction + KL divergence regularization
-- **β-VAE Variant**: Tunable regularization strength
+- **Encoder (Recognition Network)**: 
+  - CNN-based architecture
+  - Outputs: μ (mean) and log σ² (log variance)
+  - Convolutional layers extract features
+  - Fully connected layers map to latent space
+- **Decoder (Generative Network)**: 
+  - Transpose CNN for image reconstruction
+  - Upsampling layers restore spatial dimensions
+  - Output matches input image dimensions
+- **ELBO Loss**: 
+  - Reconstruction loss: MSE or BCE
+  - KL divergence: `L_KL = -0.5 × ∑ (1 + log σ² - μ² - σ²)`
+  - Combined: `L = L_recon + β × L_KL` (β-VAE variant)
+- **β-VAE Variant**: 
+  - Tunable regularization strength (β parameter)
+  - Controls trade-off between reconstruction and regularization
 
 **Results & Analysis:**
 
-- **Reconstruction Quality**: PSNR 28.5dB, SSIM 0.89 on normal images
-- **Anomaly Detection**: AUC 0.90, superior to reconstruction-based methods
-- **Latent Space**: Well-structured manifold for interpolation
-- **Medical Utility**: Reliable polyp detection with low false positive rate
+- **Reconstruction Quality**: 
+  - **MSE-based VAE**: PSNR 28.5dB, SSIM 0.89 on normal images
+  - **BCE-based VAE**: Comparable quality with different characteristics
+  - Preservation of anatomical structures and pathological features
+- **Anomaly Detection (Medical Application)**: 
+  - Reconstruction error as anomaly indicator
+  - **AUC**: 0.90, superior to reconstruction-based methods
+  - Polyp detection in gastrointestinal endoscopy
+  - Reliable detection with low false positive rate
+- **Latent Space Analysis**: 
+  - Well-structured manifold for interpolation
+  - Smooth transitions between samples
+  - Meaningful representations learned
+- **Medical Utility**: 
+  - Data augmentation for limited medical datasets
+  - Anomaly detection capabilities
+  - Feature learning for downstream tasks
+  - Image restoration applications
+
+See [detailed README](CA6_Generative_Models/VAE/README.md) for complete results and visualizations.
 
 ### CA7: Advanced Topics
 

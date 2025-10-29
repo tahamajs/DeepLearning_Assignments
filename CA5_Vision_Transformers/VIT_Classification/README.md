@@ -468,10 +468,10 @@ VIT_Classification/
     ├── class_distribution.png         # Class distribution bar chart
     ├── data_augmentation.png          # Augmentation examples
     ├── patch_comparison.png           # Patch size comparison
-    ├── vit_training_curves.png       # Vision Transformer training curves
-    ├── cnn_training_curves.png       # InceptionV3 training curves
-    ├── vit_confusion_matrix.png      # Vision Transformer confusion matrix
-    └── cnn_confusion_matrix.png      # InceptionV3 confusion matrix
+    ├── vit_training_curves.png        # Vision Transformer training curves
+    ├── cnn_training_curves.png        # InceptionV3 training curves
+    ├── vit_confusion_matrix.png       # Vision Transformer confusion matrix
+    └── cnn_confusion_matrix.png       # InceptionV3 confusion matrix
 ```
 
 ---

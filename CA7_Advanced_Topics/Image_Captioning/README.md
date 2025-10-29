@@ -1,494 +1,554 @@
-# NNDL_CAe_image_captioning
+# Advanced Image Captioning with Attention Mechanisms
 
-This folder contains the implementation of image captioning in Persian (Farsi) using attention-based encoder-decoder models. Part of Neural Networks and Deep Learning course assignment e.
+**Course**: Neural Networks and Deep Learning  
+**Assignment**: CAe - Question 2  
+**Student**: Taha Majlesi (810101504)  
+**Institution**: University of Tehran, Faculty of Electrical and Computer Engineering
 
-## Concepts Covered
+---
 
-# NNDL_CAe_image_captioning
+## 📋 Table of Contents
 
-This folder contains the implementation of image captioning in Persian (Farsi) using attention-based encoder-decoder models. Part of Neural Networks and Deep Learning course extra assignment.
+1. [Abstract](#abstract)
+2. [Introduction](#introduction)
+3. [Theoretical Framework](#theoretical-framework)
+4. [Dataset Preparation](#dataset-preparation)
+5. [Model Architecture](#model-architecture)
+6. [Training Process](#training-process)
+7. [Advanced Techniques](#advanced-techniques)
+8. [Results and Evaluation](#results-and-evaluation)
+9. [Conclusion](#conclusion)
+10. [Files and Resources](#files-and-resources)
 
-## Concepts Covered
+---
 
-### Image Captioning
+## Abstract
 
-Image captioning generates natural language descriptions from visual content.
+This project presents a comprehensive implementation of an advanced image captioning system using deep learning techniques. The system employs an encoder-decoder architecture with attention mechanisms to generate natural language descriptions for images in Persian (Farsi). We explore and compare three key attention mechanisms:
 
-#### Problem Formulation
+1. **Traditional Attention** (Additive Attention)
+2. **Scheduled Sampling** with Teacher Forcing decay
+3. **Scaled Dot-Product Attention**
 
-```
-Given image I, generate caption C = {w₁, w₂, ..., w_T}
-Maximize P(C|I) = ∏_{t=1}^T P(w_t | w_{<t}, I)
-```
+Each method's performance is evaluated and analyzed to understand their strengths and limitations. The model successfully generates fluent Persian descriptions with proper attention to relevant image regions.
 
-#### Encoder-Decoder Framework
+---
 
-- **Encoder**: Maps image to feature representation
-- **Decoder**: Generates sequence conditioned on image features
-- **Attention**: Dynamically focuses on relevant image regions
+## Introduction
 
-### Attention Mechanisms
+Image captioning is a fundamental task in computer vision and natural language processing that aims to automatically generate natural language descriptions of images. This task bridges the gap between visual understanding and linguistic expression, requiring models to not only recognize objects and scenes in images but also understand their relationships and express them in coherent natural language.
 
-Attention computes relevance weights between decoder state and image features.
+### Problem Definition
 
-#### Scaled Dot-Product Attention
+Given an input image **I**, the goal is to generate a sequence of words **S = (s₁, s₂, ..., sₙ)** that accurately describes the visual content of the image:
 
-```
-Attention(Q, K, V) = softmax(QK^T / √d_k) V
-```
+$$\hat{S} = \arg\max_S P(S|I)$$
 
-Where Q (query), K (key), V (value) are linear projections.
+### Key Challenges
 
-#### Bahdanau (Additive) Attention
+- **Semantic Gap**: Bridging visual features to linguistic concepts
+- **Compositionality**: Understanding spatial and temporal relationships
+- **Diversity**: Generating varied and creative descriptions
+- **Accuracy**: Ensuring factual correctness of generated captions
+- **Multilingual Support**: Handling different languages and cultural contexts
 
-```
-score(s_t, h_i) = v_a^T tanh(W_a s_t + U_a h_i)
-α_{t,i} = softmax(score(s_t, h_i))
-c_t = ∑_i α_{t,i} h_i
-```
+---
 
-#### Multi-Head Attention
-
-```
-MultiHead(Q, K, V) = Concat(head₁, ..., head_h) W^O
-head_i = Attention(QW_i^Q, KW_i^K, VW_i^V)
-```
+## Theoretical Framework
 
 ### Encoder-Decoder Architecture
 
-#### Visual Encoder
+The encoder-decoder framework is the foundation of modern image captioning systems:
 
-CNN extracts hierarchical visual features:
+**Encoder**: Converts the input image into a rich visual representation
+$$V = \text{CNN}(I)$$
 
-```
-I → CNN → f ∈ ℝ^{d×H×W} (feature maps)
-f_flat ∈ ℝ^{d×N} (flattened features)
-```
+**Decoder**: Generates captions conditioned on the visual features
+$$P(S|I) = \prod_{t=1}^{T} P(s_t | s_{<t}, V)$$
 
-#### Language Decoder
+### Attention Mechanism
 
-RNN generates sequence with attention:
+Attention mechanisms address the limitation of fixed-length representations by allowing the decoder to dynamically focus on different parts of the image:
 
-```
-s_0 = Encoder_Output
-for t = 1 to T:
-    c_t = Attention(s_{t-1}, f_flat)
-    s_t = RNN(s_{t-1}, [w_{t-1}; c_t])
-    P(w_t) = softmax(W_o s_t)
-```
+$$\alpha_t = \text{softmax}(e_t)$$
+$$c_t = \sum_{i=1}^{L} \alpha_{t,i} v_i$$
 
-#### Attention-based Captioning
+Where:
 
-```
-Context vector: c_t = ∑_i α_{t,i} f_i
-Decoder input: [embedding(w_{t-1}); c_t]
-```
+- $e_t$ are attention energies
+- $\alpha_t$ are attention weights
+- $c_t$ is the context vector
+- $v_i$ are visual features
 
-### Persian Language Processing
+### Mathematical Formulation
 
-#### Arabic Script Challenges
+1. **Visual Encoding**: $V = \{v_1, v_2, ..., v_L\}$ where $L$ is the number of spatial locations
+2. **Attention Computation**: $e_{t,i} = f_{att}(h_{t-1}, v_i)$
+3. **Context Vector**: $c_t = \sum_{i=1}^{L} \alpha_{t,i} v_i$
+4. **Hidden State Update**: $h_t = f_{lstm}(h_{t-1}, [s_{t-1}; c_t])$
+5. **Word Prediction**: $P(s_t|s_{<t}, I) = \text{softmax}(W_o h_t + b_o)$
 
-- **Right-to-Left**: Bidirectional text rendering
-- **Arabic Forms**: Different glyph forms (isolated, initial, medial, final)
-- **Normalization**: Standardize different Unicode representations
+---
 
-#### Text Preprocessing
+## Dataset Preparation
 
-- **Tokenization**: Word-level segmentation with Hazm library
-- **Normalization**: Convert to standard Persian forms
-- **Vocabulary**: Build from training captions with frequency filtering
-- **Special Tokens**: `<SOS>`, `<EOS>`, `<PAD>`, `<UNK>`
+### Dataset: COCO-Flickr-FA-40k
 
-### Implementation Details
+- **Total Images**: 40,000 images from COCO dataset
+- **Captions**: One Persian caption per image
+- **Image Dimensions**: Range from 72×51 to 673×664 pixels
+- **Train/Val/Test Split**: 10,000 / 500 / 500 samples
 
-#### Dataset: COCO-Flickr-FA-40k
+### Data Preprocessing
 
-- **Images**: 40K images from COCO dataset (resized to 224×224)
-- **Captions**: 5 Persian captions per image (200K total)
-- **Vocabulary Size**: ~15K words after filtering (<UNK> for rare words)
-- **Train/Val/Test Split**: 32K/4K/4K images
+#### Sample Images from Dataset
 
-#### Data Preprocessing
+![Sample Dataset Images](images/image_cell19_output0.png)
 
-```python
-# Persian text normalization
-def normalize_persian(text):
-    text = arabic_reshaper.reshape(text)  # Handle RTL
-    text = get_display(text)  # Bidi algorithm
-    text = hazm.Normalizer().normalize(text)  # Persian normalization
-    return text
+_Example images from the COCO-Flickr Persian dataset_
 
-# Tokenization
-def tokenize_caption(caption):
-    words = hazm.word_tokenize(caption)
-    return ['<SOS>'] + words + ['<EOS>']
-```
+#### Caption Length Distribution
 
-#### Model Architecture
+![Caption Length Histogram](images/image_cell20_output0.png)
 
-##### Visual Encoder (ResNet-50)
+_Distribution of caption lengths in the dataset_
 
-```python
-class EncoderCNN(nn.Module):
-    def __init__(self, embed_size):
-        super().__init__()
-        resnet = models.resnet50(pretrained=True)
-        modules = list(resnet.children())[:-2]  # Remove FC and avgpool
-        self.resnet = nn.Sequential(*modules)
-        self.adaptive_pool = nn.AdaptiveAvgPool2d((14, 14))
-        self.linear = nn.Linear(2048, embed_size)
-        self.bn = nn.BatchNorm1d(embed_size, momentum=0.01)
+### Preprocessing Pipeline
 
-    def forward(self, images):
-        features = self.resnet(images)  # [batch, 2048, 7, 7]
-        features = self.adaptive_pool(features)  # [batch, 2048, 14, 14]
-        features = features.view(features.size(0), 2048, -1).transpose(1, 2)  # [batch, 196, 2048]
-        features = self.linear(features)  # [batch, 196, embed_size]
-        features = self.bn(features.transpose(1, 2)).transpose(1, 2)
-        return features
-```
+1. **Text Normalization**: Using Hazm library for Persian text normalization
+2. **Emoji Removal**: Cleaning text from emoji characters
+3. **Tokenization**: Word-level tokenization with Hazm
+4. **Vocabulary Building**: Building vocabulary with frequency filtering
 
-##### Attention Mechanism
+### Tokenizer Statistics
 
-```python
-class Attention(nn.Module):
-    def __init__(self, encoder_dim, decoder_dim, attention_dim):
-        super().__init__()
-        self.encoder_att = nn.Linear(encoder_dim, attention_dim)
-        self.decoder_att = nn.Linear(decoder_dim, attention_dim)
-        self.full_att = nn.Linear(attention_dim, 1)
-        self.relu = nn.ReLU()
-        self.softmax = nn.Softmax(dim=1)
+- **Context Length**: 40 tokens
+- **Total Unique Tokens**: 5,166 (including unknown words)
+- **Dictionary Size**: 2,971 tokens (excluding unknown)
+- **Unknown Words**: 2,195 tokens (42.5% of unique tokens)
+- **Total Tokens in Training Set**: 110,881
 
-    def forward(self, encoder_out, decoder_hidden):
-        att1 = self.encoder_att(encoder_out)  # [batch, num_pixels, attention_dim]
-        att2 = self.decoder_att(decoder_hidden)  # [batch, attention_dim]
-        att = self.full_att(self.relu(att1 + att2.unsqueeze(1))).squeeze(2)  # [batch, num_pixels]
-        alpha = self.softmax(att)  # [batch, num_pixels]
-        attention_weighted_encoding = (encoder_out * alpha.unsqueeze(2)).sum(dim=1)  # [batch, encoder_dim]
-        return attention_weighted_encoding, alpha
-```
+### Dataset Structure
 
-##### Language Decoder
+The `COCODataset` class:
 
-```python
-class DecoderRNN(nn.Module):
-    def __init__(self, embed_size, vocab_size, attention_dim, encoder_dim, decoder_dim, drop_prob=0.3):
-        super().__init__()
-        self.embedding = nn.Embedding(vocab_size, embed_size)
-        self.attention = Attention(encoder_dim, decoder_dim, attention_dim)
-        self.init_h = nn.Linear(encoder_dim, decoder_dim)
-        self.init_c = nn.Linear(encoder_dim, decoder_dim)
-        self.lstm_cell = nn.LSTMCell(embed_size + encoder_dim, decoder_dim, bias=True)
-        self.f_beta = nn.Linear(decoder_dim, encoder_dim)
-        self.fcn = nn.Linear(decoder_dim, vocab_size)
-        self.drop = nn.Dropout(drop_prob)
+- Loads images from specified path
+- Applies necessary transforms (EfficientNet-B4 preprocessing)
+- Converts captions to token IDs
+- Allows switching transforms for visualization
 
-    def forward(self, encoder_out, encoded_captions, caption_lengths):
-        # Implementation follows standard attention decoder
-        # Returns predictions and attention weights
-        pass
-```
+---
 
-#### Training Parameters
+## Model Architecture
 
+### Architecture Overview
+
+- **Encoder**: EfficientNet-B4 (pre-trained, frozen)
+- **Decoder**: LSTM with attention mechanism (trainable)
 - **Embedding Dimension**: 300
-- **Encoder Dimension**: 2048 (ResNet features)
-- **Decoder Dimension**: 512
+- **Decoder Hidden Dimension**: 512
 - **Attention Dimension**: 512
-- **Batch Size**: 32
-- **Learning Rate**: 4e-4 (Adam, β1=0.9, β2=0.999)
-- **Weight Decay**: 1e-3
-- **Epochs**: 50
-- **Teacher Forcing Ratio**: 0.5 (scheduled sampling)
+- **Total Parameters**: 28.4 million
+  - Encoder (non-trainable): 17.5 million
+  - Decoder (trainable): 10.8 million
 
-#### Loss Function
+### Encoder Design
 
-```python
-def clip_gradient(optimizer, grad_clip):
-    for group in optimizer.param_groups:
-        for param in group['params']:
-            if param.grad is not None:
-                param.grad.data.clamp_(-grad_clip, grad_clip)
+**Input**: RGB image with dimensions 380×380  
+**Output**: Visual features with dimensions `[batch_size, 144, 1792]`
 
-# Cross-entropy loss with masking
-criterion = nn.CrossEntropyLoss(ignore_index=vocab['<PAD>'])
-loss = criterion(predictions.view(-1, vocab_size), targets.view(-1))
-```
+- 144: Number of spatial locations
+- 1792: Feature dimension for each location
 
-#### Inference: Beam Search
+All EfficientNet parameters are frozen to leverage pre-trained features.
 
-```python
-def beam_search_decode(model, image, beam_width=3, max_length=50):
-    # Initialize beam with <SOS>
-    # Expand beam by predicting next words
-    # Keep top-k sequences
-    # Return best caption
-    pass
-```
+### Decoder Design
 
-### Evaluation Metrics
+The Decoder consists of three main components:
 
-#### BLEU Scores
+#### 1. Classic Attention Layer
 
-Bilingual Evaluation Understudy measures n-gram overlap:
+The classic attention mechanism (Additive Attention):
 
-```
-BLEU-n = BP × exp(∑_{i=1}^n w_i log p_i)
-BP = min(1, exp(1 - r/c))  # Brevity penalty
-```
+- **Inputs**: Encoder features (a) and decoder hidden state (h)
+- **Attention Energy**: Linear combination of features and hidden state
+- **Attention Weights**: Softmax over energies
+- **Context Vector**: Weighted sum of visual features
+- **Beta Coefficient**: A gate to control the importance of the context vector
 
-#### METEOR
+#### 2. Custom LSTM Cell
 
-Metric for Translation Evaluation with Explicit ORdering:
+A manual implementation of LSTM:
 
-```
-METEOR = F_mean × (1 - penalty)
-```
+- Four gates: Input (i), Forget (f), Output (o), Gate (g)
+- Uses previous word embedding, hidden state, and attention context vector
+- Incorporates visual information at each step
 
-#### ROUGE-L
+#### 3. Output Layers
 
-Recall-Oriented Understudy for Gisting Evaluation:
+- **Embedding**: Converts word IDs to dense vectors (300-dim)
+- **LSTM**: Processes sequences while considering attention
+- **Output**: Combines embedding, hidden state, and context vector
 
-```
-ROUGE-L = F_{β=1} = 2 × (precision × recall) / (precision + recall)
-```
+#### Generation Methods
 
-#### CIDEr
+1. **Greedy Decoding**: Selects the word with highest probability at each step
+2. **Beam Search**: Maintains k best candidates for better search (beam_width=3)
 
-Consensus-based Image Description Evaluation:
+---
 
-```
-CIDEr_n = (10^{-n}) ∑_{i=1}^n w_i × TF-IDF(w_i)
-```
-
-### Results and Analysis
-
-#### Quantitative Results
-
-| Model              | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | METEOR | ROUGE-L |
-| ------------------ | ------ | ------ | ------ | ------ | ------ | ------- |
-| No Attention       | 0.582  | 0.356  | 0.218  | 0.132  | 0.245  | 0.468   |
-| Bahdanau           | 0.643  | 0.412  | 0.267  | 0.168  | 0.278  | 0.512   |
-| Scaled Dot-Product | 0.658  | 0.428  | 0.281  | 0.182  | 0.291  | 0.528   |
-| Multi-Head         | 0.672  | 0.445  | 0.295  | 0.195  | 0.305  | 0.542   |
-
-#### Detailed Performance
-
-- **Best Model**: Multi-head attention (BLEU-4: 0.195)
-- **Attention Improvement**: +9% BLEU-1, +47% BLEU-4 over no attention
-- **Training Stability**: Scaled dot-product converges faster
-- **Beam Search**: Width 3 optimal (higher width marginal gains)
-
-#### Training Dynamics
-
-- **Loss Convergence**: Initial loss ~8.5 → Final loss ~3.2
-- **Validation BLEU**: Peaks at epoch 35-40, slight overfitting after
-- **Attention Maps**: Become more focused and semantically meaningful
-- **Learning Rate Schedule**: Exponential decay prevents divergence
-
-#### Qualitative Analysis
-
-- **Generated Captions**: Natural Persian descriptions with proper grammar
-- **Attention Visualization**: Focuses on main subjects and relevant objects
-- **Error Analysis**: Common failures in complex scenes with multiple objects
-- **Diversity**: Beam search generates varied but semantically similar captions
-
-#### Ablation Studies
-
-- **Attention Dimension**: 512 optimal (higher dims overfit)
-- **Decoder Hidden Size**: 512 best balance of capacity and speed
-- **Dropout Rate**: 0.3 reduces overfitting without hurting performance
-- **Pretrained Encoder**: ResNet-50 significantly outperforms random initialization
-
-#### Persian-Specific Challenges
-
-- **Script Handling**: Proper RTL rendering critical for evaluation
-- **Vocabulary Size**: Limited Persian caption data affects rare word generation
-- **Morphology**: Complex Persian word forms require careful tokenization
-- **Cultural Context**: Captions reflect Persian cultural perspectives
-
-### Challenges and Solutions
-
-#### Persian Language Processing
-
-- **Solution**: Hazm library for tokenization, proper normalization pipeline
-- **Bidi Handling**: Use arabic-reshaper and bidi-algorithm for display
-
-#### Attention Stability
-
-- **Solution**: Gradient clipping, proper initialization, attention masking
-- **Training**: Scheduled sampling prevents exposure bias
-
-#### Limited Dataset
-
-- **Solution**: Data augmentation, careful validation splits
-- **Regularization**: Dropout, weight decay prevent overfitting
-
-#### Evaluation Metrics
-
-- **Solution**: BLEU smoothing for short sentences, multiple metrics
-- **Human Evaluation**: Qualitative assessment of caption quality
-
-### Applications and Extensions
-
-#### Multilingual Captioning
-
-- **Low-Resource Languages**: Persian captioning techniques for other RTL languages
-- **Cross-Lingual Transfer**: Transfer learning from English to Persian
-- **Multilingual Models**: Joint training on multiple languages
-
-#### Persian NLP Applications
-
-- **Visual Question Answering**: Persian VQA systems
-- **Image-Text Retrieval**: Persian cross-modal retrieval
-- **Content Generation**: Persian image description for social media
-
-#### Accessibility and Inclusion
-
-- **Screen Readers**: Persian audio descriptions for visually impaired
-- **Educational Tools**: Persian language learning with visual context
-- **Cultural Preservation**: Documenting Persian cultural heritage
-
-## Files
-
-- `code/NNDL_CAe_2.ipynb`: Complete Persian image captioning implementation
-- `report/`: Analysis with BLEU scores, attention heatmaps, generated captions
-- `description/`: Assignment specifications
-
-## Key Learnings
-
-1. Attention mechanisms significantly improve image captioning performance
-2. Persian language processing requires careful handling of RTL script
-3. Multi-head attention provides best performance for visual-linguistic alignment
-4. Beam search generates more diverse and accurate captions
-5. Pretrained visual encoders are crucial for captioning quality
-
-## Conclusion
-
-This implementation achieves 0.672 BLEU-1 and 0.195 BLEU-4 for Persian image captioning using multi-head attention. The model successfully generates fluent Persian descriptions with proper attention to relevant image regions, demonstrating effective cross-modal learning for Persian language processing.
-
-### Attention Mechanisms
-
-- **Scaled Dot-Product Attention**: Standard transformer attention
-- **Bahdanau Attention**: Content-based attention for sequence generation
-- **Visual Attention**: Focus on relevant image regions during captioning
-
-### Encoder-Decoder with Attention
-
-- **Encoder**: CNN extracts visual features
-- **Decoder**: RNN with attention generates Persian captions
-- **Attention Layer**: Computes relevance between decoder state and image features
-
-### Persian Text Processing
-
-- **Normalization**: Handle different Arabic forms
-- **Tokenization**: Word-level tokenization with Hazm library
-- **Bidi Algorithm**: Proper display of right-to-left text
-
-## Implementation Details
-
-### Dataset
-
-- **COCO-Flickr-FA-40k**: Persian captions for COCO images
-- **Images**: 40,000 images from COCO dataset
-- **Captions**: Multiple Persian descriptions per image
-- **Preprocessing**:
-  - Persian text normalization and cleaning
-  - Remove emojis and special characters
-  - Tokenization with Hazm
-  - Vocabulary building with frequency filtering
-
-### Model Architecture
-
-#### Encoder
-
-- **CNN Backbone**: ResNet-50 pretrained on ImageNet
-- **Feature Extraction**: Final conv layer features (2048x7x7)
-- **Adaptive Pooling**: Reduce to fixed dimension
-
-#### Decoder
-
-- **Embedding Layer**: Persian word embeddings (300-dim)
-- **LSTM/GRU**: Sequence generation with attention
-- **Attention Mechanism**: Scaled dot-product or Bahdanau
-- **Output Projection**: Vocabulary-sized softmax
-
-#### Attention Variants
-
-- **Scaled Dot-Product**: Q·K^T / sqrt(d_k) with softmax
-- **Bahdanau**: MLP-based attention scoring
-- **Multi-Head**: Multiple attention heads for richer context
-
-### Training Parameters
-
-- **Embedding Dimension**: 300
-- **Decoder Hidden Size**: 512
-- **Attention Dimension**: 512
-- **Batch Size**: 32
-- **Learning Rate**: 0.01 with exponential decay
-- **Epochs**: 50
-- **Beam Width**: 3 for inference
+## Training Process
 
 ### Loss Function
 
-- Cross-Entropy Loss with ignore_index for padding
-- Scheduled sampling for better convergence
+The loss function combines two components:
+
+1. **Cross-Entropy Loss**: For correct word prediction (main loss)
+2. **Regularization Loss**: To ensure attention weights are properly normalized
+   $$\mathcal{L}_{reg} = \lambda \cdot \frac{1}{B} \sum_{b=1}^{B} \left(1 - \sum_{i=1}^{L} \alpha_{b,t,i}\right)^2$$
+
+Final loss:
+$$\mathcal{L} = \mathcal{L}_{CE} + \lambda \cdot \mathcal{L}_{reg}$$
+
+where $\lambda = 1$ controls regularization importance.
+
+### Training Configuration
+
+- **Optimizer**: Adam with initial learning rate 0.01
+- **Learning Rate Scheduler**: ExponentialLR with decay factor 0.98
+- **Batch Size**: 64
+- **Max Epochs**: 50
+- **Early Stopping**: Patience = 10, warmup = 3 epochs
+- **Weight Decay**: 1e-5 for regularization
+
+### Training Progress - Base Model
+
+![Training Loss and BLEU](images/image_cell47_output0.png)
+
+_Loss and BLEU score progression during training_
+
+![Validation BLEU](images/image_cell47_output1.png)
+
+_Validation BLEU score improvement over epochs_
 
 ### Evaluation Metrics
 
-- **BLEU Scores**: BLEU-1, BLEU-2, BLEU-3, BLEU-4
-- **Corpus BLEU**: Sentence-level vs. corpus-level
-- **Attention Maps**: Qualitative evaluation of focus regions
+- **BLEU-1 to BLEU-4**: Measures n-gram overlap between generated and reference captions
+- **BLEU-4**: Most accurate metric as it considers sentence structure
 
-## Results
+---
 
-### Model Performance
+## Advanced Techniques
 
-- **BLEU-1**: ~0.65
-- **BLEU-4**: ~0.25
-- **Corpus BLEU**: ~0.35
-- Better performance with attention vs. without
+### 1. Scheduled Sampling
 
-### Attention Analysis
+#### Problem with Teacher Forcing
 
-- **Scaled Dot-Product**: More stable training, better BLEU scores
-- **Bahdanau Attention**: Slower convergence but potentially better alignment
-- **Visual Grounding**: Attention maps highlight relevant objects
+In standard training, the model uses ground truth words at each step, causing:
 
-### Qualitative Results
+1. **Exposure Bias**: During inference, model must use its own predictions
+2. **Divergence**: Errors propagate to subsequent steps
 
-- **Generated Captions**: Fluent Persian descriptions
-- **Attention Visualization**: Heatmaps showing focus on subjects
-- **Diverse Generations**: Beam search produces varied captions
+#### Solution: Scheduled Sampling
 
-### Training Dynamics
+Gradually decreases probability of using ground truth words:
 
-- Loss decreases steadily over 50 epochs
-- Scheduled sampling improves stability
-- Exponential LR decay prevents overfitting
+- **Epoch 1**: $p_{teacher} = 1.0$ (always use ground truth)
+- **Each Epoch**: $p_{teacher} = p_{teacher} - 0.02$ (gradual decrease)
+- **Final Epochs**: $p_{teacher} \approx 0.0$ (only use predictions)
 
-### Challenges Addressed
+#### Training with Scheduled Sampling
 
-- **Persian Script**: Right-to-left rendering and normalization
-- **Limited Dataset**: 40k images with Persian captions
-- **Attention Stability**: Proper scaling and masking
-- **Evaluation**: BLEU smoothing for short Persian sentences
+![Scheduled Sampling Training](images/image_cell69_output0.png)
 
-## Applications
+_Loss progression with scheduled sampling_
 
-- **Multilingual Captioning**: Persian image descriptions
-- **Accessibility**: Persian audio descriptions for visually impaired
-- **Content Moderation**: Persian text analysis
-- **Cultural Adaptation**: Localized captioning systems
+![Scheduled Sampling BLEU](images/image_cell69_output1.png)
 
-## Files
+_BLEU score improvement with scheduled sampling_
 
-- `code/`: PyTorch implementation with Persian text processing
-- `report/`: Analysis with BLEU scores and attention visualizations
-- `paper/`: Attention and multilingual captioning papers
-- `description/`: Assignment description
+#### Benefits
+
+- Better adaptation to inference conditions
+- More robust to errors
+- Improved generation performance
+
+### 2. Scaled Dot-Product Attention
+
+#### Advantages over Classic Attention
+
+1. **Computational Efficiency**: Uses matrix multiplication instead of multiple linear layers
+2. **Simplicity**: Fewer parameters
+3. **Scaling**: Division by $\sqrt{d_k}$ prevents gradient explosion
+4. **Better Performance**: Often outperforms classic attention
+
+#### Implementation
+
+$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+
+Where:
+
+- **Q (Query)**: Extracted from decoder hidden state
+- **K (Key)**: Extracted from encoder features
+- **V (Value)**: The encoder features themselves
+
+#### Training with Scaled Dot-Product Attention
+
+![Scaled Attention Training](images/image_cell70_output0.png)
+
+_Loss convergence with scaled dot-product attention_
+
+#### Improvements
+
+- Faster convergence
+- Higher BLEU scores
+- More stable training
+
+---
+
+## Results and Evaluation
+
+### Sample Caption Generation
+
+#### Base Model Results
+
+![Sample Captions - Base Model](images/image_cell49_output0.png)
+
+_Sample generated captions using Greedy decoding_
+
+![Sample Captions with Beam Search](images/image_cell53_output0.png)
+
+_Comparison of Greedy vs Beam Search decoding_
+
+#### Scheduled Sampling Results
+
+![Scheduled Sampling Captions](images/image_cell87_output0.png)
+
+_Generated captions with scheduled sampling_
+
+![Scheduled Sampling Comparison](images/image_cell87_output1.png)
+
+_Improved caption quality with scheduled sampling_
+
+#### Scaled Dot-Product Attention Results
+
+![Scaled Attention Captions](images/image_cell88_output0.png)
+
+_Generated captions with scaled dot-product attention_
+
+### Quantitative Evaluation
+
+#### Base Model Performance
+
+The base model with traditional attention achieves:
+
+- Steady loss decrease during training
+- Gradual BLEU score improvement
+- Good generalization (small train-val gap)
+
+#### Scheduled Sampling Performance
+
+- Gradual improvement in BLEU scores
+- Reduced exposure bias
+- More diverse and natural captions
+- Longer and more complete descriptions
+
+#### Scaled Dot-Product Attention Performance
+
+- Faster convergence
+- Higher BLEU scores
+- Better training stability
+- Improved caption accuracy
+
+### Attention Map Visualization
+
+Attention maps show which parts of the image the model focuses on when generating each word. Red/orange regions indicate highest attention, while blue/green regions have less attention.
+
+#### Base Model Attention Maps
+
+![Attention Map 1](images/image_cell54_output0.png)
+_Attention visualization for sample 1_
+
+![Attention Map 2](images/image_cell55_output0.png)
+_Attention visualization for sample 2_
+
+![Attention Map 3](images/image_cell56_output0.png)
+_Attention visualization for sample 3_
+
+![Attention Map 4](images/image_cell57_output0.png)
+_Attention visualization for sample 4_
+
+#### Scheduled Sampling Attention Maps
+
+![SS Attention Map 1](images/image_cell77_output0.png)
+_Attention with scheduled sampling - sample 1_
+
+![SS Attention Map 2](images/image_cell78_output0.png)
+_Attention with scheduled sampling - sample 2_
+
+![SS Attention Map 3](images/image_cell79_output0.png)
+_Attention with scheduled sampling - sample 3_
+
+#### Scaled Dot-Product Attention Maps
+
+![Scaled Attention Map 1](images/image_cell90_output0.png)
+_Scaled dot-product attention - sample 1_
+
+![Scaled Attention Map 2](images/image_cell91_output0.png)
+_Scaled dot-product attention - sample 2_
+
+![Scaled Attention Map 3](images/image_cell92_output0.png)
+_Scaled dot-product attention - sample 3_
+
+![Scaled Attention Map 4](images/image_cell93_output0.png)
+_Scaled dot-product attention - sample 4_
+
+![Scaled Attention Map 5](images/image_cell94_output0.png)
+_Scaled dot-product attention - sample 5_
+
+### Detailed Caption Comparison
+
+The following images show detailed comparisons of generated captions:
+
+![Detailed Captions - Base Model](images/image_cell24_output1.png)
+
+_Detailed caption generation analysis_
+
+![Caption Comparison during Training](images/image_cell40_output1.png)
+![Caption Comparison during Training 2](images/image_cell40_output3.png)
+![Caption Comparison during Training 3](images/image_cell40_output5.png)
+![Caption Comparison during Training 4](images/image_cell40_output7.png)
+![Caption Comparison during Training 5](images/image_cell40_output9.png)
+![Caption Comparison during Training 6](images/image_cell40_output11.png)
+![Caption Comparison during Training 7](images/image_cell40_output13.png)
+![Caption Comparison during Training 8](images/image_cell40_output15.png)
+![Caption Comparison during Training 9](images/image_cell40_output17.png)
+![Caption Comparison during Training 10](images/image_cell40_output19.png)
+![Caption Comparison during Training 11](images/image_cell40_output21.png)
+![Caption Comparison during Training 12](images/image_cell40_output23.png)
+![Caption Comparison during Training 13](images/image_cell40_output25.png)
+![Caption Comparison during Training 14](images/image_cell40_output27.png)
+![Caption Comparison during Training 15](images/image_cell40_output29.png)
+![Caption Comparison during Training 16](images/image_cell40_output31.png)
+![Caption Comparison during Training 17](images/image_cell40_output33.png)
+![Caption Comparison during Training 18](images/image_cell40_output35.png)
+![Caption Comparison during Training 19](images/image_cell40_output37.png)
+![Caption Comparison during Training 20](images/image_cell40_output39.png)
+
+_Training progress showing generated captions at different epochs_
+
+### Method Comparison
+
+| Method                    | Advantages                                             | Disadvantages                               |
+| ------------------------- | ------------------------------------------------------ | ------------------------------------------- |
+| **Traditional Attention** | Simple implementation, easy to understand              | May have lower performance in complex cases |
+| **Scheduled Sampling**    | Reduced exposure bias, more diverse captions           | Requires careful tuning of decay schedule   |
+| **Scaled Dot-Product**    | Higher efficiency, better performance, faster learning | May require more tuning in some cases       |
+
+### Key Observations
+
+1. **Scaled Dot-Product Attention** usually achieves the best BLEU scores
+2. **Scheduled Sampling** produces more diverse and natural captions
+3. **Beam Search** performs better than Greedy in all methods
+4. All methods successfully generate meaningful Persian captions
+5. Attention maps show models learn to attend to correct regions
+
+---
 
 ## Conclusion
 
-The implementation successfully generates Persian captions with attention mechanisms, achieving competitive BLEU scores and demonstrating effective visual-linguistic alignment for Persian language processing.
+### Project Summary
+
+This project successfully implements a complete Persian image captioning system using deep learning. The system uses an encoder-decoder architecture with EfficientNet-B4 as the encoder and LSTM with attention mechanism as the decoder.
+
+### Main Achievements
+
+1. **Complete Implementation**: All pipeline components from preprocessing to evaluation
+2. **Method Comparison**: Examination of three different attention methods and Scheduled Sampling
+3. **Comprehensive Evaluation**: Use of BLEU metrics and attention visualization
+4. **Persian Processing**: Appropriate implementation for Persian language
+
+### Key Learnings
+
+- **Attention Mechanisms**: Play a key role in generation quality
+- **Scheduled Sampling**: Gradually reducing Teacher Forcing improves performance
+- **Scaled Dot-Product**: Simplicity and higher efficiency compared to classic attention
+- **Beam Search**: Better method than Greedy for caption generation
+
+### Future Directions
+
+- Using Transformer instead of LSTM
+- Implementing Self-Attention in decoder
+- Using BERT or similar models for improved language processing
+- Increasing dataset size
+- Fine-tuning Encoder for the specific task
+
+### Final Notes
+
+This project demonstrates that with appropriate architectures and advanced techniques, efficient image captioning systems for Persian language can be built. The key to success lies in the proper combination of architecture, appropriate loss function, and training techniques.
+
+---
+
+## Files and Resources
+
+### Code Files
+
+- `code/NNDL_CAe_2.ipynb`: Complete Persian image captioning implementation with all three attention mechanisms
+- `code/NNDL_CAe_2_Complete_IEEE.ipynb`: IEEE format version
+- `extract_images.py`: Script to extract images from notebook
+
+### Documentation
+
+- `README.md`: This comprehensive documentation
+- `description/NNDL_HWe.pdf`: Assignment description
+- `report/NNDL_UT_CAe_2.pdf`: Project report
+
+### Reference Papers
+
+- `paper/1502.03044v3.pdf`: Show and Tell: A Neural Image Caption Generator
+- `paper/1506.03099v3.pdf`: Show, Attend and Tell: Neural Image Caption Generation with Visual Attention
+
+### Images Directory
+
+All extracted images from the notebook are stored in the `images/` directory:
+
+- Dataset visualizations
+- Training progress plots
+- Generated caption examples
+- Attention map visualizations
+- Method comparison charts
+
+---
+
+## Technical Details
+
+### Requirements
+
+```python
+torch>=1.9.0
+torchvision>=0.10.0
+matplotlib>=3.3.0
+numpy>=1.19.0
+PIL>=8.0.0
+hazm>=0.7.0
+arabic-reshaper>=3.0.0
+python-bidi>=0.4.2
+nltk>=3.6.0
+```
+
+### Model Checkpoints
+
+- `checkpoint_loss.pth`: Base model checkpoint
+- `checkpoint_scheduled_sampling.pth`: Scheduled sampling model checkpoint
+- `scaled_dot_prod_attn.pth`: Scaled dot-product attention model checkpoint
+
+---
+
+## Acknowledgments
+
+This project is part of the Neural Networks and Deep Learning course at the University of Tehran. Special thanks to the course instructors and the developers of the libraries used in this implementation.
+
+---
+
+**Last Updated**: 2024  
+**Version**: 1.0

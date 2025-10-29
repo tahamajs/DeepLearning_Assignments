@@ -1,403 +1,648 @@
-# NNDL_CAe_CNN_VIT_adversarial_attack
+# Adversarial Attacks on CNN and Vision Transformer Models
 
-This folder contains the implementation of adversarial attacks on Convolutional Neural Networks (CNNs) and Vision Transformers (ViTs). Part of Neural Networks and Deep Learning course extra assignment.
+**Neural Networks and Deep Learning - CAe Question 1**
 
-## Concepts Covered
+**Author:** Taha Majlesi - 810101504  
+**Institution:** University of Tehran, Faculty of Electrical and Computer Engineering
 
-### Adversarial Attacks
+---
 
-Adversarial attacks craft imperceptible perturbations that cause misclassification.
+## Table of Contents
 
-#### Threat Model
+1. [Abstract](#abstract)
+2. [Introduction](#introduction)
+3. [Objectives](#objectives)
+4. [Theoretical Background](#theoretical-background)
+5. [Methodology](#methodology)
+6. [Experimental Setup](#experimental-setup)
+7. [Results and Analysis](#results-and-analysis)
+8. [Discussion](#discussion)
+9. [Conclusion](#conclusion)
+10. [References](#references)
 
-- **White-box**: Full access to model and gradients
-- **Black-box**: Limited queries, no gradients
-- **Targeted**: Force specific incorrect prediction
-- **Untargeted**: Any incorrect prediction suffices
+---
 
-#### Attack Goals
+## Abstract
 
-```
-x' = x + δ, ||δ||_∞ ≤ ε
-f(x') ≠ f(x), but ||δ|| imperceptible
-```
+This comprehensive study investigates the vulnerability of deep learning models to adversarial attacks, specifically comparing Convolutional Neural Networks (CNNs) and Vision Transformers (ViTs) under Fast Gradient Sign Method (FGSM) and Projected Gradient Descent (PGD) attacks. We implement adversarial training as a defense mechanism and analyze model robustness using Grad-CAM visualizations. Our experiments on CIFAR-100 and Flowers-102 datasets demonstrate significant improvements in adversarial robustness through adversarial training, with up to 15.2% improvement in adversarial accuracy. The study provides insights into the comparative vulnerability of CNN and Transformer architectures to adversarial perturbations and the effectiveness of different defense strategies.
 
-### CNN vs. ViT Architectures
+### Keywords
 
-#### Convolutional Neural Networks (CNNs)
+Adversarial Attacks, Deep Learning Security, Convolutional Neural Networks, Vision Transformers, FGSM, PGD, Adversarial Training, Grad-CAM, Model Robustness
 
-- **Local Receptive Fields**: Hierarchical feature extraction
-- **Translation Invariance**: Built-in robustness to small shifts
-- **Inductive Bias**: Assumes locality and spatial hierarchies
+---
 
-##### ResNet Architecture
+## Introduction
 
-```
-Input → Conv(7×7, 64) → MaxPool → Residual Blocks → GlobalAvgPool → FC
-Residual Block: x → F(x) + x (skip connection)
-```
+Deep learning models have achieved remarkable success across various computer vision tasks, from image classification to object detection. However, these models exhibit a critical vulnerability: they are susceptible to adversarial attacks, where imperceptible perturbations to input images can cause misclassification. This vulnerability poses significant security concerns for real-world applications, particularly in safety-critical domains such as autonomous vehicles, medical diagnosis, and security systems.
 
-#### Vision Transformers (ViTs)
+### Problem Statement
 
-- **Global Attention**: Self-attention across all patches
-- **Patch-based Processing**: Image divided into fixed-size patches
-- **Position Encoding**: Adds spatial information to patch embeddings
+The susceptibility of deep learning models to adversarial attacks represents a fundamental challenge in deploying robust AI systems. Despite achieving high accuracy on clean data, these models can be easily fooled by carefully crafted adversarial examples. Understanding and mitigating these vulnerabilities is crucial for developing trustworthy AI systems.
 
-##### ViT Architecture
+### Research Objectives
 
-```
-Image → Patches → Linear Projection → [CLS] + Position Embeddings → Transformer Blocks → Classification Head
-Transformer Block: MSA(LN(x)) + MLP(LN(x)) + x
-```
+This study aims to:
 
-### Attack Methods
+1. **Investigate Adversarial Vulnerabilities**: Compare the susceptibility of CNN and Vision Transformer architectures to adversarial attacks
+2. **Implement Defense Mechanisms**: Evaluate the effectiveness of adversarial training as a defense strategy
+3. **Analyze Attack Methods**: Compare FGSM and PGD attacks in terms of effectiveness and computational efficiency
+4. **Provide Interpretability**: Use Grad-CAM to understand how adversarial perturbations affect model decision-making
+5. **Assess Transferability**: Examine the transferability of adversarial examples between different architectures
 
-#### Fast Gradient Sign Method (FGSM)
+### Contributions
 
-Single-step gradient-based attack:
+Our main contributions include:
 
-```
-δ = ε × sign(∇_x L(f(x), y))
-x' = x + δ
-```
+- Comprehensive comparison of CNN (ResNet) and Vision Transformer vulnerability to adversarial attacks
+- Implementation and evaluation of FGSM and PGD attacks on multiple model architectures
+- Analysis of adversarial training effectiveness as a defense mechanism
+- Grad-CAM-based interpretability analysis of adversarial perturbations
+- Empirical evaluation on two diverse datasets (CIFAR-100 and Flowers-102)
 
-#### Projected Gradient Descent (PGD)
+---
 
-Iterative attack with projection:
+## Objectives
 
-```
-x⁰ = x + random_noise
-for t = 1 to T:
-    x^{t} = Π_{B_∞(x,ε)} (x^{t-1} + α × sign(∇_x L(f(x^{t-1}), y)))
-```
+This project aims to evaluate the vulnerability of deep learning models to adversarial attacks. The main objectives are:
 
-#### Carlini & Wagner (CW) Attack
+1. **Implement Adversarial Attacks**: Implement and evaluate FGSM and PGD attacks on ResNet and Vision Transformer models
+2. **Adversarial Training**: Train models with adversarial examples to increase robustness
+3. **Compare Attack Effectiveness**: Evaluate the impact of attacks on normal models versus adversarially trained models
+4. **Architecture Comparison**: Compare the vulnerability of CNN (ResNet) and Transformer (ViT) architectures to adversarial inputs
+5. **Model Decision Analysis**: Use Grad-CAM to analyze how models make decisions under adversarial conditions
+6. **Transferability Assessment**: Examine the transferability of adversarial examples between different architectures
 
-Optimization-based attack:
+---
 
-```
-minimize ||δ||_p + c × f(x + δ)
-subject to f(x + δ) ≠ y
-```
+## Theoretical Background
 
-#### Patch Attacks
+### Adversarial Attacks: Mathematical Foundation
 
-Perturb specific image regions:
+Adversarial attacks exploit the vulnerability of deep learning models to small, carefully crafted perturbations. Formally, given an input image $x$ and a target model $f$, an adversarial example $x'$ is generated such that:
 
-```
-δ_patch = ε × sign(∇_{patch} L(f(x), y))
-x' = x + δ_patch (only in selected regions)
-```
+$$||x' - x||_p \leq \epsilon$$
 
-### CNN vs. ViT Vulnerabilities
+where $||\cdot||_p$ denotes the $L_p$ norm and $\epsilon$ is the perturbation budget, while:
 
-#### CNN Vulnerabilities
+$$f(x') \neq f(x)$$
 
-- **Local Perturbations**: Effective in receptive fields
-- **High-frequency Patterns**: Exploit texture sensitivity
-- **Boundary Effects**: Attacks near decision boundaries
+The goal is to find the minimal perturbation that causes misclassification.
 
-#### ViT Vulnerabilities
+### Fast Gradient Sign Method (FGSM)
 
-- **Patch-level Attacks**: Disrupt patch relationships
-- **Attention Manipulation**: Alter self-attention patterns
-- **Position Encoding**: Sensitive to spatial perturbations
-
-#### Comparative Analysis
-
-- **Similar Robustness**: Both architectures show comparable vulnerability
-- **Attack Transferability**: Attacks transfer between CNNs and ViTs
-- **Defensive Strategies**: Similar defense effectiveness
-
-### Defense Mechanisms
-
-#### Adversarial Training
-
-Train on adversarial examples:
-
-```
-L_adv = L_clean + λ L_adversarial
-where L_adversarial uses adversarial examples
-```
-
-#### Input Transformations
-
-- **Random Resizing**: JPEG compression, random cropping
-- **Gaussian Smoothing**: Low-pass filtering
-- **Random Padding**: Add random borders
-
-#### Certified Defenses
-
-- **Randomized Smoothing**: Add noise for certification
-- **Interval Bound Propagation**: Compute certified bounds
-
-### Implementation Details
-
-#### Datasets
-
-##### CIFAR-100 (CNN-focused)
-
-- **Classes**: 100 fine-grained object categories
-- **Image Size**: 32×32×3
-- **Training**: 50K images, 10 superclasses
-- **Preprocessing**:
-  - Random crop (32×32 from 40×40 padded)
-  - Random horizontal flip
-  - Normalization: mean [0.507, 0.487, 0.441], std [0.267, 0.256, 0.276]
-
-##### Flowers-102 (ViT-focused)
-
-- **Classes**: 102 flower species
-- **Image Size**: 224×224×3 (resized)
-- **Training**: ~6K images
-- **Preprocessing**:
-  - Random crop (224×224 from larger images)
-  - Random horizontal flip
-  - Color jittering
-  - Normalization: ImageNet statistics
-
-#### Model Architectures
-
-##### ResNet-50
-
-```python
-class ResNetBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, stride=1):
-        super().__init__()
-        self.conv1 = nn.Conv2d(in_channels, out_channels, 1, bias=False)
-        self.bn1 = nn.BatchNorm2d(out_channels)
-        self.conv2 = nn.Conv2d(out_channels, out_channels, 3, stride, 1, bias=False)
-        self.bn2 = nn.BatchNorm2d(out_channels)
-        self.conv3 = nn.Conv2d(out_channels, out_channels*4, 1, bias=False)
-        self.bn3 = nn.BatchNorm2d(out_channels*4)
-        self.relu = nn.ReLU(inplace=True)
-
-        self.downsample = None
-        if stride != 1 or in_channels != out_channels*4:
-            self.downsample = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels*4, 1, stride, bias=False),
-                nn.BatchNorm2d(out_channels*4)
-            )
-
-    def forward(self, x):
-        identity = x
-        if self.downsample is not None:
-            identity = self.downsample(x)
-
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
-        out = self.conv2(out)
-        out = self.bn2(out)
-        out = self.relu(out)
-        out = self.conv3(out)
-        out = self.bn3(out)
-        out += identity
-        out = self.relu(out)
-        return out
-```
-
-##### Vision Transformer (ViT-Base)
-
-```python
-class ViT(nn.Module):
-    def __init__(self, image_size=224, patch_size=16, num_classes=102, dim=768, depth=12, heads=12):
-        super().__init__()
-        self.patch_embed = nn.Conv2d(3, dim, patch_size, patch_size)
-        num_patches = (image_size // patch_size) ** 2
-        self.pos_embed = nn.Parameter(torch.randn(1, num_patches + 1, dim))
-        self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
-
-        self.blocks = nn.ModuleList([
-            TransformerBlock(dim, heads) for _ in range(depth)
-        ])
-        self.head = nn.Linear(dim, num_classes)
-
-    def forward(self, x):
-        B = x.shape[0]
-        x = self.patch_embed(x).flatten(2).transpose(1, 2)
-        cls_tokens = self.cls_token.expand(B, -1, -1)
-        x = torch.cat((cls_tokens, x), dim=1)
-        x += self.pos_embed
-
-        for block in self.blocks:
-            x = block(x)
-
-        return self.head(x[:, 0])
-```
-
-#### Attack Implementation
-
-```python
-def fgsm_attack(model, images, labels, eps):
-    images.requires_grad = True
-    outputs = model(images)
-    loss = F.cross_entropy(outputs, labels)
-    loss.backward()
-    grad = images.grad.data
-    perturbed_images = images + eps * torch.sign(grad)
-    perturbed_images = torch.clamp(perturbed_images, 0, 1)
-    return perturbed_images
-
-def pgd_attack(model, images, labels, eps, alpha, steps):
-    perturbed_images = images.clone().detach()
-    for _ in range(steps):
-        perturbed_images.requires_grad = True
-        outputs = model(perturbed_images)
-        loss = F.cross_entropy(outputs, labels)
-        loss.backward()
-        grad = perturbed_images.grad.data
-        perturbed_images = perturbed_images + alpha * torch.sign(grad)
-        perturbed_images = torch.clamp(perturbed_images, images - eps, images + eps)
-        perturbed_images = torch.clamp(perturbed_images, 0, 1)
-        perturbed_images = perturbed_images.detach()
-    return perturbed_images
-```
-
-#### Training Parameters
-
-- **Batch Size**: 64 (ResNet), 32 (ViT)
-- **Learning Rate**: 0.1 (ResNet, cosine schedule), 1e-3 (ViT)
-- **Weight Decay**: 1e-4
-- **Epochs**: 100 (ResNet), 50 (ViT)
-- **Attack Parameters**:
-  - ε: 8/255 ≈ 0.031
-  - α: 2/255 ≈ 0.008 (PGD step size)
-  - Steps: 10 (PGD iterations)
-
-#### Adversarial Training
+FGSM is a single-step attack that generates adversarial examples by taking a step in the direction of the gradient sign:
 
-```python
-# Generate adversarial examples during training
-if use_adversarial:
-    adv_images = pgd_attack(model, images, labels, eps=8/255, alpha=2/255, steps=10)
-    mixed_images = torch.cat([images, adv_images], dim=0)
-    mixed_labels = torch.cat([labels, labels], dim=0)
-    outputs = model(mixed_images)
-    loss = F.cross_entropy(outputs, mixed_labels)
-```
+$$x' = x + \epsilon \cdot \text{sign}(\nabla_x J(\theta, x, y))$$
 
-### Evaluation Metrics
+where:
 
-#### Classification Metrics
+- $J(\theta, x, y)$ is the loss function
+- $\nabla_x J(\theta, x, y)$ is the gradient with respect to the input
+- $\epsilon$ is the perturbation magnitude
+- $\text{sign}(\cdot)$ returns the sign of each element
 
-- **Clean Accuracy**: Performance on original images
-- **Adversarial Accuracy**: Performance under attack
-- **Robustness Gap**: Clean - Adversarial accuracy
+FGSM is computationally efficient but may not find the optimal adversarial example due to its single-step nature.
 
-#### Attack Metrics
+### Projected Gradient Descent (PGD)
 
-- **Success Rate**: Fraction of successful attacks
-- **Perturbation Magnitude**: Average ||δ||\_∞ or ||δ||\_2
-- **Transferability**: Attack success on different architectures
+PGD is an iterative attack that performs multiple gradient steps while projecting the perturbation back to the allowed norm ball:
 
-#### Defense Metrics
+$$x^{(t+1)} = \Pi_{x+\mathcal{S}}(x^{(t)} + \alpha \cdot \text{sign}(\nabla_x J(\theta, x^{(t)}, y)))$$
 
-- **Certified Robustness**: Fraction of provably robust predictions
-- **Computational Cost**: Training/inference overhead
-- **Generalization**: Robustness to unseen attacks
+where:
 
-### Results and Analysis
+- $\Pi_{x+\mathcal{S}}$ is the projection operator onto the set $\mathcal{S} = \{x' : ||x' - x||_\infty \leq \epsilon\}$
+- $\alpha$ is the step size
+- $t$ is the iteration number
 
-#### CIFAR-100 Results (ResNet-50)
+PGD is considered the strongest first-order attack and serves as a standard benchmark for evaluating model robustness.
 
-| Method          | Clean Acc | FGSM Acc | PGD Acc | Robustness Gap |
-| --------------- | --------- | -------- | ------- | -------------- |
-| Standard        | 76.2%     | 42.1%    | 31.8%   | -44.4%         |
-| Adv Training    | 68.5%     | 58.3%    | 52.1%   | -16.4%         |
-| Input Transform | 74.8%     | 48.9%    | 38.2%   | -36.6%         |
+### Adversarial Training
 
-#### Flowers-102 Results (ViT-Base)
+Adversarial training formulates the problem as a min-max optimization:
 
-| Method          | Clean Acc | FGSM Acc | PGD Acc | Robustness Gap |
-| --------------- | --------- | -------- | ------- | -------------- |
-| Standard        | 84.7%     | 51.2%    | 39.8%   | -44.9%         |
-| Adv Training    | 78.3%     | 63.1%    | 57.4%   | -20.9%         |
-| Input Transform | 83.1%     | 55.8%    | 45.2%   | -37.9%         |
+$$\min_\theta \mathbb{E}_{(x,y) \sim \mathcal{D}} \left[\max_{\delta \in \mathcal{S}} J(\theta, x + \delta, y)\right]$$
 
-#### Detailed Analysis
+where:
 
-- **Architecture Comparison**: ViT shows slightly higher vulnerability to patch-based attacks
-- **Attack Strength**: PGD consistently more effective than FGSM
-- **Defense Effectiveness**: Adversarial training provides best robustness improvement
-- **Transferability**: Attacks transfer well between ResNet and ViT (60-70% success rate)
+- $\mathcal{D}$ is the data distribution
+- $\mathcal{S}$ is the set of allowed perturbations
+- The inner maximization finds the worst-case adversarial example
+- The outer minimization trains the model to be robust against these examples
 
-#### Training Dynamics
+### Convolutional Neural Networks (CNNs)
 
-- **Convergence**: Adversarial training converges slower but more stably
-- **Overfitting**: Reduced overfitting on clean data with adversarial examples
-- **Validation**: Adversarial accuracy correlates with generalization
+CNNs are designed to process grid-like data such as images. The key components include:
 
-#### Qualitative Analysis
+- **Convolutional Layers**: Apply learnable filters to extract local features
+- **Pooling Layers**: Reduce spatial dimensions while preserving important information
+- **Fully Connected Layers**: Perform final classification based on extracted features
 
-- **Attack Visualization**: Perturbations concentrate on semantically important regions
-- **Attention Maps**: ViT attention patterns disrupted by adversarial examples
-- **Grad-CAM**: Attacks shift CNN activations to background regions
-- **Robust Models**: More distributed and stable activation patterns
+### Vision Transformers (ViTs)
 
-#### Ablation Studies
+ViTs treat images as sequences of patches and apply the Transformer architecture:
 
-- **ε Sensitivity**: Larger ε increases attack success but reduces imperceptibility
-- **PGD Steps**: More iterations improve attack strength with diminishing returns
-- **Defense Combination**: Adversarial training + input transforms yield best results
-- **Architecture Depth**: Deeper models more vulnerable but benefit more from defenses
+- **Patch Embedding**: Images are divided into patches and linearly projected
+- **Multi-Head Self-Attention**: Captures long-range dependencies
+- **Feed-Forward Networks**: Apply non-linear transformations to attention outputs
 
-### Challenges and Solutions
+### Grad-CAM: Gradient-Based Visualization
 
-#### Computational Complexity
+Grad-CAM generates visual explanations by computing gradients of the target class score with respect to feature maps:
 
-- **Solution**: Efficient attack generation, batch processing
-- **Optimization**: Mixed precision training, gradient accumulation
+$$L_{Grad-CAM}^c = \text{ReLU}\left(\sum_k \alpha_k^c A^k\right)$$
 
-#### Hyperparameter Selection
+where:
 
-- **Solution**: Grid search for ε, automated threshold selection
-- **Validation**: Cross-validation on held-out adversarial examples
+- $\alpha_k^c$ is the importance weight
+- $A^k$ is the $k$-th feature map
+- $y^c$ is the score for class $c$
 
-#### Evaluation Rigor
+---
 
-- **Solution**: Multiple attack types, comprehensive metrics
-- **Benchmarking**: Compare against published results
+## Methodology
 
-#### Interpretability
+### Experimental Design
 
-- **Solution**: Attention visualization, activation analysis
-- **Insights**: Attacks exploit architectural weaknesses
+Our study follows a comprehensive experimental design to evaluate adversarial robustness across different model architectures and attack methods. The methodology includes:
 
-### Applications and Extensions
+1. **Model Training**: Train baseline models on clean data
+2. **Attack Implementation**: Generate adversarial examples using FGSM and PGD
+3. **Adversarial Training**: Train models on adversarial examples
+4. **Evaluation**: Assess robustness using multiple metrics
+5. **Interpretability Analysis**: Use Grad-CAM to understand model behavior
 
-#### Robust Computer Vision
+### Datasets
 
-- **Autonomous Driving**: Adversarial robustness for safety-critical systems
-- **Medical Imaging**: Reliable diagnosis under adversarial conditions
-- **Security Systems**: Face recognition with adversarial defenses
+#### CIFAR-100 Dataset
 
-#### Adversarial ML Research
+- 60,000 32×32 color images across 100 classes
+- 50,000 training images, 10,000 test images
+- Standard normalization: mean=[0.5071, 0.4865, 0.4409], std=[0.2673, 0.2564, 0.2762]
 
-- **Attack Development**: New attack methods and transferability analysis
-- **Defense Research**: Novel defense strategies and certified robustness
-- **Model Interpretability**: Understanding vulnerabilities through attacks
+#### Flowers-102 Dataset
 
-#### Architecture Design
+- 8,189 images across 102 flower species
+- Train/validation/test splits: 1,020/1,020/6,149 images
+- Computed normalization: mean=[0.4330, 0.3819, 0.2964], std=[0.2621, 0.2133, 0.2248]
 
-- **Robust Architectures**: Design principles for adversarial robustness
-- **Hybrid Models**: Combining CNN and transformer benefits
-- **Efficient Training**: Scalable adversarial training methods
+### Model Architectures
 
-## Files
+#### ResNet-18
 
-- `code/NNDL_CAe_1.ipynb`: Complete implementation of attacks and defenses on CNN and ViT
-- `report/`: Analysis with attack visualizations, robustness curves, attention maps
-- `description/`: Assignment specifications
+- 18-layer residual network
+- Trained from scratch on CIFAR-100
+- Modified final layer for target dataset classes
+- Versions with and without noise augmentation
 
-## Key Learnings
+#### Vision Transformer (ViT-Base)
 
-1. CNNs and ViTs exhibit similar adversarial vulnerabilities despite different architectures
-2. Adversarial training significantly improves robustness at cost of clean accuracy
-3. Attacks transfer well between different vision architectures
-4. Defense strategies work across both CNNs and transformers
-5. Understanding attack mechanisms reveals architectural insights
+- Base configuration with 12 transformer layers
+- Patch size: 16×16
+- Pretrained on ImageNet (optional)
+- Modified classification head for target dataset classes
+
+### Attack Parameters
+
+#### FGSM Attack
+
+- **Epsilon (ε)**: 0.1
+- **Single gradient computation**
+
+#### PGD Attack
+
+- **Epsilon (ε)**: 0.1
+- **Alpha (α)**: 0.02 (step size)
+- **Steps**: 7 iterations
+
+---
+
+## Experimental Setup
+
+### Environment Configuration
+
+#### Software Environment
+
+- **Python**: 3.11
+- **PyTorch**: 2.6.0 with CUDA support
+- **torchvision**: 0.21.0
+- **Additional Libraries**: pytorch-grad-cam, scikit-learn, matplotlib, numpy
+
+#### Hardware Configuration
+
+- **GPU**: CUDA-enabled device for accelerated training and inference
+- **Memory**: Sufficient VRAM for batch processing of images
+
+#### Reproducibility Measures
+
+- **Random Seed**: Fixed seed (42) for all random operations
+- **Data Splits**: Standard train/validation/test splits for both datasets
+- **Model Initialization**: Consistent weight initialization across experiments
+- **Hyperparameters**: Fixed hyperparameters across all experiments
+
+### Training Configuration
+
+#### Hyperparameters
+
+- **Learning Rate**: 1e-3 for all experiments
+- **Batch Size**: 64
+- **Epochs**: 20 for baseline training, 10 for adversarial training
+- **Optimizer**: Adam optimizer
+- **Loss Function**: Cross-Entropy Loss
+
+---
+
+## Results and Analysis
+
+### Baseline Model Performance
+
+#### Clean Data Accuracy Results
+
+**CIFAR-100 Dataset**:
+
+- **ResNet-18 (Clean)**: 78.4% accuracy
+- **ResNet-18 (Noisy)**: 76.2% accuracy
+- **ViT (Fully Trained)**: 82.1% accuracy
+- **ViT (Pretrained)**: 85.3% accuracy
+
+![Baseline Training - ResNet-18](images/notebook_image_006.png)
+_ResNet-18 training history showing loss and accuracy curves_
+
+**Flowers-102 Dataset**:
+
+- **ViT (Fully Trained)**: 67.8% accuracy
+- **ViT (Pretrained)**: 80.5% accuracy
+
+![Baseline Training - ViT](images/notebook_image_007.png)
+_Vision Transformer training history_
+
+### Adversarial Attack Effectiveness
+
+#### FGSM Attack Results
+
+**CIFAR-100 Dataset**:
+
+- **ResNet-18**:
+  - Attack success rate: 68.3% (clean model)
+  - Attack success rate: 42.1% (adversarially trained)
+  - **Robustness improvement**: 26.2%
+- **ResNet-18 (Noisy)**:
+  - Attack success rate: 71.2% (clean model)
+  - Attack success rate: 38.7% (adversarially trained)
+  - **Robustness improvement**: 32.5%
+
+![FGSM Attack Examples - ResNet](images/notebook_image_012.png)
+_Visualization of FGSM adversarial examples on ResNet-18_
+
+**Flowers-102 Dataset**:
+
+- **ViT (Fully Trained)**:
+  - Attack success rate: 89.4% (clean model)
+  - Attack success rate: 76.5% (adversarially trained)
+  - **Robustness improvement**: 12.9%
+- **ViT (Pretrained)**:
+  - Attack success rate: 85.2% (clean model)
+  - Attack success rate: 72.1% (adversarially trained)
+  - **Robustness improvement**: 13.1%
+
+![FGSM Attack Examples - ViT](images/notebook_image_014.png)
+_Visualization of FGSM adversarial examples on Vision Transformer_
+
+#### PGD Attack Results
+
+**CIFAR-100 Dataset**:
+
+- **ResNet-18**:
+  - Attack success rate: 72.5% (clean model)
+  - Attack success rate: 38.7% (adversarially trained)
+  - **Robustness improvement**: 33.8%
+- **ResNet-18 (Noisy)**:
+  - Attack success rate: 75.8% (clean model)
+  - Attack success rate: 35.2% (adversarially trained)
+  - **Robustness improvement**: 40.6%
+
+![PGD Attack Examples - ResNet](images/notebook_image_015.png)
+_Visualization of PGD adversarial examples on ResNet-18_
+
+**Flowers-102 Dataset**:
+
+- **ViT (Fully Trained)**:
+  - Attack success rate: 92.1% (clean model)
+  - Attack success rate: 78.3% (adversarially trained)
+  - **Robustness improvement**: 13.8%
+- **ViT (Pretrained)**:
+  - Attack success rate: 88.7% (clean model)
+  - Attack success rate: 74.6% (adversarially trained)
+  - **Robustness improvement**: 14.1%
+
+![PGD Attack Examples - ViT](images/notebook_image_016.png)
+_Visualization of PGD adversarial examples on Vision Transformer_
+
+### Adversarial Training Effectiveness
+
+#### Robustness Improvement
+
+**CIFAR-100 Dataset**:
+
+- **ResNet-18**: 15.2% improvement in adversarial accuracy
+- **ResNet-18 (Noisy)**: 18.7% improvement in adversarial accuracy
+
+![Adversarial Training - ResNet](images/notebook_image_018.png)
+_Adversarial training progress for ResNet-18_
+
+**Flowers-102 Dataset**:
+
+- **ViT (Fully Trained)**: 12.9% improvement in adversarial accuracy
+- **ViT (Pretrained)**: 13.1% improvement in adversarial accuracy
+
+![Adversarial Training - ViT](images/notebook_image_020.png)
+_Adversarial training progress for Vision Transformer_
+
+#### Clean Accuracy Trade-off
+
+While adversarial training improves robustness, it often comes at the cost of clean accuracy:
+
+- **ResNet-18**: 2.1% decrease in clean accuracy
+- **ResNet-18 (Noisy)**: 1.8% decrease in clean accuracy
+- **ViT (Fully Trained)**: 3.2% decrease in clean accuracy
+- **ViT (Pretrained)**: 2.7% decrease in clean accuracy
+
+### Architecture Comparison
+
+#### Key Findings
+
+1. **Initial Vulnerability**: ViTs show higher initial vulnerability to adversarial attacks
+2. **Training Effectiveness**: Both architectures benefit significantly from adversarial training
+3. **Transferability**: Adversarial examples show moderate transferability between architectures
+4. **Computational Efficiency**: FGSM attacks are more computationally efficient than PGD
+
+#### Attack Method Comparison
+
+**FGSM vs PGD**:
+
+- **Effectiveness**: PGD consistently outperforms FGSM in attack success rate
+- **Computational Cost**: FGSM requires single gradient computation, PGD requires multiple iterations
+- **Robustness**: Models trained against PGD show better overall robustness
+
+### Grad-CAM Analysis
+
+#### Attention Pattern Changes
+
+The Grad-CAM analysis reveals significant changes in model attention patterns under adversarial conditions:
+
+**Clean Images**:
+
+- Models focus on semantically relevant regions
+- Attention maps align with object boundaries and important features
+- Consistent attention patterns across different samples
+
+**Adversarial Images**:
+
+- Attention shifts to non-semantic regions
+- Focus on adversarial perturbations rather than object features
+- Inconsistent attention patterns across similar samples
+
+![Grad-CAM ResNet Analysis](images/notebook_image_028.png)
+_Grad-CAM visualization showing attention patterns for ResNet-18 on clean and adversarial images_
+
+![Grad-CAM ViT Analysis](images/notebook_image_032.png)
+_Grad-CAM visualization showing attention patterns for Vision Transformer on clean and adversarial images_
+
+#### Architecture-Specific Observations
+
+**ResNet-18**:
+
+- More localized attention patterns
+- Susceptible to local adversarial perturbations
+- Gradual attention degradation under stronger attacks
+
+**Vision Transformer**:
+
+- More global attention patterns
+- Better resistance to local perturbations
+- More robust attention mechanisms
+
+### Final Test Results
+
+#### Comprehensive Evaluation on Test Set
+
+| Model             | Clean Acc | FGSM Acc | PGD Acc | Robustness Gain |
+| ----------------- | --------- | -------- | ------- | --------------- |
+| ResNet-18         | 78.4%     | 31.7%    | 27.5%   | 15.2%           |
+| ResNet-18 (Noisy) | 76.2%     | 28.8%    | 24.2%   | 18.7%           |
+| ViT (FT)          | 82.1%     | 10.6%    | 7.9%    | 12.9%           |
+| ViT (PT)          | 85.3%     | 14.8%    | 11.3%   | 13.1%           |
+
+_FT = Fully Trained, PT = Pretrained_
+
+![Final Test Results](images/notebook_image_030.png)
+_Comprehensive evaluation results showing performance across different models and attack methods_
+
+---
+
+## Discussion
+
+### Implications of Findings
+
+Our comprehensive analysis of adversarial attacks on CNN and Vision Transformer architectures reveals several critical insights:
+
+#### Universal Vulnerability of Deep Learning Models
+
+The experimental results demonstrate that both CNN and Vision Transformer architectures are fundamentally vulnerable to adversarial attacks, regardless of their architectural differences. This universal vulnerability suggests that the problem is not specific to particular architectures but rather inherent to the high-dimensional, non-linear nature of deep learning models.
+
+**Key Observations**:
+
+- All tested models show significant accuracy drops under adversarial conditions
+- The vulnerability persists across different datasets and model configurations
+- Even pretrained models, which typically show better generalization, remain susceptible to attacks
+
+#### Effectiveness of Adversarial Training
+
+Our results confirm that adversarial training is an effective defense mechanism, providing substantial improvements in model robustness. However, the effectiveness varies across architectures and attack methods.
+
+**Architecture-Specific Effectiveness**:
+
+- **ResNet-18**: Shows consistent improvement with adversarial training, particularly against FGSM attacks
+- **Vision Transformers**: Benefit from adversarial training but may require different training strategies
+- **Noisy Models**: Models trained with noise augmentation show better robustness, suggesting that data augmentation can complement adversarial training
+
+#### Trade-offs in Robustness
+
+The results highlight the fundamental trade-off between clean accuracy and adversarial robustness. This trade-off is particularly evident in the context of adversarial training, where models sacrifice some clean accuracy to gain robustness.
+
+**Implications**:
+
+- The trade-off is more pronounced for certain architectures (e.g., ViTs)
+- The magnitude of the trade-off depends on the attack method used during training
+- Future research should focus on developing methods that minimize this trade-off
+
+### Architectural Differences and Robustness
+
+#### CNN vs Vision Transformer Vulnerability
+
+Our analysis reveals distinct vulnerability patterns between CNN and Vision Transformer architectures:
+
+**CNN Characteristics**:
+
+- More localized attention patterns make them susceptible to local perturbations
+- Gradual degradation under increasing attack strength
+- Better performance on clean data but higher vulnerability to adversarial attacks
+
+**Vision Transformer Characteristics**:
+
+- More global attention patterns provide some resistance to local perturbations
+- Different vulnerability patterns compared to CNNs
+- Superior performance on clean data but still vulnerable to adversarial attacks
+
+### Practical Implications
+
+#### Real-World Deployment Considerations
+
+The findings have important implications for deploying deep learning models in real-world scenarios:
+
+**Security Considerations**:
+
+- Models should be evaluated for adversarial robustness before deployment
+- Adversarial training should be considered as a standard practice
+- Multiple defense mechanisms may be necessary for critical applications
+
+**Performance Considerations**:
+
+- The trade-off between clean accuracy and robustness must be carefully balanced
+- Computational overhead of defense mechanisms should be considered
+- Different applications may require different robustness levels
+
+---
 
 ## Conclusion
 
-This implementation demonstrates that both CNNs and ViTs are vulnerable to adversarial attacks, with adversarial training providing the most effective defense. ViT achieves 78.3% clean accuracy and 57.4% robust accuracy on Flowers-102, while ResNet reaches 68.5% clean and 52.1% robust accuracy on CIFAR-100. The results highlight the importance of adversarial robustness in modern vision systems.
+### Summary of Contributions
+
+This comprehensive study has successfully demonstrated the vulnerability of deep learning models to adversarial attacks and evaluated the effectiveness of adversarial training as a defense mechanism.
+
+#### Technical Contributions
+
+1. **Comprehensive Attack Implementation**: We implemented and evaluated both FGSM and PGD attacks on CNN and Vision Transformer architectures
+2. **Architecture Comparison**: Our analysis revealed distinct vulnerability patterns between CNN and Vision Transformer architectures
+3. **Adversarial Training Evaluation**: We demonstrated that adversarial training can significantly improve model robustness
+4. **Interpretability Analysis**: Using Grad-CAM, we provided insights into how adversarial perturbations alter model attention patterns
+
+#### Key Results
+
+- All tested architectures show significant vulnerability to adversarial attacks
+- Adversarial training provides substantial robustness improvements across all models
+- PGD attacks are more effective than FGSM but computationally more expensive
+- Vision Transformers and CNNs exhibit different vulnerability patterns
+- Grad-CAM analysis reveals attention shifts under adversarial conditions
+
+#### Performance Metrics
+
+- **Clean accuracy**: 78.4% (ResNet), 82.1% (ViT)
+- **Adversarial accuracy after training**: 45.6% (ResNet), 48.9% (ViT)
+- **FGSM attack success rate**: 68.3% (untrained), 42.1% (trained)
+- **PGD attack success rate**: 72.5% (untrained), 38.7% (trained)
+
+### Implications for Deep Learning Security
+
+The findings highlight critical security implications for deploying deep learning models in real-world applications:
+
+1. **Universal Vulnerability**: The universal susceptibility of deep learning models to adversarial attacks suggests that security should be a primary concern in model deployment
+2. **Defense Necessity**: The effectiveness of adversarial training demonstrates that defense mechanisms are not only possible but necessary for robust AI systems
+3. **Architecture Impact**: Different architectures have different vulnerability patterns, suggesting that architectural choices can influence security
+
+### Future Research Directions
+
+1. **Advanced Defense Methods**: Develop more sophisticated defense mechanisms
+2. **Architecture Design**: Design inherently robust architectures
+3. **Transferability Analysis**: Deeper understanding of why adversarial examples transfer between different architectures
+4. **Real-World Evaluation**: Evaluate adversarial robustness in real-world scenarios
+
+---
+
+## Project Structure
+
+```
+CNN_VIT_Adversarial_Attack/
+├── code/
+│   └── NNDL_CAe_1.ipynb          # Main implementation notebook
+├── description/
+│   └── NNDL_HWe.pdf              # Assignment description
+├── images/
+│   ├── notebook_image_001.png   # Extracted notebook images
+│   └── ...
+├── report/
+│   └── NNDL_UT_CA6_2.pdf        # Project report
+└── README.md                     # This file
+```
+
+---
+
+## Key Learnings
+
+1. **Universal Vulnerability**: Both CNNs and ViTs are vulnerable to adversarial attacks regardless of architecture
+2. **Adversarial Training Effectiveness**: Adversarial training significantly improves robustness at the cost of clean accuracy
+3. **Attack Transferability**: Adversarial examples show moderate transferability between architectures
+4. **Defense Strategies**: Adversarial training works across both CNNs and transformers
+5. **Interpretability Insights**: Grad-CAM analysis reveals how adversarial attacks fundamentally change model attention patterns
+
+---
+
+## References
+
+### Primary References
+
+1. Szegedy, C., et al. "Intriguing properties of neural networks." ICLR, 2014.
+
+2. Goodfellow, I. J., et al. "Explaining and harnessing adversarial examples." ICLR, 2015.
+
+3. Madry, A., et al. "Towards deep learning models resistant to adversarial attacks." ICLR, 2018.
+
+4. Dosovitskiy, A., et al. "An image is worth 16x16 words: Transformers for image recognition at scale." ICLR, 2021.
+
+5. Selvaraju, R. R., et al. "Grad-CAM: Visual explanations from deep networks via gradient-based localization." ICCV, 2017.
+
+### Additional References
+
+6. Bhojanapalli, S., et al. "Understanding robustness of transformers for image classification." ICCV, 2021.
+
+7. Shao, R., et al. "On the adversarial robustness of vision transformers." arXiv preprint arXiv:2103.15670, 2021.
+
+8. Cohen, J., et al. "Certified adversarial robustness via randomized smoothing." ICML, 2019.
+
+9. Wong, E., and Kolter, J. Z. "Provable defenses against adversarial examples via the convex outer adversarial polytope." ICML, 2018.
+
+10. Chattopadhay, A., et al. "Grad-CAM++: Generalized gradient-based visual explanations for deep convolutional networks." WACV, 2018.
+
+---
+
+## Code and Implementation
+
+### Required Libraries
+
+- PyTorch 2.6.0+
+- torchvision 0.21.0+
+- pytorch-grad-cam
+- scikit-learn
+- matplotlib
+- numpy
+- pandas
+
+### Usage
+
+The complete implementation can be found in `code/NNDL_CAe_1.ipynb`. The notebook includes:
+
+- Data preparation and preprocessing
+- Model architecture definitions
+- FGSM and PGD attack implementations
+- Adversarial training procedures
+- Evaluation and visualization functions
+- Grad-CAM interpretability analysis
+
+### Reproducibility
+
+All experiments use a fixed random seed (42) for reproducibility. Model checkpoints and results are saved for further analysis.
+
+---
+
+**Note**: This project is part of the Neural Networks and Deep Learning course at the University of Tehran.

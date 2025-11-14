@@ -9,6 +9,22 @@ The assignment consists of two complementary projects that showcase different as
 1. **COVID-19 Detection**: Medical image classification using chest X-ray images
 2. **Vehicle Classification**: Multi-class vehicle type recognition with CNN feature extraction
 
+### Assignment Snapshot
+- **Primary Notebooks:**
+	- `Covid_Detection/code/NNDL_CA2_1.ipynb`
+	- `Vehicle_Classification/code/NNDL_CA2_2.ipynb`
+- **Datasets:** Public chest X-ray collections (Normal / Pneumonia / COVID-19) and a custom-balanced vehicle dataset.
+- **What to Compare:** Custom CNNs vs. transfer-learning backbones, and feature-extractor + classical ML hybrids vs. end-to-end training.
+
+| Pipeline | Accuracy | AUC / F1 Highlights |
+|----------|----------|---------------------|
+| VGG16 (COVID Detection) | **92.1%** | AUC-ROC 0.91 |
+| MobileNetV2 (COVID Detection) | 89.3% | AUC-ROC 0.88 |
+| Custom CNN (COVID Detection) | 87.6% | AUC-ROC 0.86 |
+| VGG16 Features + SVM (Vehicles) | **89.2%** | Best generalization |
+| AlexNet Features + SVM (Vehicles) | 87.1% | Fast inference |
+| End-to-End CNN (Vehicles) | 85.4% | Simplest deployment |
+
 ## Contents
 
 - `Covid_Detection/`: COVID-19 detection system implementation
@@ -43,6 +59,11 @@ Each subfolder contains:
 - **MobileNetV2**: 89.3% accuracy, 0.88 AUC-ROC
 - **Custom CNN**: 87.6% accuracy, 0.86 AUC-ROC
 
+| Visual | Description |
+|--------|-------------|
+| ![COVID-19 Detection](Covid_Detection/code/notebook_images/image_cell035_output000.png) | Grad-CAM overlays highlighting salient pulmonary regions for interpretability. |
+| ![Training Progress](Covid_Detection/code/notebook_images/image_cell056_output001.png) | Training vs. validation curves comparing transfer-learning stability. |
+
 ## Vehicle Classification System
 
 ### Key Features
@@ -64,6 +85,11 @@ Each subfolder contains:
 - **VGG16 + SVM**: 89.2% accuracy, superior generalization
 - **AlexNet + SVM**: 87.1% accuracy, faster inference
 - **End-to-end CNN**: 85.4% accuracy, single-model simplicity
+
+| Visual | Description |
+|--------|-------------|
+| ![Vehicle Classification](Vehicle_Classification/code/notebook_images/image_cell029_output001.png) | Confusion matrix revealing per-class strengths/weaknesses. |
+| ![Feature Visualization](Vehicle_Classification/code/notebook_images/image_cell052_output001.png) | Feature-map snapshots showing learned part detectors. |
 
 ## Key Concepts Demonstrated
 

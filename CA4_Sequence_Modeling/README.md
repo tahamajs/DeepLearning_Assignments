@@ -9,6 +9,13 @@ The assignment consists of two sequence modeling projects:
 1. **LSTM-GRU Image Captioning**: Attention-based image-to-text generation
 2. **RNN Time Series Prediction**: Uncertainty quantification in sequential forecasting
 
+### Assignment Snapshot
+- **Primary Notebooks:**
+	- `Image_Captioning/code/nndl-ca4-1.ipynb`
+	- `Time_Series_Prediction/code/NNDL_CA4_2_1.ipynb`
+- **Targets:** BLEU-1 ≈ 0.72 / BLEU-4 ≈ 0.18 for captioning; R² ≈ 0.85 with calibrated uncertainty for time series.
+- **Key Experiments:** Embedding-size sweeps, teacher forcing vs. scheduled sampling, greedy vs. beam decoding, and MC-dropout fan plots for forecasting.
+
 ## Contents
 
 - `Image_Captioning/`: Attention-based image captioning system
@@ -44,6 +51,11 @@ Each subfolder contains:
 - **Attention Maps**: Clear focus on relevant image regions
 - **Semantic Quality**: Captures main objects and actions
 
+| Visual | Description |
+|--------|-------------|
+| ![Image Captioning Results](Image_Captioning/code/notebook_images/image_cell029_output001.png) | Generated captions paired with attention-weighted regions. |
+| ![Training Curves](Image_Captioning/code/notebook_images/image_cell063_output000.png) | Loss trajectories confirming stable convergence. |
+
 ## Time Series Prediction with Uncertainty
 
 ### Key Features
@@ -66,6 +78,11 @@ Each subfolder contains:
 - **Uncertainty Calibration**: Well-calibrated prediction intervals
 - **Robustness**: Effective handling of missing data and outliers
 - **Interpretability**: Attention weights show temporal focus regions
+
+| Visual | Description |
+|--------|-------------|
+| ![Time Series Prediction](Time_Series_Prediction/code/notebook_images/image_cell036_output000.png) | Forecast vs. ground truth with uncertainty shading. |
+| ![Uncertainty Visualization](Time_Series_Prediction/code/notebook_images/image_cell071_output000.png) | Distribution of predictive intervals across horizon steps. |
 
 ## Key Concepts Demonstrated
 

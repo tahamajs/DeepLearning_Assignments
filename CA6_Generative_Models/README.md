@@ -9,6 +9,13 @@ The assignment consists of two generative modeling projects:
 1. **Unsupervised Domain Adaptation with GANs**: CycleGAN for domain transfer
 2. **VAE for Anomaly Detection**: Generative modeling for medical imaging
 
+### Assignment Snapshot
+- **Primary Notebooks:**
+	- `Unsupervised_Domain_Adaptation_GAN/code/NNDL_CA6_1.ipynb`
+	- `VAE/code/NNDL_CA6_2.ipynb`
+- **Benchmarks:** Adapted classifier accuracy ≈ 87.6% on MNIST-M with FID ≈ 38.7; VAE PSNR ≈ 28.5dB, SSIM ≈ 0.89, ROC AUC ≈ 0.90 for anomaly detection.
+- **Key Tricks:** Cycle-consistency + identity losses for stable stylization, β-VAE control over disentanglement, and reconstruction-based anomaly scoring.
+
 ## Contents
 
 - `Unsupervised_Domain_Adaptation_GAN/`: CycleGAN implementation for domain adaptation
@@ -44,6 +51,11 @@ Each subfolder contains:
 - **Generated Quality**: FID score of 38.7 indicates realistic samples
 - **Feature Alignment**: t-SNE visualization shows domain-invariant representations
 
+| Visual | Description |
+|--------|-------------|
+| ![Domain Adaptation GAN](Unsupervised_Domain_Adaptation_GAN/code/notebook_images/image_cell040_output000.png) | A↔B translations showing style adaptation quality. |
+| ![Generated Samples](Unsupervised_Domain_Adaptation_GAN/code/notebook_images/image_cell057_output000.png) | Classifier predictions on adapted MNIST-M glyphs. |
+
 ## VAE for Anomaly Detection
 
 ### Key Features
@@ -66,6 +78,11 @@ Each subfolder contains:
 - **Anomaly Detection**: AUC 0.90, superior to reconstruction-based methods
 - **Latent Space**: Well-structured manifold for interpolation
 - **Medical Utility**: Reliable polyp detection with low false positive rate
+
+| Visual | Description |
+|--------|-------------|
+| ![VAE Reconstruction](VAE/code/notebook_images/image_cell019_output000.png) | Input vs. reconstruction comparison for normal samples. |
+| ![VAE Latent Space](VAE/code/notebook_images/image_cell034_output001.png) | Latent interpolation illustrating continuity/disentanglement. |
 
 ## Key Concepts Demonstrated
 

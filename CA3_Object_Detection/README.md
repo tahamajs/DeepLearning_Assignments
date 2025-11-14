@@ -9,6 +9,13 @@ The assignment consists of two specialized projects:
 1. **Fast-SCNN Implementation**: Real-time semantic segmentation for mobile devices
 2. **Oriented R-CNN Implementation**: Detection of objects with arbitrary orientations
 
+### Assignment Snapshot
+- **Primary Notebooks:**
+	- `Fast_SCNN/code/NNDL_CA3_1.ipynb`
+	- `Oriented_RCNN/code/NNDL_CA3_2.ipynb`
+- **Datasets:** Cityscapes subset for semantic segmentation and oriented aerial/document imagery (DOTA-style) for rotation-aware detection.
+- **Key Benchmarks:** Fast-SCNN ≈ 0.62 mIoU with <1.2M params; Oriented R-CNN increases recall on rotated targets compared to axis-aligned baselines.
+
 ## Contents
 
 - `Fast_SCNN/`: Real-time semantic segmentation implementation
@@ -44,6 +51,11 @@ Each subfolder contains:
 - **Inference Speed**: 30+ FPS on mobile GPUs
 - **Memory Efficiency**: 50MB model size suitable for edge deployment
 
+| Visual | Description |
+|--------|-------------|
+| ![Semantic Segmentation](Fast_SCNN/code/notebook_images/image_cell027_output000.png) | Qualitative segmentation masks on Cityscapes samples. |
+| ![Segmentation Examples](Fast_SCNN/code/notebook_images/image_cell051_output000.png) | Multi-class predictions illustrating fine-grained boundaries. |
+
 ## Oriented R-CNN: Arbitrary-Oriented Object Detection
 
 ### Key Features
@@ -66,6 +78,11 @@ Each subfolder contains:
 - **Geometric Precision**: Accurate localization of rotated objects
 - **Robustness**: Handles various orientations and aspect ratios
 - **Application**: Ship detection in satellite imagery, text detection in documents
+
+| Visual | Description |
+|--------|-------------|
+| ![Oriented Object Detection](Oriented_RCNN/code/notebook_images/image_cell021_output000.png) | Rotation-aware bounding boxes on aerial datasets. |
+| ![Oriented Detection Example](Oriented_RCNN/code/notebook_images/image_cell026_output000.png) | Tight localization highlighting angle regression quality. |
 
 ## Key Concepts Demonstrated
 

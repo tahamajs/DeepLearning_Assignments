@@ -11,6 +11,16 @@ The first assignment introduces essential neural network concepts including:
 - Loss functions and optimization
 - Gradient descent algorithms
 
+### Assignment Snapshot
+- **Primary Notebook:** `code/NNDL_CA1_Q1.ipynb`
+- **Focus Areas:** manual MLP/backprop implementation, optimizer comparisons, Adaline recap, autoencoder feature learning, and regression for concrete strength.
+- **Datasets:** Kaggle Credit Card Fraud, UCI Concrete Strength, toy binary sets, and MNIST.
+- **Target Metrics:**
+	- Fraud Detection MLP ≈ 99.9% accuracy / 0.90 F1 / 0.98 AUC
+	- Concrete Regression ≈ 88.45 MSE
+	- Adaline on separable data → 100% training accuracy
+	- Autoencoder + classifier ≈ 80% MNIST accuracy
+
 ## Contents
 
 - `code/`: Implementation of basic neural networks
@@ -32,6 +42,12 @@ The first assignment introduces essential neural network concepts including:
 - **Weight Initialization**: Proper initialization techniques
 - **Learning Rate Scheduling**: Adaptive learning rate methods
 
+### Highlights & Experiments
+- **Custom Network From Scratch**: Backpropagation is derived and coded manually for transparency, then cross-checked with PyTorch equivalents.
+- **Optimization Studies**: Learning-rate sweeps and optimizer swaps (SGD vs. Adam) show convergence/stability trade-offs.
+- **Activation Ablations**: Sigmoid, Tanh, and ReLU runs plotted side-by-side to illustrate vanishing- vs. exploding-gradient behavior.
+- **Hyperparameter Logging**: Every experiment logs seeds, batch sizes, and stopping criteria to keep future reruns reproducible.
+
 ## Technical Implementation
 
 The implementation demonstrates:
@@ -46,6 +62,12 @@ The implementation demonstrates:
 - **Hyperparameter Impact**: Effect of learning rate, batch size, and network size
 - **Generalization**: Training vs. validation performance
 - **Computational Efficiency**: Time and memory complexity analysis
+
+### Representative Visuals
+- ![Neural Network Training](code/notebook_images/image_cell027_output001.png)
+	_Training dynamics validating manual backprop implementation._
+- ![Activation Functions](code/notebook_images/image_cell027_output003.png)
+	_Activation comparisons (ReLU vs. Sigmoid vs. Tanh) and their learning curves._
 
 ## Educational Value
 

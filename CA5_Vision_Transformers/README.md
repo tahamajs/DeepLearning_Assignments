@@ -9,6 +9,13 @@ The assignment consists of two transformer-focused projects:
 1. **Vision Transformer Classification**: ViT implementation for image classification
 2. **CLIP Adversarial Attacks**: Adversarial robustness analysis of multimodal models
 
+### Assignment Snapshot
+- **Primary Notebooks:**
+	- `VIT_Classification/code/NNDL_CA5_1.ipynb`
+	- `CLIP_Adversarial_Attack/code/NNDL_CA5_2.ipynb`
+- **Benchmarks:** ViT accuracy ≈ 88.2% on CIFAR-10 (with attention visualizations), CLIP clean accuracy ≈ 65.2% dropping ~20 pts under strong PGD before defenses.
+- **What to Watch:** Patch embedding choices, attention depth, and the trade-off between robustness losses (TeCoA) vs. efficiency (LoRA/prompt tuning).
+
 ## Contents
 
 - `VIT_Classification/`: Vision Transformer for image classification
@@ -44,6 +51,11 @@ Each subfolder contains:
 - **Attention Patterns**: Global receptive field captures long-range dependencies
 - **Data Efficiency**: Benefits from larger datasets more than CNNs
 
+| Visual | Description |
+|--------|-------------|
+| ![Vision Transformer](VIT_Classification/code/notebook_images/image_cell016_output000.png) | Attention heatmaps focusing on discriminative object regions. |
+| ![ViT Training](VIT_Classification/code/notebook_images/image_cell024_output000.png) | Training curves contrasting ViT and CNN optimization profiles. |
+
 ## CLIP Adversarial Attacks
 
 ### Key Features
@@ -66,6 +78,11 @@ Each subfolder contains:
 - **Adversarial Drop**: 20.1% accuracy loss under attack
 - **Defense Improvement**: TeCoA achieves 62.1% robust accuracy
 - **Parameter Efficiency**: LoRA uses only 0.8M trainable parameters
+
+| Visual | Description |
+|--------|-------------|
+| ![CLIP Adversarial Attack](CLIP_Adversarial_Attack/code/notebook_images/image_cell035_output001.png) | Adversarial vs. clean samples with model predictions. |
+| ![Attack Robustness](CLIP_Adversarial_Attack/code/notebook_images/image_cell032_output001.png) | Robustness curves across attack strengths and defenses. |
 
 ## Key Concepts Demonstrated
 

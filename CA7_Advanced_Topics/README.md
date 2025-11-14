@@ -9,6 +9,13 @@ The assignment consists of two advanced projects:
 1. **CNN vs. ViT Adversarial Attacks**: Comparative robustness analysis
 2. **Multilingual Image Captioning**: Persian language captioning system
 
+### Assignment Snapshot
+- **Primary Notebooks:**
+	- `CNN_VIT_Adversarial_Attack/code/NNDL_CAe_1.ipynb`
+	- `Image_Captioning/code/NNDL_CAe_2.ipynb`
+- **Benchmarks:** Clean accuracies—ViT ≈ 84.7% vs. ResNet ≈ 76.2%; robust (strong PGD) ≈ 57.4% vs. 52.1%. Persian captioning BLEU-4 ≈ 0.195 with culturally aware attention maps.
+- **What to Watch:** Attack transferability, defense cost/benefit, Persian preprocessing (Hazm) and right-to-left rendering.
+
 ## Contents
 
 - `CNN_VIT_Adversarial_Attack/`: Comparative adversarial analysis
@@ -44,6 +51,11 @@ Each subfolder contains:
 - **Attack Transferability**: High transfer rate between architectures
 - **Computational Trade-offs**: ViT requires more compute but offers better robustness
 
+| Visual | Description |
+|--------|-------------|
+| ![CNN vs ViT Adversarial](CNN_VIT_Adversarial_Attack/code/notebook_images/image_cell020_output000.png) | Side-by-side robustness curves for both architectures. |
+| ![Adversarial Examples](CNN_VIT_Adversarial_Attack/code/notebook_images/image_cell040_output000.png) | Examples of generated perturbations highlighting perceptual impact. |
+
 ## Multilingual Image Captioning in Persian
 
 ### Key Features
@@ -66,6 +78,11 @@ Each subfolder contains:
 - **Persian Fluency**: Natural Persian sentence generation
 - **Cultural Relevance**: Captions reflect Persian linguistic and cultural context
 - **Multilingual Capability**: Framework extensible to other RTL languages
+
+| Visual | Description |
+|--------|-------------|
+| ![Persian Caption Samples](Image_Captioning/images/image_cell19_output0.png) | Sample Persian captions aligned with imagery. |
+| ![Attention Overlays](Image_Captioning/images/image_cell54_output0.png) | Attention weights overlaid on salient image regions for RTL captions. |
 
 ## Key Concepts Demonstrated
 

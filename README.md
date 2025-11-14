@@ -91,4 +91,3 @@ Questions or tweaks? Open an issue and reference the specific assignment README 
 ---
 
 Happy experimenting! Dive into any assignment above to explore the full write-up, equations, and results without overloading this main landing page.
-**Overview:** Covers translating visual features into language and modeling temporal signals with quantified uncertainty—contrasting encoder-decoder generation with probabilistic forecasting.

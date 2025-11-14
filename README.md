@@ -40,15 +40,19 @@ This section helps you quickly orient yourself in the project. Each top-level fo
 - `README.md` – A mini guide focused on that assignment only.
 
 Use this structure to reproduce experiments or to dive into a concept area (e.g., generative modeling in CA6) without reading unrelated material.
-
-The repository is organized into 7 main assignment folders with descriptive names, each containing:
-
-- `code/` or subfolders with code implementations and Jupyter notebooks
-- `code/notebook_images/` - Extracted visualizations and results from notebooks
-- `description/` - Assignment specifications and requirements
-- `paper/` - Research papers and references
-- `report/` - Detailed analysis and results
-- `README.md` - Comprehensive technical documentation
+| Folder | Description | Typical Contents |
+|--------|-------------|------------------|
+| `CA1_Neural_Networks_Basics/` | Foundational feed-forward networks and optimization studies. | `code/`, `description/`, `paper/`, `report/` |
+| `CA2_CNN_Applications/` | CNN-based classification projects (medical & automotive). | `Covid_Detection/`, `Vehicle_Classification/` |
+| `CA3_Object_Detection/` | Detection and segmentation pipelines with orientation handling. | `Fast_SCNN/`, `Oriented_RCNN/` |
+| `CA4_Sequence_Modeling/` | Captioning and time-series forecasting assignments. | `Image_Captioning/`, `Time_Series_Prediction/` |
+| `CA5_Vision_Transformers/` | Transformer-based vision experiments and robustness. | `VIT_Classification/`, `CLIP_Adversarial_Attack/` |
+| `CA6_Generative_Models/` | GANs and VAEs for domain adaptation and anomaly detection. | `Unsupervised_Domain_Adaptation_GAN/`, `VAE/` |
+| `CA7_Advanced_Topics/` | Capstone projects on adversarial analysis and multilingual captioning. | `CNN_VIT_Adversarial_Attack/`, `Image_Captioning/` |
+| `python_files/` | Script equivalents of notebooks for CLI execution. | Python modules grouped by assignment |
+| `visualization/` | Shared plotting utilities and exported figures. | Scripts, static assets |
+| `NNDL_Slides/` | Course lecture slides. | PDF slide decks |
+| `LICENSE`, `README.md` | Repository metadata. | License text, this guide |
 
 ### Additional Resources
 
@@ -63,598 +67,311 @@ The repository is organized into 7 main assignment folders with descriptive name
 Below, each assignment block provides: (1) conceptual focus, (2) implementation highlights, (3) quantitative results, and (4) representative visualizations. Treat these summaries as an index; open the linked notebook for executable code and deeper commentary.
 
 ### CA1: Neural Networks Basics
+**Overview:** Introduces feed-forward neural networks from first principles, covering architecture design, forward/backward propagation math, activation selection, and optimization heuristics.
 
-**Fundamental Neural Network Concepts**
+**Highlights**
+- Custom network built from scratch with explicit backpropagation routines for educational transparency.
+- Comparative experiments against PyTorch implementations to validate gradients and speed.
+- Hyperparameter sweeps (learning rate, activation choice) visualized to explain convergence behavior.
 
-This assignment covers essential neural network principles including architecture, forward/backward propagation, activation functions, and optimization algorithms.
+**Key Results**
+- Confirmed gradient descent correctness through loss curves on benchmark datasets.
+- Demonstrated activation function impact on training stability and accuracy.
+- Documented optimization trade-offs (SGD vs. Adam) for shallow vs. deeper stacks.
 
-**Contents:**
+**Representative Visuals**
+- ![Neural Network Training](CA1_Neural_Networks_Basics/code/notebook_images/image_cell027_output001.png)
+	_Training dynamics validating manual backprop implementation._
+- ![Activation Functions](CA1_Neural_Networks_Basics/code/notebook_images/image_cell027_output003.png)
+	_Activation comparison (ReLU vs. Sigmoid vs. Tanh) and their learning curves._
 
-- Custom neural network implementation from scratch
-- Comparison with deep learning frameworks
-- Hyperparameter analysis and convergence studies
-- Implementation of backpropagation algorithm
-
-**Key Results:**
-
-- Demonstrated understanding of gradient descent and backpropagation
-- Analysis of activation functions and their impact on learning
-- Performance evaluation on benchmark datasets
-
-![Neural Network Training](CA1_Neural_Networks_Basics/code/notebook_images/image_cell027_output001.png)
-
-_Training dynamics and loss curves demonstrating backpropagation learning_
-
-![Activation Functions](CA1_Neural_Networks_Basics/code/notebook_images/image_cell027_output003.png)
-
-_Comparison of different activation functions and their impact on learning_
-
-**📊 Notebook Images**: 4 visualizations extracted
-
-- Loss curves and training dynamics
-- Activation function comparisons
-- Convergence analysis
-
-**📁 Location**: `CA1_Neural_Networks_Basics/code/NNDL_CA1_Q1.ipynb`
+**Primary Notebook:** `CA1_Neural_Networks_Basics/code/NNDL_CA1_Q1.ipynb`
 
 ---
 
 ### CA2: CNN Applications
-Two complementary real-world classification problems demonstrate how architectural choices (custom vs. pretrained) and feature pipelines affect performance and robustness.
+**Overview:** Two real-world classification pipelines show how architecture choice (bespoke CNN vs. transfer learning) and feature engineering affect performance and deployment trade-offs.
 
 #### 🦠 Covid_Detection
+**Problem Statement:** Automate COVID-19 screening from chest X-ray imagery while handling class imbalance and limited data.
 
-**Medical Image Classification with Deep CNNs**
+**Highlights**
+- Dual-track experiments: custom 6-block CNN vs. VGG16/MobileNetV2 fine-tuning.
+- Aggressive augmentation (rotation, flips, intensity scaling) to improve generalization.
+- Medical-grade preprocessing pipeline with class-weighted loss to offset imbalance.
 
-This project implements a comprehensive COVID-19 detection system using chest X-ray images. The implementation explores multiple CNN architectures and transfer learning approaches to address the critical challenge of automated COVID-19 diagnosis.
+**Key Results**
+- VGG16 (fine-tuned): 92.1% accuracy, 0.91 AUC-ROC.
+- MobileNetV2 transfer: 89.3% accuracy, 0.88 AUC-ROC.
+- Custom CNN baseline: 87.6% accuracy, 0.86 AUC-ROC.
 
-**Key Features:**
+**Representative Visuals**
+- ![COVID-19 Detection](CA2_CNN_Applications/Covid_Detection/code/notebook_images/image_cell035_output000.png)
+	_Grad-CAM overlays highlighting salient pulmonary regions._
+- ![Training Progress](CA2_CNN_Applications/Covid_Detection/code/notebook_images/image_cell056_output001.png)
+	_Training/validation curves illustrating transfer-learning stability._
 
-- **Custom CNN Architecture**: 6 convolutional blocks with batch normalization and dropout
-- **Transfer Learning**: Fine-tuning of VGG16 and MobileNetV2 pretrained on ImageNet
-- **Data Augmentation**: Extensive augmentation pipeline (rotation, flipping, scaling, brightness)
-- **Medical Imaging Pipeline**: Proper preprocessing for chest X-ray images
-
-**Technical Details:**
-
-- **Architecture**: Conv blocks (64→128→256→512 channels) + Global Average Pooling + Dense layers
-- **Loss Function**: Binary cross-entropy with class weights for imbalanced data
-- **Optimization**: Adam optimizer with learning rate scheduling
-- **Regularization**: Dropout (0.5) and L2 weight decay (1e-4)
-
-**Results & Analysis:**
-
-- **VGG16 Fine-tuned**: 92.1% accuracy, 0.91 AUC-ROC
-- **MobileNetV2**: 89.3% accuracy, 0.88 AUC-ROC
-- **Custom CNN**: 87.6% accuracy, 0.86 AUC-ROC
-
-![COVID-19 Detection](CA2_CNN_Applications/Covid_Detection/code/notebook_images/image_cell035_output000.png)
-
-_X-ray image classification results showing model predictions_
-
-![Training Progress](CA2_CNN_Applications/Covid_Detection/code/notebook_images/image_cell056_output001.png)
-
-_Training and validation accuracy/loss curves for COVID detection models_
-
-**📊 Notebook Images**: 59 visualizations extracted
-
-- Training/validation curves
-- Confusion matrices
-- ROC curves
-- Sample predictions on X-ray images
-
-**📁 Location**: `CA2_CNN_Applications/Covid_Detection/code/NNDL_CA2_1.ipynb`
+**Primary Notebook:** `CA2_CNN_Applications/Covid_Detection/code/NNDL_CA2_1.ipynb`
 
 #### 🚗 Vehicle_Classification
+**Problem Statement:** Build a multi-class vehicle classifier and benchmark pure deep learning against CNN-feature + classical ML pipelines.
 
-**Multi-Class Vehicle Classification System**
+**Highlights**
+- Feature extraction from VGG16/AlexNet conv layers followed by SVM/ensemble heads.
+- End-to-end CNN baseline for deployment simplicity comparisons.
+- Comprehensive hyperparameter tuning (grid search, cross-validation).
 
-This assignment implements a robust vehicle classification system exploring both end-to-end CNN training and traditional machine learning approaches on CNN-extracted features.
+**Key Results**
+- VGG16 feature extractor + SVM: 89.2% accuracy, best generalization.
+- AlexNet + SVM: 87.1% accuracy with lower compute cost.
+- Full CNN classifier: 85.4% accuracy, single-model simplicity.
 
-**Key Features:**
+**Representative Visuals**
+- ![Vehicle Classification](CA2_CNN_Applications/Vehicle_Classification/code/notebook_images/image_cell029_output001.png)
+	_Confusion matrix showcasing per-class performance._
+- ![Feature Visualization](CA2_CNN_Applications/Vehicle_Classification/code/notebook_images/image_cell052_output001.png)
+	_Feature maps depicting learned part detectors._
 
-- **Dual Approach**: Pure CNN classification vs. CNN feature extraction + SVM
-- **Architecture Comparison**: Custom CNN vs. VGG16 vs. AlexNet backbones
-- **Feature Engineering**: Comprehensive feature extraction from multiple CNN layers
-- **Ensemble Methods**: Combining multiple classifiers for improved performance
-
-**Technical Details:**
-
-- **CNN Feature Extraction**: Features from conv5 layer (512×7×7 → 25088 features)
-- **SVM Classification**: RBF kernel with grid search hyperparameter optimization
-- **Data Pipeline**: Vehicle dataset preprocessing with normalization and augmentation
-- **Evaluation**: 5-fold cross-validation with detailed per-class metrics
-
-**Results & Analysis:**
-
-- **VGG16 + SVM**: 89.2% accuracy, superior generalization
-- **AlexNet + SVM**: 87.1% accuracy, faster inference
-- **End-to-end CNN**: 85.4% accuracy, single-model simplicity
-
-![Vehicle Classification](CA2_CNN_Applications/Vehicle_Classification/code/notebook_images/image_cell029_output001.png)
-
-_Vehicle classification results demonstrating multi-class recognition_
-
-![Feature Visualization](CA2_CNN_Applications/Vehicle_Classification/code/notebook_images/image_cell052_output001.png)
-
-_CNN feature maps showing learned representations for vehicle recognition_
-
-**📊 Notebook Images**: 21 visualizations extracted
-
-- Feature visualization
-- Classification results
-- Confusion matrices
-- Sample vehicle images with predictions
-
-**📁 Location**: `CA2_CNN_Applications/Vehicle_Classification/code/NNDL_CA2_2.ipynb`
+**Primary Notebook:** `CA2_CNN_Applications/Vehicle_Classification/code/NNDL_CA2_2.ipynb`
 
 ---
 
 ### CA3: Object Detection
-Focus shifts from per-image classification to spatial understanding. Fast-SCNN addresses dense pixel labeling (semantic segmentation) efficiency, while Oriented R-CNN tackles rotation-aware detection required in aerial or document imagery.
+**Overview:** Moves from classification to spatial reasoning. Fast-SCNN delivers lightweight semantic segmentation, while Oriented R-CNN captures rotation-aware object proposals for aerial/document domains.
 
 #### 🏙️ Fast_SCNN
+**Problem Statement:** Achieve real-time semantic segmentation on resource-constrained hardware without sacrificing accuracy on urban scenes.
 
-**Real-Time Semantic Segmentation with Efficient CNNs**
+**Highlights**
+- Depthwise separable convolutions and streamlined downsampling for speed.
+- Pyramid pooling to aggregate multi-scale context.
+- Feature fusion stage with channel attention to refine boundaries.
 
-This project implements Fast-SCNN, a lightweight CNN architecture designed for real-time semantic segmentation on mobile and embedded devices.
+**Key Results**
+- Mean IoU ≈ 0.62 across evaluated classes.
+- <1.2M parameters; ~30 FPS on mobile GPUs.
+- Memory footprint ~50 MB enabling edge deployment.
 
-**Key Features:**
+**Representative Visuals**
+- ![Semantic Segmentation](CA3_Object_Detection/Fast_SCNN/code/notebook_images/image_cell027_output000.png)
+	_Qualitative segmentation masks on Cityscapes samples._
+- ![Segmentation Examples](CA3_Object_Detection/Fast_SCNN/code/notebook_images/image_cell051_output000.png)
+	_Multi-class predictions illustrating fine-grained boundaries._
 
-- **Efficient Architecture**: Depthwise separable convolutions for computational efficiency
-- **Multi-Scale Processing**: Pyramid pooling module for global context
-- **Real-Time Performance**: Optimized for mobile deployment
-- **Urban Scene Understanding**: Segmentation of roads, buildings, vehicles, pedestrians
-
-**Technical Details:**
-
-- **Learning to Downsample**: Initial downsampling module with skip connections
-- **Global Feature Extractor**: Pyramid pooling with multiple kernel sizes (1×1, 2×2, 3×3, 6×6)
-- **Feature Fusion**: Concatenation of multi-scale features with channel attention
-- **Loss Function**: Cross-entropy with class balancing for imbalanced segmentation
-
-**Results & Analysis:**
-
-- **IoU Score**: 0.62 average across all classes
-- **Model Size**: 1.2M parameters (vs. 50M+ for standard segmentation models)
-- **Inference Speed**: 30+ FPS on mobile GPUs
-- **Memory Efficiency**: 50MB model size suitable for edge deployment
-
-![Semantic Segmentation](CA3_Object_Detection/Fast_SCNN/code/notebook_images/image_cell027_output000.png)
-
-_Real-time semantic segmentation results on urban scenes_
-
-![Segmentation Examples](CA3_Object_Detection/Fast_SCNN/code/notebook_images/image_cell051_output000.png)
-
-_Additional segmentation examples showing multi-class pixel-level classification_
-
-**📊 Notebook Images**: 28 visualizations extracted
-
-- Segmentation masks
-- Training curves
-- Real-time inference examples
-- Multi-scale feature maps
-
-**📁 Location**: `CA3_Object_Detection/Fast_SCNN/code/NNDL_CA3_1.ipynb`
+**Primary Notebook:** `CA3_Object_Detection/Fast_SCNN/code/NNDL_CA3_1.ipynb`
 
 #### 🔄 Oriented_RCNN
+**Problem Statement:** Detect arbitrarily oriented objects where axis-aligned boxes fail (remote sensing, document layouts).
 
-**Arbitrary-Oriented Object Detection**
+**Highlights**
+- 5-parameter oriented anchors with specialized IoU metrics.
+- Rotated RoI Align for accurate feature pooling under rotation.
+- Regression head predicts center, size, and angle deltas jointly.
 
-This assignment implements Oriented R-CNN for detecting objects with arbitrary orientations, crucial for applications like aerial imagery analysis and document layout detection.
+**Key Results**
+- Orientation-aware proposals increase recall on rotated targets vs. axis-aligned baselines.
+- Qualitative detections show tight bounding boxes despite large rotations.
+- Robust to diverse aspect ratios seen in aerial imagery.
 
-**Key Features:**
+**Representative Visuals**
+- ![Oriented Object Detection](CA3_Object_Detection/Oriented_RCNN/code/notebook_images/image_cell021_output000.png)
+	_Rotation-aware bounding boxes on aerial dataset samples._
+- ![Oriented Detection Example](CA3_Object_Detection/Oriented_RCNN/code/notebook_images/image_cell026_output000.png)
+	_Precise localization highlighting angle regression quality._
 
-- **Oriented Anchors**: 5-parameter anchor representation (x, y, w, h, θ)
-- **Rotated ROI Align**: Rotation-aware feature extraction
-- **Geometric Transformations**: Proper handling of oriented bounding boxes
-- **IoU Computation**: Specialized intersection-over-union for rotated rectangles
-
-**Technical Details:**
-
-- **Region Proposal Network (RPN)**: Oriented anchor generation and classification
-- **Rotated RoI Align**: Bilinear sampling with rotation compensation
-- **Bounding Box Regression**: 5-parameter regression (dx, dy, dw, dh, dθ)
-- **Orientation Encoding**: Angle representation and normalization
-
-**Results & Analysis:**
-
-- **Detection Accuracy**: Superior performance on oriented objects vs. axis-aligned methods
-- **Geometric Precision**: Accurate localization of rotated objects
-- **Robustness**: Handles various orientations and aspect ratios
-
-![Oriented Object Detection](CA3_Object_Detection/Oriented_RCNN/code/notebook_images/image_cell021_output000.png)
-
-_Oriented bounding boxes demonstrating rotation-aware object detection_
-
-![Oriented Detection Example](CA3_Object_Detection/Oriented_RCNN/code/notebook_images/image_cell026_output000.png)
-
-_Additional example showing precise localization of rotated objects_
-
-**📊 Notebook Images**: 2 visualizations extracted
-
-- Oriented bounding box visualizations
-- Detection examples
-
-**📁 Location**: `CA3_Object_Detection/Oriented_RCNN/code/NNDL_CA3_2.ipynb`
+**Primary Notebook:** `CA3_Object_Detection/Oriented_RCNN/code/NNDL_CA3_2.ipynb`
 
 ---
 
 ### CA4: Sequence Modeling
-Sequence-focused tasks: translating visual embeddings to language (captioning) and modeling temporal dependencies & uncertainty (time series). This highlights encoder-decoder mechanics versus recurrent probabilistic forecasting.
+**Overview:** Covers translating visual features into language and modeling temporal signals with quantified uncertainty—contrasting encoder-decoder generation with probabilistic forecasting.
 
 #### 📝 Image_Captioning
+**Problem Statement:** Generate fluent English captions from image embeddings using hybrid recurrent architectures.
 
-**Hybrid LSTM-GRU Image Captioning with ResNet50**
+**Highlights**
+- ResNet50 encoder feeding a stacked LSTM→GRU decoder with attention.
+- Embedding size sweep (50/150/300) plus teacher forcing and dropout regularization.
+- Greedy vs. beam search decoding comparisons.
 
-This project implements an encoder-decoder architecture using ResNet50 for feature extraction and a hybrid LSTM-GRU decoder for generating natural language descriptions from images.
+**Key Results**
+- BLEU-1 ≈ 0.72; BLEU-4 ≈ 0.18 on validation set.
+- Beam search consistently outperforms greedy decoding.
+- Embedding 150–300 offers best fluency vs. compute trade-off.
 
-**Key Features:**
+**Representative Visuals**
+- ![Image Captioning Results](CA4_Sequence_Modeling/Image_Captioning/code/notebook_images/image_cell029_output001.png)
+	_Generated captions paired with attention-weighted regions._
+- ![Training Curves](CA4_Sequence_Modeling/Image_Captioning/code/notebook_images/image_cell063_output000.png)
+	_Loss trajectories confirming stable convergence._
 
-- **Visual Encoder**: ResNet50 pre-trained on ImageNet for robust feature extraction
-- **Hybrid Decoder**: Combination of LSTM and GRU for sequential text generation
-- **Sequence Generation**: Autoregressive text generation with beam search
-- **Training Strategies**: Teacher forcing, dropout, different embedding dimensions
-
-**Technical Details:**
-
-- **Encoder**: ResNet50 → Global Average Pooling → 2048-dim features
-- **Decoder**: LSTM → GRU → Linear → Softmax for vocabulary prediction
-- **Embedding Dimensions**: Evaluated 50, 150, and 300 dimensions
-- **Training**: Teacher forcing with dropout regularization (0.5)
-
-**Results & Analysis:**
-
-- **BLEU-1 Score**: ~0.72 (unigram overlap)
-- **BLEU-4 Score**: ~0.18 (4-gram overlap)
-- **Optimal Configuration**: Embedding size 150-300 provides best trade-off
-- **Beam Search**: Consistently outperforms greedy decoding
-
-![Image Captioning Results](CA4_Sequence_Modeling/Image_Captioning/code/notebook_images/image_cell029_output001.png)
-
-_Example generated captions using encoder-decoder architecture_
-
-![Training Curves](CA4_Sequence_Modeling/Image_Captioning/code/notebook_images/image_cell063_output000.png)
-
-_Training and validation loss curves showing model convergence_
-
-**📊 Notebook Images**: 18 visualizations extracted
-
-- Sample caption generations
-- Training/validation loss curves
-- Performance comparisons across configurations
-- Generated captions with different methods (greedy vs. beam search)
-
-**📁 Location**: `CA4_Sequence_Modeling/Image_Captioning/code/nndl-ca4-1.ipynb`
+**Primary Notebook:** `CA4_Sequence_Modeling/Image_Captioning/code/nndl-ca4-1.ipynb`
 
 #### ⏰ Time_Series_Prediction
+**Problem Statement:** Forecast time series while quantifying predictive uncertainty under noisy, partially observed conditions.
 
-**Uncertainty-Aware Time Series Forecasting**
+**Highlights**
+- Bidirectional LSTM/GRU stacks with Monte Carlo dropout.
+- Gaussian likelihood objective for calibrated intervals.
+- Handles missing values via masking and robust preprocessing.
 
-This assignment implements RNN-based models for time series prediction with uncertainty quantification using Monte Carlo dropout.
+**Key Results**
+- R² ≈ 0.85 on hold-out evaluation.
+- MC dropout yields well-calibrated prediction bands.
+- Outlier resilience demonstrated through reconstruction diagnostics.
 
-**Key Features:**
+**Representative Visuals**
+- ![Time Series Prediction](CA4_Sequence_Modeling/Time_Series_Prediction/code/notebook_images/image_cell036_output000.png)
+	_Forecast vs. ground truth with uncertainty shading._
+- ![Uncertainty Visualization](CA4_Sequence_Modeling/Time_Series_Prediction/code/notebook_images/image_cell071_output000.png)
+	_Distribution of predictive intervals across horizon steps._
 
-- **Bidirectional RNNs**: LSTM and GRU variants for sequence modeling
-- **Uncertainty Estimation**: Monte Carlo dropout for prediction confidence
-- **Temporal Dependencies**: Capturing long-range patterns in sequential data
-- **Robust Forecasting**: Handling noisy and irregular time series
-
-**Technical Details:**
-
-- **Architecture**: Bidirectional LSTM/GRU with multiple layers
-- **Uncertainty Quantification**: MC Dropout with 50 forward passes
-- **Loss Function**: Maximum likelihood estimation with Gaussian likelihood
-- **Regularization**: Dropout, recurrent dropout, and L2 regularization
-
-**Results & Analysis:**
-
-- **R² Score**: 0.85 on test data
-- **Uncertainty Calibration**: Well-calibrated prediction intervals
-- **Robustness**: Handles missing data and outliers effectively
-
-![Time Series Prediction](CA4_Sequence_Modeling/Time_Series_Prediction/code/notebook_images/image_cell036_output000.png)
-
-_Time series forecasting with uncertainty quantification using Monte Carlo dropout_
-
-![Uncertainty Visualization](CA4_Sequence_Modeling/Time_Series_Prediction/code/notebook_images/image_cell071_output000.png)
-
-_Prediction intervals demonstrating calibrated uncertainty estimates_
-
-**📊 Notebook Images**: 20 visualizations extracted
-
-- Time series predictions with confidence intervals
-- Training dynamics
-- Uncertainty visualization
-- Comparison of different architectures
-
-**📁 Location**: `CA4_Sequence_Modeling/Time_Series_Prediction/code/NNDL_CA4_2_1.ipynb`
+**Primary Notebook:** `CA4_Sequence_Modeling/Time_Series_Prediction/code/NNDL_CA4_2_1.ipynb`
 
 ---
 
 ### CA5: Vision Transformers
-Explores attention-centric architectures (ViT, CLIP) and contrasts them with CNN inductive biases. Includes robustness assessment against adversarial perturbations.
+**Overview:** Evaluates attention-centric architectures (ViT, CLIP) versus CNN inductive biases, including robustness assessments under adversarial perturbations.
 
 #### 🔍 VIT_Classification
+**Problem Statement:** Train a Vision Transformer from scratch and benchmark it against convolutional baselines on CIFAR-sized data.
 
-**Vision Transformer for Image Classification**
+**Highlights**
+- Patch embedding pipeline (16×16) with learnable positional encodings.
+- 12-layer transformer stack with multi-head self-attention.
+- Optional ImageNet initialization for transfer learning experiments.
 
-This project implements Vision Transformer (ViT) from scratch and compares its performance with traditional CNNs on image classification tasks.
+**Key Results**
+- Accuracy ≈ 88.2% on CIFAR-10, competitive with ResNet-50.
+- Attention maps reveal global context utilization absent in CNNs.
+- Higher compute cost but improved scaling with dataset size.
 
-**Key Features:**
+**Representative Visuals**
+- ![Vision Transformer](CA5_Vision_Transformers/VIT_Classification/code/notebook_images/image_cell016_output000.png)
+	_Attention heatmaps focusing on discriminative object regions._
+- ![ViT Training](CA5_Vision_Transformers/VIT_Classification/code/notebook_images/image_cell024_output000.png)
+	_Training curves contrasting ViT and CNN optimization profiles._
 
-- **Patch Embedding**: Image divided into fixed-size patches (16×16)
-- **Self-Attention**: Multi-head attention for global context modeling
-- **Position Encoding**: Learnable positional embeddings
-- **Class Token**: Special token for classification
-
-**Technical Details:**
-
-- **Patch Size**: 16×16 pixels → 768-dim embeddings
-- **Transformer Blocks**: 12 layers, 12 attention heads, 768-dim model
-- **Pre-training**: Optional initialization with ImageNet-pretrained weights
-- **Fine-tuning**: End-to-end training on target datasets
-
-**Results & Analysis:**
-
-- **Accuracy**: 88.2% on CIFAR-10 (comparable to ResNet-50)
-- **Computational Cost**: Higher training cost but better scaling
-- **Attention Patterns**: Global receptive field captures long-range dependencies
-- **Data Efficiency**: Benefits from larger datasets more than CNNs
-
-![Vision Transformer](CA5_Vision_Transformers/VIT_Classification/code/notebook_images/image_cell016_output000.png)
-
-_Attention heatmaps showing how ViT focuses on different image regions_
-
-![ViT Training](CA5_Vision_Transformers/VIT_Classification/code/notebook_images/image_cell024_output000.png)
-
-_Training curves comparing ViT performance with CNN baselines_
-
-**📊 Notebook Images**: 13 visualizations extracted
-
-- Attention heatmaps
-- Training curves
-- Classification results
-- Patch visualization
-
-**📁 Location**: `CA5_Vision_Transformers/VIT_Classification/code/NNDL_CA5_1.ipynb`
+**Primary Notebook:** `CA5_Vision_Transformers/VIT_Classification/code/NNDL_CA5_1.ipynb`
 
 #### 🛡️ CLIP_Adversarial_Attack
+**Problem Statement:** Stress-test CLIP’s multimodal embedding space with adversarial image perturbations and evaluate defense strategies.
 
-**Adversarial Attacks on Multimodal Models**
+**Highlights**
+- Implements FGSM/PGD attacks under ℓ∞ constraints.
+- Defense suite: LoRA fine-tuning, TeCoA loss, visual prompt tuning.
+- Tracks clean vs. adversarial accuracy along attack strength sweeps.
 
-This assignment explores adversarial vulnerabilities in CLIP (Contrastive Language-Image Pretraining) and implements various defense mechanisms.
+**Key Results**
+- Clean zero-shot accuracy ≈ 65.2%; drops by ~20% under strong PGD.
+- TeCoA defense recovers robust accuracy to ≈ 62.1%.
+- LoRA requires <1M trainable parameters for adaptation.
 
-**Key Features:**
+**Representative Visuals**
+- ![CLIP Adversarial Attack](CA5_Vision_Transformers/CLIP_Adversarial_Attack/code/notebook_images/image_cell035_output001.png)
+	_Adversarial vs. clean samples with model predictions._
+- ![Attack Robustness](CA5_Vision_Transformers/CLIP_Adversarial_Attack/code/notebook_images/image_cell032_output001.png)
+	_Robustness curves across attack strengths and defenses._
 
-- **Multimodal Attacks**: Perturbing images while preserving semantic meaning
-- **Defense Strategies**: LoRA fine-tuning, TeCoA loss, Visual Prompt Tuning
-- **Robust Evaluation**: Comprehensive clean vs. adversarial performance analysis
-- **Parameter Efficiency**: Low-rank adaptation for practical deployment
-
-**Technical Details:**
-
-- **CLIP Architecture**: Vision Transformer + Text Transformer
-- **Attack Methods**: FGSM, PGD with ε-constraints
-- **Defense Techniques**: Test-time classifier alignment, prompt tuning
-- **Evaluation**: Robustness metrics across multiple attack strengths
-
-**Results & Analysis:**
-
-- **Clean Accuracy**: 65.2% zero-shot performance
-- **Adversarial Drop**: 20.1% accuracy loss under attack
-- **Defense Improvement**: TeCoA achieves 62.1% robust accuracy
-- **Parameter Efficiency**: LoRA uses only 0.8M trainable parameters
-
-![CLIP Adversarial Attack](CA5_Vision_Transformers/CLIP_Adversarial_Attack/code/notebook_images/image_cell035_output001.png)
-
-_Adversarial examples and defense mechanisms for multimodal CLIP model_
-
-![Attack Robustness](CA5_Vision_Transformers/CLIP_Adversarial_Attack/code/notebook_images/image_cell032_output001.png)
-
-_Attack success rates and robustness metrics across different defense strategies_
-
-**📊 Notebook Images**: 14 visualizations extracted
-
-- Adversarial examples
-- Attack success rates
-- Defense effectiveness
-- Robustness curves
-
-**📁 Location**: `CA5_Vision_Transformers/CLIP_Adversarial_Attack/code/NNDL_CA5_2.ipynb`
+**Primary Notebook:** `CA5_Vision_Transformers/CLIP_Adversarial_Attack/code/NNDL_CA5_2.ipynb`
 
 ---
 
 ### CA6: Generative Models
-Investigates representation learning via generation: domain translation (CycleGAN) for adaptation and probabilistic latent modeling (VAE) for anomaly detection.
+**Overview:** Studies generative modeling for domain adaptation (CycleGAN) and probabilistic anomaly detection (VAE), highlighting how latent representations enable transfer and calibration.
 
 #### 🔄 Unsupervised_Domain_Adaptation_GAN
+**Problem Statement:** Bridge distribution shifts between source and target domains without labeled target data (MNIST → MNIST-M).
 
-**GAN-Based Unsupervised Domain Adaptation**
+**Highlights**
+- Cycle consistency losses enforce bidirectional fidelity.
+- PatchGAN discriminators encourage high-frequency realism.
+- Identity loss stabilizes color/style preservation.
 
-This project implements CycleGAN for domain adaptation, enabling models trained on one domain to perform well on related but different domains.
+**Key Results**
+- Target accuracy improves to ≈ 87.6% (vs. 75.6% baseline).
+- Domain gap reduced by ~58% measured via classifier transfer.
+- FID ≈ 38.7 indicates credible stylization.
 
-**Key Features:**
+**Representative Visuals**
+- ![Domain Adaptation GAN](CA6_Generative_Models/Unsupervised_Domain_Adaptation_GAN/code/notebook_images/image_cell040_output000.png)
+	_A↔B translations showing style adaptation._
+- ![Generated Samples](CA6_Generative_Models/Unsupervised_Domain_Adaptation_GAN/code/notebook_images/image_cell057_output000.png)
+	_Classifier predictions on adapted MNIST-M glyphs._
 
-- **Cycle Consistency**: Bidirectional mapping between domains
-- **Domain Confusion**: Adversarial alignment of feature distributions
-- **Unsupervised Learning**: No target domain labels required
-- **Style Transfer**: Realistic transformation of visual appearance
-
-**Technical Details:**
-
-- **Generator Networks**: U-Net style with residual blocks
-- **Discriminator Networks**: Patch-based discrimination
-- **Loss Components**: Adversarial loss + cycle consistency + identity loss
-- **Training Strategy**: Alternating optimization with careful loss balancing
-
-**Results & Analysis:**
-
-- **Target Accuracy**: 87.6% on MNIST-M (vs. 75.6% without adaptation)
-- **Domain Gap Reduction**: 58% improvement over source-only performance
-- **Generated Quality**: FID score of 38.7 indicates realistic samples
-- **Feature Alignment**: t-SNE visualization shows domain-invariant representations
-
-![Domain Adaptation GAN](CA6_Generative_Models/Unsupervised_Domain_Adaptation_GAN/code/notebook_images/image_cell040_output000.png)
-
-_CycleGAN domain transfer results showing style translation between domains_
-
-![Generated Samples](CA6_Generative_Models/Unsupervised_Domain_Adaptation_GAN/code/notebook_images/image_cell057_output000.png)
-
-_Generated samples demonstrating realistic domain transfer quality_
-
-**📊 Notebook Images**: 28 visualizations extracted
-
-- Domain transfer examples
-- Generated samples
-- Training dynamics
-- Feature space visualizations
-
-**📁 Location**: `CA6_Generative_Models/Unsupervised_Domain_Adaptation_GAN/code/NNDL_CA6_1.ipynb`
+**Primary Notebook:** `CA6_Generative_Models/Unsupervised_Domain_Adaptation_GAN/code/NNDL_CA6_1.ipynb`
 
 #### 🎭 VAE
+**Problem Statement:** Learn latent distributions for medical imagery and flag anomalies via reconstruction error using a Variational Autoencoder.
 
-**Variational Autoencoder for Anomaly Detection**
+**Highlights**
+- CNN encoder produces mean/log-variance for latent Gaussians.
+- Decoder reconstructs inputs; β-VAE variant controls disentanglement.
+- Reconstruction-based anomaly scoring for polyp detection.
 
-This assignment implements VAE for generative modeling and demonstrates its application in unsupervised anomaly detection for medical imaging.
+**Key Results**
+- PSNR ≈ 28.5 dB, SSIM ≈ 0.89 on normal sequences.
+- ROC AUC ≈ 0.90 for anomaly classification.
+- Latent traversals exhibit smooth interpolation, indicating structured manifold.
 
-**Key Features:**
+**Representative Visuals**
+- ![VAE Reconstruction](CA6_Generative_Models/VAE/code/notebook_images/image_cell019_output000.png)
+	_Input vs. reconstruction comparison._
+- ![VAE Latent Space](CA6_Generative_Models/VAE/code/notebook_images/image_cell034_output001.png)
+	_Latent interpolation illustrating continuity._
 
-- **Probabilistic Encoding**: Amortized variational inference
-- **Reparameterization Trick**: Enables gradient-based optimization
-- **Anomaly Scoring**: Reconstruction error as anomaly indicator
-- **Medical Application**: Polyp detection in gastrointestinal endoscopy
-
-**Technical Details:**
-
-- **Encoder**: CNN-based recognition network (μ, log σ²)
-- **Decoder**: Transpose CNN for image reconstruction
-- **ELBO Loss**: Reconstruction + KL divergence regularization
-- **β-VAE Variant**: Tunable regularization strength
-
-**Results & Analysis:**
-
-- **Reconstruction Quality**: PSNR 28.5dB, SSIM 0.89 on normal images
-- **Anomaly Detection**: AUC 0.90, superior to reconstruction-based methods
-- **Latent Space**: Well-structured manifold for interpolation
-- **Medical Utility**: Reliable polyp detection with low false positive rate
-
-![VAE Reconstruction](CA6_Generative_Models/VAE/code/notebook_images/image_cell019_output000.png)
-
-_Variational Autoencoder reconstruction and latent space visualization_
-
-![VAE Latent Space](CA6_Generative_Models/VAE/code/notebook_images/image_cell034_output001.png)
-
-_Latent space interpolation showing smooth transitions between generated samples_
-
-**📊 Notebook Images**: 8 visualizations extracted
-
-- Reconstruction examples
-- Latent space visualizations
-- Anomaly detection results
-- Medical image analysis
-
-**📁 Location**: `CA6_Generative_Models/VAE/code/NNDL_CA6_2.ipynb`
+**Primary Notebook:** `CA6_Generative_Models/VAE/code/NNDL_CA6_2.ipynb`
 
 ---
 
 ### CA7: Advanced Topics
-Integrates prior themes—adversarial robustness comparison (CNN vs. ViT) and multilingual captioning challenges (Persian RTL text). Emphasis on cross-disciplinary adaptation and security.
+**Overview:** Integrates adversarial robustness analysis and multilingual captioning, synthesizing lessons from earlier assignments into cross-domain and multilingual settings.
 
 #### 🔀 CNN_VIT_Adversarial_Attack
+**Problem Statement:** Compare robustness of CNN vs. ViT architectures under a unified adversarial attack and defense toolkit.
 
-**Comparative Adversarial Analysis: CNNs vs. ViTs**
+**Highlights**
+- FGSM/PGD/CW attack suite with transferability studies.
+- Adversarial training and preprocessing defenses benchmarked.
+- Metric dashboard tracking clean vs. robust accuracy and compute.
 
-This extra assignment provides a comprehensive comparison of adversarial vulnerabilities between convolutional and transformer-based vision models.
+**Key Results**
+- Clean: ViT ≈ 84.7% vs. ResNet ≈ 76.2% accuracy.
+- Robust (strong PGD): ViT ≈ 57.4%, ResNet ≈ 52.1%.
+- Attack transfer rate high; ViT requires more compute yet retains robustness edge.
 
-**Key Features:**
+**Representative Visuals**
+- ![CNN vs ViT Adversarial](CA7_Advanced_Topics/CNN_VIT_Adversarial_Attack/code/notebook_images/image_cell020_output000.png)
+	_Side-by-side robustness comparison curves._
+- ![Adversarial Examples](CA7_Advanced_Topics/CNN_VIT_Adversarial_Attack/code/notebook_images/image_cell040_output000.png)
+	_Examples of generated perturbations on both architectures._
 
-- **Architecture Comparison**: ResNet-50 vs. ViT-Base side-by-side analysis
-- **Attack Suite**: FGSM, PGD, CW attacks with multiple strengths
-- **Defense Evaluation**: Adversarial training and input preprocessing
-- **Robustness Metrics**: Detailed analysis of clean vs. robust performance
-
-**Technical Details:**
-
-- **CNN Model**: ResNet-50 with 25M parameters
-- **ViT Model**: 12-layer transformer with 86M parameters
-- **Attack Implementation**: Torchattacks library with custom modifications
-- **Defense Methods**: Adversarial training with PGD-based augmentation
-
-**Results & Analysis:**
-
-- **Clean Performance**: ViT 84.7% vs. ResNet 76.2% accuracy
-- **Adversarial Robustness**: ViT 57.4% vs. ResNet 52.1% under strong attacks
-- **Attack Transferability**: High transfer rate between architectures
-- **Computational Trade-offs**: ViT requires more compute but offers better robustness
-
-![CNN vs ViT Adversarial](CA7_Advanced_Topics/CNN_VIT_Adversarial_Attack/code/notebook_images/image_cell020_output000.png)
-
-_Comparative analysis of adversarial robustness between CNNs and Vision Transformers_
-
-![Adversarial Examples](CA7_Advanced_Topics/CNN_VIT_Adversarial_Attack/code/notebook_images/image_cell040_output000.png)
-
-_Adversarial examples and attack success rates comparison_
-
-**📊 Notebook Images**: 34 visualizations extracted
-
-- Adversarial examples comparison
-- Attack success rates
-- Robustness metrics
-- Performance comparisons
-
-**📁 Location**: `CA7_Advanced_Topics/CNN_VIT_Adversarial_Attack/code/NNDL_CAe_1.ipynb`
+**Primary Notebook:** `CA7_Advanced_Topics/CNN_VIT_Adversarial_Attack/code/NNDL_CAe_1.ipynb`
 
 #### 🌐 Image_Captioning (Persian)
+**Problem Statement:** Extend image captioning to Persian (RTL, low-resource) with culturally aware vocabulary and decoding.
 
-**Multilingual Image Captioning in Persian**
+**Highlights**
+- Hazm-based preprocessing (normalization, tokenization) and vocab construction.
+- Transformer encoder-decoder tailored with Persian embeddings.
+- Beam search augmented with Persian language model priors.
 
-This advanced project extends image captioning to Persian language, addressing the challenges of right-to-left script and low-resource language processing.
+**Key Results**
+- BLEU-4 ≈ 0.195—competitive for low-resource corpora.
+- Generated captions exhibit fluent Persian morphology and syntax.
+- Attention visualizations align focus with linguistically relevant regions.
 
-**Key Features:**
+**Representative Visuals**
+- ![Persian Image Captioning](CA7_Advanced_Topics/Image_Captioning/images/image_cell19_output0.png)
+	_Sample Persian descriptions aligned with imagery._
+- ![Dataset Analysis](CA7_Advanced_Topics/Image_Captioning/images/image_cell20_output0.png)
+	_Caption length distribution informing decoder tuning._
+- ![Persian Caption Attention](CA7_Advanced_Topics/Image_Captioning/images/image_cell54_output0.png)
+	_Attention weights overlaid on image regions._
+- ![Training Progress](CA7_Advanced_Topics/Image_Captioning/images/image_cell47_output0.png)
+	_BLEU progression demonstrating training stability._
 
-- **Persian NLP Pipeline**: Hazm library for tokenization and normalization
-- **Multilingual Attention**: Multi-head attention for cross-modal alignment
-- **RTL Text Handling**: Proper bidirectional text processing
-- **Cultural Adaptation**: Persian-specific caption generation
-
-**Technical Details:**
-
-- **Text Processing**: Persian normalization, word tokenization, vocabulary building
-- **Model Architecture**: Transformer-based encoder-decoder with Persian embeddings
-- **Beam Search**: Multilingual beam search with Persian language model
-- **Evaluation**: BLEU scores adapted for Persian morphological complexity
-
-**Results & Analysis:**
-
-- **BLEU-4 Score**: 0.195 (competitive for low-resource language)
-- **Persian Fluency**: Natural Persian sentence generation
-- **Cultural Relevance**: Captions reflect Persian linguistic and cultural context
-
-![Persian Image Captioning](CA7_Advanced_Topics/Image_Captioning/images/image_cell19_output0.png)
-
-_Sample Persian captions generated with attention mechanisms_
-
-![Dataset Analysis](CA7_Advanced_Topics/Image_Captioning/images/image_cell20_output0.png)
-
-_Caption length distribution in the Persian dataset_
-
-![Persian Caption Attention](CA7_Advanced_Topics/Image_Captioning/images/image_cell54_output0.png)
-
-_Attention visualization showing focus regions for Persian caption generation_
-
-![Training Progress](CA7_Advanced_Topics/Image_Captioning/images/image_cell47_output0.png)
-
-_Training and validation BLEU scores showing model improvement over epochs_
-
-**📊 Notebook Images**: 89 visualizations extracted (largest collection!)
-
-- Sample Persian captions
-- Training curves
-- Attention visualizations
-- Comparison with English baseline
-
-**📁 Location**: `CA7_Advanced_Topics/Image_Captioning/code/NNDL_CAe_2.ipynb`
+**Primary Notebook:** `CA7_Advanced_Topics/Image_Captioning/code/NNDL_CAe_2.ipynb`
 
 ---
 

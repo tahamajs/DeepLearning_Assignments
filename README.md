@@ -8,6 +8,27 @@ This repository contains comprehensive implementations of advanced deep learning
 
 **📊 Total Notebooks**: 14 | **🖼️ Total Images Extracted**: 338 | **📁 Assignments**: 7
 
+---
+## 🧭 Table of Contents
+1. [Repository Structure](#-repository-structure)
+2. [Assignments Overview](#-assignments-overview)
+3. [Key Technologies](#️-key-technologies-and-frameworks)
+4. [Core Concepts](#-core-concepts-demonstrated)
+5. [Getting Started](#-getting-started)
+6. [Image Collection Summary](#-image-collection-summary)
+7. [Datasets](#-datasets)
+8. [Reproducibility](#-reproducibility)
+9. [Experiment Management](#-experiment-management)
+10. [Usage](#-usage)
+11. [Troubleshooting](#-troubleshooting)
+12. [FAQ](#-faq)
+13. [Roadmap](#-roadmap)
+14. [Citation](#-citation)
+15. [License](#-license)
+16. [Acknowledgments](#-acknowledgments)
+
+> All image paths are relative and verified. If browsing on GitHub, images should render automatically. If any image fails to load locally, run `python extract_all_images.py` to regenerate notebook image outputs.
+
 ## 📋 Repository Structure
 
 The repository is organized into 7 main assignment folders with descriptive names, each containing:
@@ -186,7 +207,7 @@ This project implements Fast-SCNN, a lightweight CNN architecture designed for r
 - **Inference Speed**: 30+ FPS on mobile GPUs
 - **Memory Efficiency**: 50MB model size suitable for edge deployment
 
-![Semantic Segmentation](CA3_Object_Detection/Fast_SCNN/images/image_cell020_output000.png)
+![Semantic Segmentation](CA3_Object_Detection/Fast_SCNN/code/notebook_images/image_cell027_output000.png)
 
 _Real-time semantic segmentation results on urban scenes_
 
@@ -366,7 +387,7 @@ This project implements Vision Transformer (ViT) from scratch and compares its p
 - **Attention Patterns**: Global receptive field captures long-range dependencies
 - **Data Efficiency**: Benefits from larger datasets more than CNNs
 
-![Vision Transformer](CA5_Vision_Transformers/VIT_Classification/images/image_cell015_output000.png)
+![Vision Transformer](CA5_Vision_Transformers/VIT_Classification/code/notebook_images/image_cell016_output000.png)
 
 _Attention heatmaps showing how ViT focuses on different image regions_
 
@@ -410,7 +431,7 @@ This assignment explores adversarial vulnerabilities in CLIP (Contrastive Langua
 - **Defense Improvement**: TeCoA achieves 62.1% robust accuracy
 - **Parameter Efficiency**: LoRA uses only 0.8M trainable parameters
 
-![CLIP Adversarial Attack](CA5_Vision_Transformers/CLIP_Adversarial_Attack/images/image_cell020_output000.png)
+![CLIP Adversarial Attack](CA5_Vision_Transformers/CLIP_Adversarial_Attack/code/notebook_images/image_cell035_output001.png)
 
 _Adversarial examples and defense mechanisms for multimodal CLIP model_
 
@@ -458,7 +479,7 @@ This project implements CycleGAN for domain adaptation, enabling models trained 
 - **Generated Quality**: FID score of 38.7 indicates realistic samples
 - **Feature Alignment**: t-SNE visualization shows domain-invariant representations
 
-![Domain Adaptation GAN](CA6_Generative_Models/Unsupervised_Domain_Adaptation_GAN/images/image_cell015_output000.png)
+![Domain Adaptation GAN](CA6_Generative_Models/Unsupervised_Domain_Adaptation_GAN/code/notebook_images/image_cell040_output000.png)
 
 _CycleGAN domain transfer results showing style translation between domains_
 
@@ -502,7 +523,7 @@ This assignment implements VAE for generative modeling and demonstrates its appl
 - **Latent Space**: Well-structured manifold for interpolation
 - **Medical Utility**: Reliable polyp detection with low false positive rate
 
-![VAE Reconstruction](CA6_Generative_Models/VAE/images/image_cell015_output000.png)
+![VAE Reconstruction](CA6_Generative_Models/VAE/code/notebook_images/image_cell019_output000.png)
 
 _Variational Autoencoder reconstruction and latent space visualization_
 
@@ -550,7 +571,7 @@ This extra assignment provides a comprehensive comparison of adversarial vulnera
 - **Attack Transferability**: High transfer rate between architectures
 - **Computational Trade-offs**: ViT requires more compute but offers better robustness
 
-![CNN vs ViT Adversarial](CA7_Advanced_Topics/CNN_VIT_Adversarial_Attack/images/image_cell015_output000.png)
+![CNN vs ViT Adversarial](CA7_Advanced_Topics/CNN_VIT_Adversarial_Attack/code/notebook_images/image_cell020_output000.png)
 
 _Comparative analysis of adversarial robustness between CNNs and Vision Transformers_
 
@@ -685,6 +706,46 @@ pip install -r requirements.txt
 pip install torch torchvision numpy pandas matplotlib jupyter
 ```
 
+### Recommended Environment Setup
+
+```bash
+# Create isolated environment (venv example)
+python -m venv .venv
+source .venv/bin/activate  # macOS/Linux
+
+# OR using conda
+conda create -n nndl python=3.10 -y
+conda activate nndl
+
+# Install core dependencies
+pip install -r requirements.txt  # if present
+
+# Verify GPU (optional)
+python - <<'PY'
+import torch; print('CUDA available:', torch.cuda.is_available())
+PY
+```
+
+### Quick Start (Example: CA5 ViT Classification)
+```bash
+cd CA5_Vision_Transformers/VIT_Classification/code
+jupyter notebook  # open NNDL_CA5_1.ipynb
+```
+
+### Seeding for Determinism
+Add at top of notebooks/scripts:
+```python
+import random, numpy as np, torch
+def seed_all(seed=42):
+	random.seed(seed)
+	np.random.seed(seed)
+	torch.manual_seed(seed)
+	torch.cuda.manual_seed_all(seed)
+	torch.backends.cudnn.deterministic = True
+	torch.backends.cudnn.benchmark = False
+seed_all()
+```
+
 ### Navigation
 
 Each assignment folder is self-contained:
@@ -797,3 +858,103 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **Note**: This repository represents a comprehensive collection of deep learning implementations covering fundamental concepts to advanced topics. All notebooks include detailed markdown explanations, mathematical formulations, and visual results extracted from the execution outputs.
+
+---
+## 📦 Datasets
+| Assignment | Dataset(s) | Source / Link |
+|-----------|------------|---------------|
+| CA1 Basics | Synthetic & MNIST | http://yann.lecun.com/exdb/mnist/ |
+| CA2 Covid Detection | COVID-19 Chest X-Ray, Normal/Pneumonia | Kaggle / Cohen et al. curated sets |
+| CA2 Vehicle Classification | Vehicle images (custom curated) | Internal course dataset |
+| CA3 Fast-SCNN | Cityscapes subset | https://www.cityscapes-dataset.com/ |
+| CA3 Oriented R-CNN | DOTA / aerial samples subset | https://captain-whu.github.io/DOTA/ |
+| CA4 Image Captioning | Flickr8k/Flickr30k (English) | https://github.com/jbrownlee/Datasets |
+| CA4 Time Series | Synthetic + real sensor logs | Course-provided |
+| CA5 ViT/CLIP | CIFAR-10, COCO (subsample), custom text prompts | https://www.cs.toronto.edu/~kriz/cifar.html |
+| CA6 Domain Adaptation | MNIST → MNIST-M | https://github.com/facebookresearch/domainbed |
+| CA6 VAE | Medical polyp imagery | Kvasir dataset |
+| CA7 Persian Captioning | Custom Persian image–caption corpus | Course-provided |
+
+> Some datasets require manual download due to license constraints. See each assignment folder `description/` for precise acquisition steps.
+
+## 🔁 Reproducibility
+1. Use the seeding snippet in [Getting Started](#-getting-started).
+2. Maintain versions using `pip freeze > requirements.lock.txt`.
+3. Run notebooks in order; avoid mixing checkpoint states across runs.
+4. For multi-GPU variance, set `CUDA_LAUNCH_BLOCKING=1` when debugging.
+5. Log metrics (BLEU, IoU, Accuracy) every epoch; append JSON to `report/metrics.json` (pattern followed in some assignments).
+
+## 📈 Experiment Management
+| Aspect | Recommendation |
+|--------|---------------|
+| Logging | Use Weights & Biases or TensorBoard for consistent charts. |
+| Checkpoints | Save per epoch; keep best metric & last epoch. |
+| Hyperparameters | Store in `config.yaml` (add if missing) for each experiment. |
+| Versioning | Tag Git commits with `exp/<assignment>-<date>` after stable results. |
+
+## 🧪 Benchmark Summary (Selected)
+| Task | Model | Key Metric | Score |
+|------|-------|-----------|-------|
+| Covid Detection | VGG16 (fine-tuned) | AUC-ROC | 0.91 |
+| Vehicle Classification | VGG16 + SVM | Accuracy | 89.2% |
+| Fast-SCNN | Fast-SCNN | Mean IoU | 0.62 |
+| Oriented R-CNN | Oriented R-CNN | Detection mAP* | (qualitative) |
+| Image Captioning (EN) | ResNet50 + Hybrid Decoder | BLEU-4 | 0.18 |
+| Time Series | BiLSTM | R² | 0.85 |
+| ViT Classification | ViT-Base | CIFAR-10 Acc | 88.2% |
+| CLIP Robustness | CLIP + TeCoA | Robust Acc | 62.1% |
+| Domain Adaptation | CycleGAN + Classifier | Target Acc | 87.6% |
+| VAE Anomaly | β-VAE | AUC | 0.90 |
+| Persian Captioning | Transformer | BLEU-4 | 0.195 |
+*mAP value varies by subset; detailed numbers in assignment report.
+
+## 🛠️ Troubleshooting
+| Issue | Possible Cause | Fix |
+|-------|----------------|-----|
+| CUDA unavailable | Driver / toolkit mismatch | Reinstall CUDA or use CPU fallback (`device='cpu'`). |
+| Notebook image missing | Not executed / extraction script not run | Execute cell & run `extract_all_images.py`. |
+| Divergent training loss | Learning rate too high | Reduce LR (e.g., `1e-3 → 5e-4`). |
+| Low BLEU score | Tokenization inconsistency | Rebuild tokenizer & ensure consistent preprocessing. |
+| Memory OOM | Batch size too large | Lower batch size or enable gradient accumulation. |
+
+## ❓ FAQ
+**Q: Why BLEU-4 is relatively low?**  Image captioning BLEU-4 is sensitive to vocabulary size and dataset scale; small datasets produce modest multi-gram overlap.
+
+**Q: Can I substitute datasets?**  Yes—update paths and ensure identical preprocessing scripts.
+
+**Q: How to run on CPU only?**  Set environment variable `CUDA_VISIBLE_DEVICES=""` or modify device selection logic.
+
+**Q: Where are model checkpoints stored?**  Typically inside each assignment's `code/` or a generated `checkpoints/` folder (create if missing).
+
+## 🗺️ Roadmap
+- [ ] Add `config.yaml` templates per assignment.
+- [ ] Introduce unit tests for data loaders.
+- [ ] Add ONNX export for key models.
+- [ ] Provide Dockerfile for containerized reproducibility.
+- [ ] Expand Persian dataset & add morphological analysis module.
+
+## 🤝 Contributing
+Contributions (issues, PRs) are welcome. Please:
+1. Fork and create a feature branch: `git checkout -b feat/<short-name>`
+2. Follow existing code style and add docstrings.
+3. Include before/after metrics for model changes.
+4. Update README sections if user-facing behavior changes.
+
+## 📑 Citation
+If this work contributes to academic or professional output, cite it as:
+```
+@misc{majlesi2025nndl,
+	title={Neural Networks and Deep Learning Course Assignments},
+	author={Majlesi, Taha},
+	institution={University of Tehran},
+	year={2025},
+	note={GitHub repository}
+}
+```
+
+## 🧵 Style & Conventions
+- Python: PEP8 naming, snake_case functions, UpperCamelCase classes.
+- Reproducibility: Always set seeds and record versions.
+- File Outputs: Place generated artifacts under `report/` or `code/notebook_images/`.
+
+---

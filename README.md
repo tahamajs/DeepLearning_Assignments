@@ -30,6 +30,16 @@ This repository contains comprehensive implementations of advanced deep learning
 > All image paths are relative and verified. If browsing on GitHub, images should render automatically. If any image fails to load locally, run `python extract_all_images.py` to regenerate notebook image outputs.
 
 ## 📋 Repository Structure
+This section helps you quickly orient yourself in the project. Each top-level folder corresponds to a course assignment (CA1–CA7) or shared resources. Inside an assignment folder you will typically find:
+
+- `code/` – Jupyter notebooks and Python modules implementing the models.
+- `code/notebook_images/` – Auto-extracted images from executed notebook cells (useful for reports or browsing results without re-running).
+- `description/` – The official assignment brief, constraints, and goals.
+- `paper/` – Reference publications that informed design choices.
+- `report/` – Your analytical write-up, metrics, and discussion.
+- `README.md` – A mini guide focused on that assignment only.
+
+Use this structure to reproduce experiments or to dive into a concept area (e.g., generative modeling in CA6) without reading unrelated material.
 
 The repository is organized into 7 main assignment folders with descriptive names, each containing:
 
@@ -50,6 +60,7 @@ The repository is organized into 7 main assignment folders with descriptive name
 ---
 
 ## 📚 Assignments Overview
+Below, each assignment block provides: (1) conceptual focus, (2) implementation highlights, (3) quantitative results, and (4) representative visualizations. Treat these summaries as an index; open the linked notebook for executable code and deeper commentary.
 
 ### CA1: Neural Networks Basics
 
@@ -89,6 +100,7 @@ _Comparison of different activation functions and their impact on learning_
 ---
 
 ### CA2: CNN Applications
+Two complementary real-world classification problems demonstrate how architectural choices (custom vs. pretrained) and feature pipelines affect performance and robustness.
 
 #### 🦠 Covid_Detection
 
@@ -179,6 +191,7 @@ _CNN feature maps showing learned representations for vehicle recognition_
 ---
 
 ### CA3: Object Detection
+Focus shifts from per-image classification to spatial understanding. Fast-SCNN addresses dense pixel labeling (semantic segmentation) efficiency, while Oriented R-CNN tackles rotation-aware detection required in aerial or document imagery.
 
 #### 🏙️ Fast_SCNN
 
@@ -268,6 +281,7 @@ _Additional example showing precise localization of rotated objects_
 ---
 
 ### CA4: Sequence Modeling
+Sequence-focused tasks: translating visual embeddings to language (captioning) and modeling temporal dependencies & uncertainty (time series). This highlights encoder-decoder mechanics versus recurrent probabilistic forecasting.
 
 #### 📝 Image_Captioning
 
@@ -359,6 +373,7 @@ _Prediction intervals demonstrating calibrated uncertainty estimates_
 ---
 
 ### CA5: Vision Transformers
+Explores attention-centric architectures (ViT, CLIP) and contrasts them with CNN inductive biases. Includes robustness assessment against adversarial perturbations.
 
 #### 🔍 VIT_Classification
 
@@ -451,6 +466,7 @@ _Attack success rates and robustness metrics across different defense strategies
 ---
 
 ### CA6: Generative Models
+Investigates representation learning via generation: domain translation (CycleGAN) for adaptation and probabilistic latent modeling (VAE) for anomaly detection.
 
 #### 🔄 Unsupervised_Domain_Adaptation_GAN
 
@@ -543,6 +559,7 @@ _Latent space interpolation showing smooth transitions between generated samples
 ---
 
 ### CA7: Advanced Topics
+Integrates prior themes—adversarial robustness comparison (CNN vs. ViT) and multilingual captioning challenges (Persian RTL text). Emphasis on cross-disciplinary adaptation and security.
 
 #### 🔀 CNN_VIT_Adversarial_Attack
 
@@ -642,6 +659,7 @@ _Training and validation BLEU scores showing model improvement over epochs_
 ---
 
 ## 🛠️ Key Technologies and Frameworks
+This catalog lists core libraries. Use it to verify environment completeness or to replace any component (e.g., swap visualization library) without breaking conceptual flows.
 
 - **Deep Learning Frameworks**: PyTorch, TensorFlow/Keras
 - **Computer Vision**: OpenCV, PIL, torchvision
@@ -651,6 +669,7 @@ _Training and validation BLEU scores showing model improvement over epochs_
 - **Experiment Tracking**: Weights & Biases, TensorBoard
 
 ## 🎓 Core Concepts Demonstrated
+Each bullet here maps to explicit implementations somewhere in the notebooks. For quick study, choose a concept (e.g., "attention mechanisms") then search across the repo or open the matching assignment.
 
 ### Neural Network Architectures
 
@@ -684,6 +703,7 @@ _Training and validation BLEU scores showing model improvement over epochs_
 ---
 
 ## 🚀 Getting Started
+Your step-by-step path: clone → create environment → install deps → open a notebook → execute cells → extract images (optional) → consult reports for interpretation.
 
 ### Prerequisites
 
@@ -774,6 +794,7 @@ All extracted images from notebooks are available in:
 ---
 
 ## 📊 Image Collection Summary
+Use this table to identify which notebooks demonstrate the richest visual diagnostics. High image count generally correlates with exploratory depth (e.g., Persian captioning).
 
 | Assignment | Notebook                 | Images Extracted |
 | ---------- | ------------------------ | ---------------- |
@@ -795,6 +816,7 @@ All extracted images from notebooks are available in:
 ---
 
 ## 📖 Documentation
+Reports and referenced papers augment code with rationale. Prefer reading a report after first skim of the notebook outputs; it will connect visuals to theory.
 
 Each assignment contains:
 
@@ -804,6 +826,7 @@ Each assignment contains:
 - Assignment descriptions and requirements
 
 ## 🎓 Educational Value
+This section clarifies intended audiences and how each group can leverage the repository (learning curves for students, reproducible baselines for researchers, etc.).
 
 This repository serves as a comprehensive resource for:
 
@@ -823,6 +846,7 @@ Each implementation includes:
 ---
 
 ## 📝 Usage
+Guidelines ensure respectful, traceable reuse—especially in academic contexts. Always keep derivative work transparent by citing and linking back.
 
 All code in this repository is provided for educational purposes. When using any part of this code:
 
@@ -834,12 +858,14 @@ All code in this repository is provided for educational purposes. When using any
 ---
 
 ## 📄 License
+MIT: you can use, modify, distribute—provided you retain the license notice. Ideal for educational and prototype purposes.
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## 👤 Author Information
+Author and course metadata—helpful for provenance and citation entries.
 
 **Course**: Neural Networks and Deep Learning  
 **Institution**: University of Tehran, Faculty of Electrical and Computer Engineering  
@@ -849,6 +875,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 ## 🙏 Acknowledgments
+Credits foundational contributors (data providers, open-source maintainers). Expanding this when integrating new datasets maintains academic integrity.
 
 - University of Tehran for the comprehensive course curriculum
 - All researchers whose papers were referenced in these assignments
@@ -878,6 +905,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 > Some datasets require manual download due to license constraints. See each assignment folder `description/` for precise acquisition steps.
 
 ## 🔁 Reproducibility
+Follow every listed step for comparable metrics. Deviations (different CUDA versions, mixed precision tweaks) can introduce silent performance shifts.
 1. Use the seeding snippet in [Getting Started](#-getting-started).
 2. Maintain versions using `pip freeze > requirements.lock.txt`.
 3. Run notebooks in order; avoid mixing checkpoint states across runs.
@@ -893,6 +921,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 | Versioning | Tag Git commits with `exp/<assignment>-<date>` after stable results. |
 
 ## 🧪 Benchmark Summary (Selected)
+Snapshot of representative metrics—useful to sanity-check reruns. If your numbers diverge widely, inspect seed setting, dataset integrity, and library versions.
 | Task | Model | Key Metric | Score |
 |------|-------|-----------|-------|
 | Covid Detection | VGG16 (fine-tuned) | AUC-ROC | 0.91 |
@@ -934,6 +963,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Expand Persian dataset & add morphological analysis module.
 
 ## 🤝 Contributing
+Set expectations for external improvements. Even if private now, a clear process eases future collaboration or public release.
 Contributions (issues, PRs) are welcome. Please:
 1. Fork and create a feature branch: `git checkout -b feat/<short-name>`
 2. Follow existing code style and add docstrings.
@@ -953,6 +983,7 @@ If this work contributes to academic or professional output, cite it as:
 ```
 
 ## 🧵 Style & Conventions
+Consistency improves readability and reduces onboarding friction. Adhering to naming and output placement norms keeps automation scripts (like image extraction) reliable.
 - Python: PEP8 naming, snake_case functions, UpperCamelCase classes.
 - Reproducibility: Always set seeds and record versions.
 - File Outputs: Place generated artifacts under `report/` or `code/notebook_images/`.

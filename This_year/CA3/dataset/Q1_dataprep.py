@@ -110,6 +110,11 @@ class IBSRPatchDataset(Dataset):
         vol_patch = self.patches[idx].astype(np.float32)
         seg_patch = self.masks[idx].astype(np.int64)
 
+        # Binarize segmentation mask: convert any non-zero value to 1
+        # This ensures masks are binary (0 = background, 1 = foreground)
+        # which is required for 2-class segmentation and prevents CUDA errors
+        seg_patch = (seg_patch > 0).astype(np.int64)
+
         vol_patch_normalized = vol_patch
 
         vol_tensor = torch.tensor(vol_patch_normalized, dtype=torch.float32).unsqueeze(

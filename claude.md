@@ -14,6 +14,11 @@ This document outlines all rules, conventions, design decisions, and best practi
 8. [Reproducibility Rules](#reproducibility-rules)
 9. [File Organization Rules](#file-organization-rules)
 10. [Naming Conventions](#naming-conventions)
+11. [Device Management Rules](#device-management-rules)
+12. [Error Handling Rules](#error-handling-rules)
+13. [Documentation Rules](#documentation-rules)
+14. [Testing and Validation Rules](#testing-and-validation-rules)
+15. [Configuration Management Rules](#configuration-management-rules)
 
 ---
 
@@ -27,10 +32,12 @@ This document outlines all rules, conventions, design decisions, and best practi
   - Group imports: standard library, third-party, local imports
   - Use absolute imports when possible
   - One import per line for clarity
+  - Add comments to separate import groups
 - **Function Definitions**:
   - Use descriptive function names
   - Include docstrings for all functions
   - Use type hints where appropriate
+  - Document all parameters and return values
 - **Class Definitions**:
   - Use PascalCase for class names
   - Include comprehensive docstrings
@@ -63,6 +70,13 @@ def get_slice_data(volume_data, seg_data, axis, slice_idx):
 - Always move models and data to the correct device
 - Use `torch.no_grad()` for inference/evaluation
 - Use `.eval()` and `.train()` to switch model modes
+
+### Code Organization in Notebooks
+
+- **Section Headers**: Use markdown cells with clear section headers
+- **Comments**: Add comments explaining which rules are being followed
+- **Rule References**: Reference claude.md rules in code comments when applicable
+- **Cell Structure**: One logical unit per cell (imports, functions, training, etc.)
 
 ---
 
@@ -99,6 +113,7 @@ def get_slice_data(volume_data, seg_data, axis, slice_idx):
    - Rule: `seg_patch = (seg_patch > 0).astype(np.int64)`
    - This ensures masks are binary for 2-class segmentation
    - Prevents CUDA errors from multi-class labels
+   - **CRITICAL**: Must be applied in `__getitem__` method
 2. **Data Type**: Use `np.int64` for masks, `np.float32` for images
 3. **Normalization**: Keep original intensity values (no normalization applied in preprocessing)
 
@@ -106,7 +121,7 @@ def get_slice_data(volume_data, seg_data, axis, slice_idx):
 
 1. **Split Ratio**: 70% train, 15% validation, 15% test
 2. **Split Method**: Split at volume level (not patch level) to prevent data leakage
-3. **Shuffling**: Shuffle volume indices before splitting
+3. **Shuffling**: Shuffle volume indices before splitting (using same seed for reproducibility)
 4. **Consistency**: Use same random seed for reproducible splits
 
 ---
@@ -201,6 +216,7 @@ def get_slice_data(volume_data, seg_data, axis, slice_idx):
    - Maximum gradient norm: 1.0
    - Prevents exploding gradients
    - Apply before optimizer step
+   - **MANDATORY**: Must be implemented in training loop
 4. **Mixed Precision**:
    - Use FP16 for forward pass (if GPU supports)
    - Use FP32 for loss computation
@@ -220,6 +236,10 @@ def get_slice_data(volume_data, seg_data, axis, slice_idx):
    - Track loss, Dice, IoU, accuracy every epoch
    - Track learning rate for analysis
    - Compute metrics on validation set every epoch
+4. **Error Checking**:
+   - Check for NaN/Inf losses before backward pass
+   - Check for NaN/Inf gradients before optimizer step
+   - Skip batch if errors detected (with warning)
 
 ---
 
@@ -330,6 +350,7 @@ def get_slice_data(volume_data, seg_data, axis, slice_idx):
    - PyTorch random (CPU and CUDA)
    - CUDA deterministic operations
 3. **Seed Setting**: Call seed function at the beginning of script
+4. **Function Implementation**: Must include all seed settings in `seed_everything()` function
 
 ### Deterministic Operations
 
@@ -421,6 +442,7 @@ CA3/
    - Third: CPU
 2. **Device Assignment**: Move model and data to same device
 3. **Device Checking**: Always check device availability before use
+4. **Device Information**: Print device information for debugging
 
 ### Memory Management Rules
 
@@ -446,6 +468,7 @@ CA3/
 2. **Loss Checking**: Check for NaN/Inf losses
 3. **Early Stopping**: Stop training if loss becomes NaN
 4. **Checkpoint Recovery**: Save checkpoints regularly for recovery
+5. **Batch Skipping**: Skip batches with NaN/Inf values (with warning)
 
 ---
 
@@ -457,6 +480,7 @@ CA3/
 2. **Parameter Documentation**: Document all parameters with types and descriptions
 3. **Return Documentation**: Document return values with types
 4. **Example Usage**: Include usage examples in docstrings when helpful
+5. **Rule References**: Reference claude.md rules in docstrings when applicable
 
 ### Report Documentation
 
@@ -498,17 +522,17 @@ CA3/
 
 ```python
 CONFIG = {
-    'data_dir': '../dataset',
-    'batch_size': 16,              # Balance memory and gradient quality
-    'epochs': 50,                  # Maximum epochs (early stopping may stop earlier)
-    'lr': 1e-4,                    # Empirically determined for stability
-    'weight_decay': 1e-5,          # L2 regularization
-    'num_workers': 2,               # Data loading workers
-    'seed': 42,                     # Reproducibility seed
-    'save_dir': './checkpoints',   # Model checkpoint directory
-    'num_classes': 2,              # Background and foreground
-    'patch_size': 128,             # Input patch size
-    'in_channels': 1               # Grayscale images
+    'data_dir': '../dataset',        # Dataset directory path
+    'batch_size': 16,                # Balance memory and gradient quality
+    'epochs': 50,                     # Maximum epochs (early stopping may stop earlier)
+    'lr': 1e-4,                       # Empirically determined for stability
+    'weight_decay': 1e-5,             # L2 regularization
+    'num_workers': 2,                 # Data loading workers
+    'seed': 42,                       # Reproducibility seed
+    'save_dir': './checkpoints',      # Model checkpoint directory
+    'num_classes': 2,                 # Background and foreground
+    'patch_size': 128,                # Input patch size
+    'in_channels': 1                  # Grayscale images
 }
 ```
 
@@ -526,6 +550,9 @@ CONFIG = {
 8. **Always visualize results comprehensively**
 9. **Always document code and decisions**
 10. **Always validate on separate validation set**
+11. **Always track learning rate in training history**
+12. **Always apply gradient clipping in training loop**
+13. **Always check for NaN/Inf in losses and gradients**
 
 ---
 
@@ -541,6 +568,9 @@ CONFIG = {
 8. **Don't forget to save checkpoints regularly**
 9. **Don't use wrong data types (e.g., float for masks)**
 10. **Don't forget to binarize multi-class masks for binary segmentation**
+11. **Don't forget to track learning rate in history**
+12. **Don't forget gradient clipping in training loop**
+13. **Don't ignore NaN/Inf losses or gradients**
 
 ---
 
@@ -552,6 +582,7 @@ CONFIG = {
 - **Reason**: Ensures binary masks (0=background, 1=foreground) for 2-class segmentation
 - **Location**: Applied in `__getitem__` method of `IBSRPatchDataset`
 - **Critical**: Prevents CUDA errors from unexpected multi-class label values
+- **Implementation**: Must be in `Q1_dataprep.py` in the `__getitem__` method
 
 ### Patch Extraction Strategy
 
@@ -632,6 +663,49 @@ CONFIG = {
 
 ---
 
+## Implementation Checklist
+
+### Initial Setup (Cell 1) - MUST IMPLEMENT:
+
+- [x] **Import Grouping**: Standard library, third-party, local imports (with comments)
+- [x] **Reproducibility**: `seed_everything()` function with all seed settings
+- [x] **Seed Call**: Call `seed_everything(42)` at beginning
+- [x] **Device Selection**: Priority order (CUDA → MPS → CPU)
+- [x] **Device Information**: Print device details for debugging
+- [x] **Warnings**: Suppress warnings appropriately
+
+### Training Functions - MUST IMPLEMENT:
+
+- [x] **Mode Switching**: `.train()` for training, `.eval()` for validation
+- [x] **Gradient Management**: `zero_grad()` → `backward()` → `step()`
+- [x] **Gradient Clipping**: `clip_grad_norm_(max_norm=1.0)` before optimizer step
+- [x] **Error Checking**: Check for NaN/Inf in losses and gradients
+- [x] **Device Movement**: Move all data to correct device
+- [x] **No Grad Context**: Use `torch.no_grad()` for validation
+
+### Training Loop - MUST IMPLEMENT:
+
+- [x] **Early Stopping**: Monitor validation Dice, patience=10
+- [x] **Model Checkpointing**: Save best model based on validation Dice
+- [x] **Learning Rate Tracking**: Append LR to history every epoch
+- [x] **Metric Tracking**: Track all metrics (loss, Dice, IoU, accuracy, LR)
+- [x] **Learning Rate Scheduling**: ReduceLROnPlateau with correct parameters
+
+### Data Preprocessing - MUST IMPLEMENT:
+
+- [x] **Mask Binarization**: `seg_patch = (seg_patch > 0).astype(np.int64)` in `__getitem__`
+- [x] **Three-Axis Extraction**: Extract from all three axes (0, 1, 2)
+- [x] **Patch Extraction**: 4 non-overlapping patches per slice
+- [x] **Proper Padding**: Centered padding to 256×256
+
+### Configuration - MUST IMPLEMENT:
+
+- [x] **CONFIG Dictionary**: All hyperparameters centralized
+- [x] **Comments**: Parameter choices explained
+- [x] **Correct Values**: Match all specified values from rules
+
+---
+
 ## Conclusion
 
 These rules ensure:
@@ -643,3 +717,5 @@ These rules ensure:
 - **Best Practices**: Following industry and research best practices
 
 Follow these rules throughout the project to ensure high-quality, reproducible, and maintainable code.
+
+**IMPORTANT**: All rules marked with "MUST IMPLEMENT" in the Implementation Checklist must be present in the notebook code. The first cell (lines 1-42) should implement all initial setup rules including proper import grouping, reproducibility setup, and device selection.

@@ -1,0 +1,81 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Wenneker Assignment
+% LaTeX Template
+% Version 2.0 (12/1/2019)
+%
+% This template originates from:
+% http://www.LaTeXTemplates.com
+%
+% Authors:
+% Vel (vel@LaTeXTemplates.com)
+% Frits Wenneker
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[11pt]{scrartcl} % Font size
+
+\input{structure.tex} % Include the file specifying the document structure and custom commands
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+% Add a logo to the title page from the folder "Figures"
+
+
+
+
+
+\title{	
+	\includegraphics[width=0.25\textwidth]{C:/Users/saeedzou/Documents/GitHub/DeepLearning1401-01/Assignment 4/Theoretical/Figures/sharif_logo.jpg}\\
+	\normalfont\normalsize
+	\textsc{Sharif University of Technology}\\ % Your university, school and/or department name(s)
+	\vspace{25pt} % Whitespace
+	\rule{\linewidth}{0.5pt}\\ % Thin top horizontal rule
+	\vspace{20pt} % Whitespace
+	{\huge Deep Learning Assignment 3}\\ % The assignment title
+	\vspace{12pt} % Whitespace
+	\rule{\linewidth}{2pt}\\ % Thick bottom horizontal rule
+	\vspace{12pt} % Whitespace
+}
+
+\author{\LARGE Saeedreza Zouashkiani} % Your name
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator*{\argmin}{argmin}
+
+\date{\normalsize\today} % Today's date (\today) or a custom date
+
+\begin{document}
+\maketitle % Print the title
+
+\section{} %1
+\subsection{} %1.1
+We can see from the relations that if $z_t$ is zero, then the 
+previous state $h_t$ is ignored and the current state is only
+determined by new information. Meaning that it is the update gate.
+On the other hand, if $r_t$ is zero, then the previous state's effect
+is ignored and the new state is only determined by the previous state. 
+Meaning that it is the reset gate.
+\subsection{} %1.2
+\begin{equation}
+\begin{aligned}
+	\frac{\partial J}{\partial W} =
+	\sum_{k=1}^{t} \frac{\partial J^{(t)}}{\partial y_t} \frac{\partial y_t}{\partial W} =
+	\sum_{k=1}^{t} \frac{\partial J^{(t)}}{\partial \hat{y}_k} \frac{\partial \hat{y}_k}{\partial h_t} \frac{\partial h_t}{\partial h_k} \frac{\partial h_k}{\partial W} 
+\end{aligned}
+\end{equation}
+\begin{equation}
+	\frac{\partial h_t}{\partial h_k} = \prod_{j=k+1}^{t} \frac{\partial h_j}{\partial h_{j-1}} 
+\end{equation}
+\begin{equation}
+	\frac{\partial h_j}{\partial h_{j-1}}  = z_j + (1 - z_j) \frac{\partial \hat{h}_j}{\partial h_{j-1}} 
+\end{equation}
+We can see that if $z_j = 1$ then $\frac{\partial h_j}{\partial h_{j-1}} = 1 $, therefore vanishing gradient problem is solved. 
+
+\end{document}

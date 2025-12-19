@@ -1,0 +1,404 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Wenneker Assignment
+% LaTeX Template
+% Version 2.0 (12/1/2019)
+%
+% This template originates from:
+% http://www.LaTeXTemplates.com
+%
+% Authors:
+% Vel (vel@LaTeXTemplates.com)
+% Frits Wenneker
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[11pt]{scrartcl} % Font size
+
+\input{structure.tex} % Include the file specifying the document structure and custom commands
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+% Add a logo to the title page from the folder "Figures"
+
+
+
+
+
+\title{	
+	\includegraphics[width=0.25\textwidth]{./Figures/Sharif_University_Logo.jpg}\\
+	\normalfont\normalsize
+	\textsc{Sharif University of Technology}\\ % Your university, school and/or department name(s)
+	\vspace{25pt} % Whitespace
+	\rule{\linewidth}{0.5pt}\\ % Thin top horizontal rule
+	\vspace{20pt} % Whitespace
+	{\huge Deep Learning Assignment 2}\\ % The assignment title
+	\vspace{12pt} % Whitespace
+	\rule{\linewidth}{2pt}\\ % Thick bottom horizontal rule
+	\vspace{12pt} % Whitespace
+}
+% \includegraphics[width=0.1\textwidth]{C:/Users/saeedzou/Documents/sharif_logo.png}~[1cm]
+
+\author{\LARGE Saeedreza Zouashkiani} % Your name
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator*{\argmin}{argmin}
+
+\date{\normalsize\today} % Today's date (\today) or a custom date
+
+\begin{document}
+% \titlegraphic{\includegraphics[width=0.5\textwidth]{./Figures/sharif_logo.png}}
+\maketitle % Print the title
+
+\section{} %1
+
+
+	\subsection{}
+		Consider the Taylor expansion of the loss function at $\boldsymbol\omega$:
+		\begin{equation} 
+			\boldsymbol{J}(\boldsymbol{\omega}+ \delta\boldsymbol\omega) - \\
+			\boldsymbol{J}(\boldsymbol{\omega}) \approx \\
+			\nabla_{\boldsymbol\omega}\boldsymbol{L}\delta\boldsymbol{\omega} + \\
+			\frac{1}{2}\delta\boldsymbol{\omega}^T\boldsymbol{H}\delta\boldsymbol{\omega} 
+		\end{equation}
+
+		The first term goes to zero when the algorithm converges. So, our problem is to minimize:
+		\begin{equation}\label{eq:1}
+			\boldsymbol{C} = \frac{1}{2}\delta\boldsymbol{\omega}^T\boldsymbol{H}\delta\boldsymbol{\omega}
+		\end{equation}
+
+		Our goal is then to set one of the weights to 
+		zero which is denoted by $\omega_i$ to minimize the increase in error given by equation (\ref{eq:1}). 
+		Then to eliminate $\omega_i$:
+		\begin{equation}\label{eq:2}
+			\omega_i + \boldsymbol{e_i}^T.\delta\boldsymbol\omega = 0
+		\end{equation}
+		Where $\boldsymbol{e_i}$ is a vector with a 1 corresponding to $\omega_i$ and zero elsewhere.
+		To minimize equation (\ref{eq:1}) constrainted on equation (\ref{eq:2}), we use Lagrangian multipliers:
+		\begin{equation}
+			\boldsymbol{L} = \frac{1}{2}\delta\boldsymbol{\omega}^T\boldsymbol{H}\delta\boldsymbol{\omega} \\
+			+ \lambda(\omega_i + \boldsymbol{e_i}^T.\delta\boldsymbol\omega)
+		\end{equation}
+		Differentiating with respect to $\delta\boldsymbol\omega$ and setting to zero:
+		\begin{equation} \label{eq:3}
+			\boldsymbol{H}\delta\boldsymbol{\omega} + \lambda \boldsymbol{e_i}=0
+		\end{equation}
+		Then if we solve for $\lambda$:
+		\begin{equation}\label{eq:4}
+			\lambda = \frac{\omega_i}{(\boldsymbol{H^{-1}})_{ii}}
+		\end{equation}
+		Where $\boldsymbol{H^{-1}}$, corresponds to the $i^{th}$ element in the inverse Hessian matrix.
+		Then by plugging (\ref{eq:4}) into (\ref{eq:3})
+		\begin{equation} \label{eq:5}
+			\delta\boldsymbol{\omega} = -\frac{\omega_i}{(\boldsymbol{H^{-1}})_{ii}}\\
+			 \boldsymbol{H^{-1}}.\boldsymbol{e_i}
+		\end{equation}
+		Then plugging (\ref{eq:5}) into (\ref{eq:1}):
+		\begin{equation}
+			\boldsymbol{C} = \frac{1}{2} \frac{\omega_i^2}{(\boldsymbol{H^{-1}})_{ii}}
+		\end{equation}
+
+	\subsection{}
+		If $ \boldsymbol{H} = \boldsymbol{I} $, then $ \boldsymbol{H^{-1}} = \boldsymbol{I} $. Therefore:
+		\begin{equation}
+			\delta\boldsymbol{\omega} = -\omega_i
+		\end{equation}
+		\begin{equation}
+			\boldsymbol{C} = \frac{1}{2} \omega_i^2
+		\end{equation}
+		In the previous part, we needed to compute the inverse Hessian first, and compute 
+		$\frac{1}{2} \frac{\omega_i^2}{(\boldsymbol{H^{-1}})_{ii}}$ for each element and remove 
+		the one with the
+		least increase in the loss, but in here we compute $\frac{1}{2} \omega_i^2$ 
+		and set $\delta\boldsymbol{\omega} = -\omega_i$
+		for that $i$ that minimizes the loss.
+\section{} %2
+		\subsection{}
+		This is solved in part 3.1
+		\subsection{}
+		\begin{equation}
+			\begin{aligned} \label{eq:2.2}
+				&\mathbb{E}[\frac{1}{N} ||\boldsymbol{ (X(X^T X)^{-1}X^T - I)\epsilon }||_2^2]  \\
+				&=\frac{1}{N} \mathbb{E}[\boldsymbol{\epsilon^T (X(X^T X)^{-1}X^T - I)^T (X(X^T X)^{-1}X^T - I) \epsilon }]  \\
+				&=\frac{1}{N} \mathbb{E}[\boldsymbol{\epsilon^T (B)^T (B) \epsilon }]
+			\end{aligned}
+		\end{equation}
+		Since $\boldsymbol{A}$ is symmetric and $\boldsymbol{A^T A}=\boldsymbol{A^2}$, then it is idempotent. That is
+		its eigenvalues consist of $d$ ones and $n-d$ zeros. Therefore using \ref{eq:2.2}:
+		\begin{equation}
+			\boldsymbol{B^T B = (A - I)^T (A - I) = A^2 - 2A + I = I - A }  
+		\end{equation}
+		Since $\boldsymbol{\epsilon^T B^T B \epsilon }$ is a scalar, then its trace equals itself:
+		\begin{equation}
+			\begin{aligned}
+				&\frac{1}{N} \mathbb{E}[\boldsymbol{\epsilon^T B^T B \epsilon }]  \\
+				&=\frac{1}{N} \mathbb{E}[\text{Trace}(\boldsymbol{\epsilon^T B^T B \epsilon })]  \\
+				&=\frac{1}{N} \mathbb{E}[\text{Trace}(\boldsymbol{ B^T B \epsilon^T \epsilon })]  \\
+				&=\frac{1}{N} \text{Trace}(\boldsymbol{ B^T B \Sigma})  \\
+				&=\frac{\sigma^2}{N} \text{Trace}(\boldsymbol{I - A})  \\
+				&=\frac{N-d}{N} \sigma^2
+			\end{aligned}
+		\end{equation}
+		Where the last part comes from the propertiy of idempotent matrices. That is $\text{Trace}(\boldsymbol{A}) = \text{rank}(\boldsymbol{X})$.
+
+		\subsection{}
+		As d increases and gets closer to N, the trace of $\boldsymbol{I - A}$ approaches zero. That is 
+		the number of independent columns of $\boldsymbol{X}$ increases, so we can have a better projection matrix than before.
+		Naturally the training error will decrease as well.
+
+			
+\section{} %3
+	\subsection{} %3.1
+		We want to find:
+		\begin{equation}
+			\begin{aligned}
+				&\argmin_{\boldsymbol{\beta}} ||\boldsymbol{Y}-\boldsymbol{X\beta}||_2^2 \\
+				&=\argmin_{\boldsymbol{\beta}} (\boldsymbol{Y}-\boldsymbol{X\beta})^T (\boldsymbol{Y}-\boldsymbol{X\beta})\\
+				&=\argmin_{\boldsymbol{\beta}} \boldsymbol{Y}^T\boldsymbol{Y} - 2\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{Y} +
+				\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{X\beta}\\
+				&=\argmin_{\boldsymbol{\beta}}  - 2\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{Y} +
+				\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{X\beta}
+			\end{aligned}
+		\end{equation}
+		Define $L(\boldsymbol{\beta})=2\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{Y} +
+		\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{X\beta}$, and differentiate with respect to $\boldsymbol{\beta}$
+		and set to zero:
+		\begin{equation}
+			\frac{\partial{L(\boldsymbol{\beta})}}{\boldsymbol{\beta}}=
+			-2\boldsymbol{X}^T\boldsymbol{Y} + 2\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}
+		\end{equation}
+		\begin{equation}
+			\boldsymbol{\hat{\beta}} = (\boldsymbol{X}^T\boldsymbol{X})^{-1}\boldsymbol{X}^T\boldsymbol{Y}
+		\end{equation}
+	\subsection{} %3.2
+		Add the L2 norm of the weights to the minimization problem of the previous part:
+		\begin{equation}
+			\begin{aligned}
+				&\argmin_{\boldsymbol{\beta}} ||\boldsymbol{Y}-\boldsymbol{X\beta}||_2^2 
+				+\alpha||\boldsymbol{\beta}||_2^2\\
+				&=\argmin_{\boldsymbol{\beta}} (\boldsymbol{Y}-\boldsymbol{X\beta})^T (\boldsymbol{Y}-\boldsymbol{X\beta})+
+				\alpha\boldsymbol{\beta}^T\boldsymbol{\beta}\\
+				&=\argmin_{\boldsymbol{\beta}} \boldsymbol{Y}^T\boldsymbol{Y} - 2\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{Y} +
+				\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{X\beta}+
+				\alpha\boldsymbol{\beta}^T\boldsymbol{\beta}\\
+				&=\argmin_{\boldsymbol{\beta}}  - 2\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{Y} +
+				\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{X\beta}+
+				\alpha\boldsymbol{\beta}^T\boldsymbol{\beta}
+			\end{aligned}
+		\end{equation}
+		Define $L(\boldsymbol{\beta})=2\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{Y} +
+		\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{X\beta}
+		+\alpha\boldsymbol{\beta}^T\boldsymbol{\beta}$
+		, and differentiate with respect to $\boldsymbol{\beta}$
+		and set to zero:
+		\begin{equation}
+			\frac{\partial{L(\boldsymbol{\beta})}}{\boldsymbol{\beta}}=
+			-2\boldsymbol{X}^T\boldsymbol{Y} + 2\boldsymbol{X}^T\boldsymbol{X}\boldsymbol{\beta}+
+			2\alpha\boldsymbol{\beta}
+		\end{equation}
+		\begin{equation}
+			\boldsymbol{\hat{\beta}} = (\boldsymbol{X}^T\boldsymbol{X} 
+			+ \alpha\boldsymbol{I})^{-1}\boldsymbol{X}^T\boldsymbol{Y}
+		\end{equation}
+
+	\subsection{} %3.3
+		We know that both $\boldsymbol{\beta}^*$ and $\boldsymbol{\hat{\beta}}$ have an expectation value of $\boldsymbol{\beta}$.
+		Let $\boldsymbol{\beta}^* = \boldsymbol{Ay}$ and $\boldsymbol{\hat{\beta}}= \boldsymbol{By}$.
+		Where $\boldsymbol{A} = (\boldsymbol{X}^T\boldsymbol{\Sigma^{-1}X})^{-1}\boldsymbol{\Sigma^{-1}X^T}$ 
+		and $\boldsymbol{B} = (\boldsymbol{X}^T\boldsymbol{X})^{-1}\boldsymbol{X}^T$.
+		\begin{equation}
+			\begin{aligned}
+				Var(\boldsymbol{\beta}^*) &=  \boldsymbol{B}Var(\boldsymbol{y})\boldsymbol{B}^T = \boldsymbol{X^T \Sigma^{-1} X}^{-1}\\
+				Var(\boldsymbol{\hat{\beta}}) &= \boldsymbol{A}Var(\boldsymbol{y})\boldsymbol{A}^T =
+				\boldsymbol{(X^T X)^{-1} X^T \Sigma X (X^T X)^{-1}}
+			\end{aligned}
+		\end{equation}
+		If $\boldsymbol{XF}=\boldsymbol{\Sigma X}$, then:
+		\begin{equation} \label{eq:3.3}
+		 (\boldsymbol{X^T \Sigma^{-1} X})^{-1} = \boldsymbol{F(X^T X)^{-1}}
+		\end{equation}
+		It is obvious from \ref{eq:3.3} that $\boldsymbol{F}$ is non-singular. Using (\ref{eq:3.3}), we can write:
+		\begin{equation}
+			\begin{aligned}
+				Var(\boldsymbol{\beta}^*) & = \boldsymbol{F(X^T X)^{-1}} \\
+				Var(\boldsymbol{\hat{\beta}}) & =
+				\boldsymbol{(X^T X)^{-1} X^T \Sigma X (X^T X)^{-1}} =
+				\boldsymbol{(X^T X)^{-1} X^T X F (X^T X)^{-1}} = 
+				\boldsymbol{F(X^T X)^{-1}}
+			\end{aligned}
+		\end{equation}
+		Therefore $\boldsymbol{\beta}^*$ and $\boldsymbol{\hat{\beta}}$ estimate the same quantity.
+		On the other hand, to prove when the estimators are equal, we need to show that:
+		\begin{equation}
+			\begin{aligned}
+				\boldsymbol{\beta}^* &= \boldsymbol{\hat{\beta}} \\
+				(\boldsymbol{X^T \Sigma^{-1} X})^{-1} &= \boldsymbol{(X^T X)^{-1} X^T \Sigma X (X^T X)^{-1}} \\
+				\boldsymbol{X^T X}(\boldsymbol{X^T \Sigma^{-1} X})^{-1} &= \boldsymbol{X^T \Sigma X (X^T X)^{-1}} \\
+				\boldsymbol{X^T} \left(\boldsymbol{X}\boldsymbol{(X^T \Sigma^{-1} X)^{-1} - \Sigma X (X^T X)^{-1}}\right)&=0\\
+				\boldsymbol{X}\boldsymbol{(X^T \Sigma^{-1} X)^{-1}} &= \boldsymbol{\Sigma X (X^T X)^{-1}}\\
+				\boldsymbol{X}\boldsymbol{(X^T \Sigma^{-1} X)^{-1} X^T X} &= \boldsymbol{\Sigma X}\\
+				\boldsymbol{XF} &= \boldsymbol{\Sigma X} 
+			\end{aligned}
+		\end{equation}
+	\subsection{} 
+	Extend the error function without the L-1 norm:
+	\begin{equation} \label{eq:3.4}
+		\begin{aligned}
+			L(\boldsymbol{\beta}, \lambda_1) &= 
+			||\boldsymbol{Y}-\boldsymbol{X\beta}||_2^2 + \lambda_1||\boldsymbol{\beta}||_2^2=
+			(\boldsymbol{Y}-\boldsymbol{X\beta})^T (\boldsymbol{Y}-\boldsymbol{X\beta}) +
+			\lambda_1 \boldsymbol{\beta}^T \boldsymbol{\beta} \\
+			&=\boldsymbol{Y}^T\boldsymbol{Y} - 2\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{Y} +
+			\boldsymbol{\beta}^T\boldsymbol{X}^T\boldsymbol{X\beta}+
+			\lambda_1 \boldsymbol{\beta}^T \boldsymbol{\beta}
+		\end{aligned}
+	\end{equation}
+	Define the augmented $\boldsymbol{\hat{X}} = \begin{bmatrix}
+		\boldsymbol{X}\\
+		\sqrt{\lambda_1}\boldsymbol{I}
+	\end{bmatrix}$
+	, and $\boldsymbol{\hat{Y}} = \begin{bmatrix}
+		\boldsymbol{Y}\\
+		\boldsymbol{0}
+	\end{bmatrix}$. Then equation (\ref{eq:3.4}) can be written as:
+	\begin{equation}
+		L(\boldsymbol{\beta}, \lambda_1) = 
+			||\boldsymbol{\hat{Y}}-\boldsymbol{\hat{X}\beta}||_2^2
+	\end{equation}
+	Therefore the loss function $L(\boldsymbol{\beta}, \lambda_1, \lambda_2) $ will become:
+	\begin{equation}
+		L(\boldsymbol{\beta}, \lambda_1, \lambda_2) = ||\boldsymbol{\hat{Y}}-\boldsymbol{\hat{X}\beta}||_2^2
+	\end{equation}
+
+
+\section{} %4
+	\subsection{}
+		Let $J_D = (y_d- O_D)^2$ and $J_N = (y_d- O_N)^2$
+		denote the loss function of the Dropout and without Dropout network, respectively, and 
+		$O_D = \sum_{k=1}^n{\delta_k\omega_k x_k}$
+		\begin{equation}
+			\begin{aligned}
+				\frac{\partial{J_N}}{\partial{\omega_i}} &= 
+				-2(y_d - O_N)\frac{\partial{O_N}}{\partial{\omega_i}} =
+				-2(y_d - O_N)x_i = 
+				-2y_d x_i + 2 \sum_{k=1}^n{\omega_k x_k x_i} \\
+				&= -2y_d x_i +2\omega_i x_i^2 + 2 \sum_{k=1, k\neq{i}}^n{\omega_k x_k x_i}
+			\end{aligned}
+		\end{equation}
+		
+		\begin{equation}
+			\begin{aligned}
+			\frac{\partial{J_D}}{\partial{\omega_i}} &= 
+			-2(y_d - O_D)\frac{\partial{O_D}}{\partial{\omega_i}} =
+			-2(y_d - O_D)\delta_i x_i \\
+			&= -2y_d \delta_i x_i + 2\omega_i^2 \delta_i^2 x_i^2 + 2\sum_{k=1, k\neq{i}}^n{\omega_k \delta_k \delta_i x_k x_i}
+		\end{aligned}
+		\end{equation}
+		Since equation (12) is probabilistic, we take the expectation:
+		\begin{equation}
+			\begin{aligned}
+				\mathbb{E}[\frac{\partial{J_D}}{\partial{\omega_i}}] &=
+				-2y_d x_i +2\omega_i x_i^2 + 2\sigma^2 \omega_i^2 x_i^2 + 2\sum_{k=1, k\neq{i}}^n{\omega_k x_k x_i} \\
+				&= \frac{\partial{J_N}}{\partial{\omega_i}} + 2\sigma^2 \omega_i^2 x_i^2
+			\end{aligned}
+		\end{equation}
+		\subsection{}
+			The overall regularized loss function can be written as:
+			\begin{equation}
+				J_R = (y_d- \sum_{k=1}^n{\delta_k\omega_k x_k})^2 + \sigma^2 \sum_{k=1}^n {w_k^2 x_k^2}
+			\end{equation}
+			It means that the network is regularized by the square of multiplication of weights by inputs
+			with a regularization factor of $\sigma^2$.
+\section{} %5
+	Let the cost function be:
+	\begin{equation}
+		L = \frac{1}{2}\boldsymbol{\omega^T}\boldsymbol{H}\boldsymbol{\omega}
+	\end{equation}
+	Computing the first and second order derivatives:
+	\begin{equation}
+		\boldsymbol{\nabla_{\omega}}L = \frac{\partial{L}}{\partial{\boldsymbol{\omega}}} =\boldsymbol{H}\boldsymbol{\omega}
+	\end{equation}
+	\begin{equation} \label{eq:5.1}
+		\boldsymbol{\nabla^2_{\omega}}L =\frac{\partial^2{L}}{\partial{\boldsymbol{\omega^2}}} =\boldsymbol{H}
+	\end{equation}
+	\subsection{}
+		\begin{equation}
+			\boldsymbol{\omega}^{(t+1)} = \boldsymbol{\omega}^{(t)} - 
+			\epsilon\boldsymbol{H}\boldsymbol{\omega}^{(t)} =
+			\boldsymbol{Q}(\boldsymbol{I} - \epsilon \boldsymbol{\Lambda})\boldsymbol{Q^T \omega^{(t)}}
+		\end{equation}
+	\subsection{}
+		\begin{equation}
+			\boldsymbol{\omega}^{(t+1)} = 
+			\boldsymbol{Q}(\boldsymbol{I} - \epsilon \boldsymbol{\Lambda})\boldsymbol{Q^T \omega^{(0)}}
+		\end{equation}
+	\subsection{}
+		$|(\boldsymbol{I} - \epsilon \boldsymbol{\Lambda})|<\boldsymbol{1}$ must be satisfied. Therefore:
+		\begin{equation}
+			\epsilon < \frac{2}{\lambda_{max}}
+		\end{equation}
+	\subsection{}
+		Because of \ref{eq:5.1}, the newtons method will be:
+		\begin{equation}
+			\boldsymbol{\omega}^{(t+1)} = (1-\epsilon)\boldsymbol{\omega}^{(t)}
+		\end{equation}
+		Then by choosing $\epsilon = 1$, the newton method will converge in one step.
+	\subsection{}
+	 Because in Newton's method, calculating the inverse of the Hessian matrix is expensive,
+	 gradient descent is used instead.
+
+\section{} %6
+\subsection{}
+It will learn a similarity measure between 2 inputs, since the inputs are both mapped to a latent
+space and the distance between the 2 latent vectors is minimized. This can be used for images 
+and text, for example.
+\subsection{}
+\begin{equation}
+	\begin{aligned}
+		\boldsymbol{z_1} &= \boldsymbol{Wx_1 + b} \\
+		\boldsymbol{z_2} &= \boldsymbol{Wx_2 + b} \\
+		\boldsymbol{\Delta_1 } &= \frac{\partial{\boldsymbol{J}}}{\partial{\boldsymbol{h_1}}} =
+		2\boldsymbol{h_1 - h_2} \\
+		\boldsymbol{\Delta_2 } &= \frac{\partial{\boldsymbol{J}}}{\partial{\boldsymbol{h_2}}} =
+		2\boldsymbol{h_2 - h_1} \\
+		\boldsymbol{\Delta_3} &= \frac{\partial{\boldsymbol{J}}}{\partial{\boldsymbol{z_1}}} =
+		\boldsymbol{\Delta_1} \bigodot \boldsymbol{(1 - h_1^2)} \\
+		\boldsymbol{\Delta_4} &= \frac{\partial{\boldsymbol{J}}}{\partial{\boldsymbol{z_2}}} =
+		\boldsymbol{\Delta_2} \bigodot \boldsymbol{(1 - h_2^2)} \\
+		\frac{\partial{\boldsymbol{J}}}{\partial{\boldsymbol{W}}} &= 
+		\boldsymbol{\Delta_3 x_1^T +  \Delta_4 x_2^T} + 2 \boldsymbol{W} \\
+		\frac{\partial{\boldsymbol{J}}}{\partial{\boldsymbol{b}}} &= 
+		\boldsymbol{\Delta_3 +  \Delta_4} \\
+	\end{aligned}
+\end{equation}
+Then the gradient descent update rule for $m$ batch size is:
+\begin{equation}
+	\begin{aligned}
+		\boldsymbol{W}^{(t+1)} = \boldsymbol{W}^{(t)} - \epsilon \frac{1}{m}\sum_{i=1}^m\frac{\partial{\boldsymbol{J}_i}}{\partial{\boldsymbol{W}}} \\
+		\boldsymbol{b}^{(t+1)} = \boldsymbol{b}^{(t)} - \epsilon \frac{1}{m}\sum_{i=1}^m\frac{\partial{\boldsymbol{J}_i}}{\partial{\boldsymbol{b}}} \\
+	\end{aligned}
+\end{equation}
+
+
+%----------------------------------------------------------------------------------------
+%	FIGURE EXAMPLE
+%----------------------------------------------------------------------------------------
+% \begin{figure}[h] % [h] forces the figure to be output where it is defined in the code (it suppresses floating)
+% 	\centering
+% 	\includegraphics[width=0.5\columnwidth]{swallow.jpg} % Example image
+% 	\caption{European swallow.}
+% \end{figure}
+
+%------------------------------------------------
+%----------------------------------------------------------------------------------------
+%	TEXT EXAMPLE
+%----------------------------------------------------------------------------------------
+
+
+\end{document}

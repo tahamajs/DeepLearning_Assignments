@@ -1,0 +1,268 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Wenneker Assignment
+% LaTeX Template
+% Version 2.0 (12/1/2019)
+%
+% This template originates from:
+% http://www.LaTeXTemplates.com
+%
+% Authors:
+% Vel (vel@LaTeXTemplates.com)
+% Frits Wenneker
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[11pt]{scrartcl} % Font size
+
+\input{structure.tex} % Include the file specifying the document structure and custom commands
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+% Add a logo to the title page from the folder "Figures"
+
+
+
+
+
+\title{	
+	\includegraphics[width=0.25\textwidth]{./Figures/Sharif_University_Logo.jpg}\\
+	\normalfont\normalsize
+	\textsc{Sharif University of Technology}\\ % Your university, school and/or department name(s)
+	\vspace{25pt} % Whitespace
+	\rule{\linewidth}{0.5pt}\\ % Thin top horizontal rule
+	\vspace{20pt} % Whitespace
+	{\huge Deep Learning Assignment 3}\\ % The assignment title
+	\vspace{12pt} % Whitespace
+	\rule{\linewidth}{2pt}\\ % Thick bottom horizontal rule
+	\vspace{12pt} % Whitespace
+}
+% \includegraphics[width=0.1\textwidth]{C:/Users/saeedzou/Documents/sharif_logo.png}~[1cm]
+
+\author{\LARGE Saeedreza Zouashkiani} % Your name
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator*{\argmin}{argmin}
+
+\date{\normalsize\today} % Today's date (\today) or a custom date
+
+\begin{document}
+% \titlegraphic{\includegraphics[width=0.5\textwidth]{./Figures/sharif_logo.png}}
+\maketitle % Print the title
+
+\section{} %1
+\subsection{} %1.1
+The output of the following image
+\begin{equation}
+\begin{bmatrix}
+1 & 0 & 1 & 0 & 1 & 0 & 1 & 0\\
+0 & 1 & 0 & 1 & 0 & 1 & 0 & 1\\
+1 & 0 & 1 & 0 & 1 & 0 & 1 & 0\\
+0 & 1 & 0 & 1 & 0 & 1 & 0 & 1\\
+1 & 0 & 1 & 0 & 1 & 0 & 1 & 0\\
+0 & 1 & 0 & 1 & 0 & 1 & 0 & 1\\
+1 & 0 & 1 & 0 & 1 & 0 & 1 & 0\\
+0 & 1 & 0 & 1 & 0 & 1 & 0 & 1\\
+\end{bmatrix}
+\end{equation}
+with the following filter:
+\begin{equation}
+\frac{1}{9}
+\begin{bmatrix}
+1 & 1 & 1\\
+1 & 1 & 1\\
+1 & 1 & 1\\
+\end{bmatrix}
+\end{equation}
+is:
+\begin{equation}
+\frac{1}{9}
+\begin{bmatrix}
+5 & 4 & 5 & 4 & 5 & 4 \\
+4 & 5 & 4 & 5 & 4 & 5 \\
+5 & 4 & 5 & 4 & 5 & 4 \\
+4 & 5 & 4 & 5 & 4 & 5 \\
+5 & 4 & 5 & 4 & 5 & 4 \\
+4 & 5 & 4 & 5 & 4 & 5 \\
+\end{bmatrix}
+\end{equation}
+The output using same padding is:
+\begin{equation}
+\frac{1}{9}
+\begin{bmatrix}
+2 & 3 & 3 & 3 & 3 & 3 & 2\\
+3 & 5 & 4 & 5 & 4 & 5 & 3\\
+3 & 4 & 5 & 4 & 5 & 4 & 3\\
+3 & 5 & 4 & 5 & 4 & 5 & 3\\
+3 & 4 & 5 & 4 & 5 & 4 & 3\\
+3 & 5 & 4 & 5 & 4 & 5 & 3\\
+2 & 3 & 3 & 3 & 3 & 3 & 2\\
+\end{bmatrix}
+\end{equation}
+Assuming that the edges remain the same, the output using valid padding is(Vague question!):
+\begin{equation}
+\frac{1}{9}
+\begin{bmatrix}
+9 & 0 & 9 & 0 & 9 & 0 & 9 & 0\\
+0 & 5 & 4 & 5 & 4 & 5 & 4 & 9\\
+9 & 4 & 5 & 4 & 5 & 4 & 5 & 0\\
+0 & 5 & 4 & 5 & 4 & 5 & 4 & 9\\
+9 & 4 & 5 & 4 & 5 & 4 & 5 & 0\\
+0 & 5 & 4 & 5 & 4 & 5 & 4 & 9\\
+9 & 0 & 9 & 0 & 9 & 0 & 9 & 0\\
+\end{bmatrix}
+\end{equation}
+
+
+
+\subsection{} %1.2
+This filter works as a blurring filter.
+\section{} %2
+% make a 3 column table with column names Layer, Output Dimension, Number of Parameters
+% CONVk-N(S, P) means a convolutional layer with N kernels of size kxk and stride S and padding P
+% padding and stride are 1 if not specified
+% POOL-k means a max pooling layer with kernel size kxk
+% FC-N means a fully connected layer with N neurons
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+Layer & Output Dimension & Number of Parameters\\
+\hline
+Input & $32 \times 32 \times 3$ & 0\\
+\hline
+CONV3-10 & $32 \times 32 \times 10$ & $3 \times 3 \times 10 + 10 = 280$\\
+\hline
+ReLU & $32 \times 32 \times 10$ & 0\\
+\hline
+POOL-2 & $16 \times 16 \times 10$ & 0\\
+\hline
+CONV3-20(3, 2) & $6 \times 6 \times 20$ & $3 \times 3 \times 20 \times 10 + 20 = 3620$\\
+\hline
+ReLU & $6 \times 6 \times 20$ & 0\\
+\hline
+POOL-2 & $3 \times 3 \times 20$ & 0\\
+\hline
+FLATTEN & 180 & 0\\
+\hline
+FC-10 & 10 & $180 \times 10 + 10 = 1810$\\
+\hline
+\end{tabular}
+\end{table}
+\section{} %3
+\subsection{} %3.1
+k, b are the parameters of the model.
+\subsection{} %3.2
+\begin{equation}
+\begin{aligned}
+	\frac{\partial L}{\partial \omega_1} &= \frac{\partial L}{\partial \hat{y}} \frac{\partial \hat{y}}{\partial \omega_1} \\
+	&= (\hat{y} - y) \frac{\partial \hat{y}}{\partial \omega_1} \\
+	&= (\hat{y} - y) \nu_1 
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+	\frac{\partial L}{\partial \omega_2} &= \frac{\partial L}{\partial \hat{y}} \frac{\partial \hat{y}}{\partial \omega_2} \\
+	&= (\hat{y} - y) \frac{\partial \hat{y}}{\partial \omega_2} \\
+	&= (\hat{y} - y) \nu_2
+\end{aligned}
+\end{equation}
+\begin{equation}
+	\begin{aligned}
+		\frac{\partial L}{\partial a} &= \frac{\partial L}{\partial \hat{y}} \frac{\partial \hat{y}}{\partial a} \\
+		&= (\hat{y} - y)
+	\end{aligned}
+\end{equation}
+\subsection{} %3.3
+\begin{equation}
+	\begin{aligned}
+	\frac{\partial L}{\partial z_1} &= \frac{\partial L}{\partial \nu_1} \frac{\partial \nu_1}{\partial z_1} \\
+	&= \delta_1 u(z_1 - z_2) u(z_1) = \alpha_1
+	\end{aligned}
+\end{equation}
+\begin{equation}
+	\begin{aligned}
+	\frac{\partial L}{\partial z_2} &= \frac{\partial L}{\partial \nu_1} \frac{\partial \nu_1}{\partial z_2} + \frac{\partial L}{\partial \nu_2} \frac{\partial \nu_2}{\partial z_2} \\
+	&= \delta_1 u(z_2 - z_1) u(z_2) + \delta_2 u(z_2 - z_3) u(z_2) = \alpha_2
+	\end{aligned}
+\end{equation}
+\begin{equation}
+	\begin{aligned}
+	\frac{\partial L}{\partial z_3} &= \frac{\partial L}{\partial \nu_2} \frac{\partial \nu_2}{\partial z_3} \\
+	&= \delta_2 u(z_3 - z_2) u(z_3) = \alpha_3
+	\end{aligned}
+\end{equation}
+Where $ u(x) = \begin{cases} 1 & x > 0 \\ 0 & x \leq 0 \end{cases} $.
+\subsection{} %3.4
+\begin{equation}
+	\begin{aligned}
+	\frac{\partial L}{\partial k_1} &= \frac{\partial L}{\partial z_1} \frac{\partial z_1}{\partial k_1} + \frac{\partial L}{\partial z_2} \frac{\partial z_2}{\partial k_1} + \frac{\partial L}{\partial z_3} \frac{\partial z_3}{\partial k_1} \\
+	&= \alpha_1 \frac{\partial z_1}{\partial k_1} + \alpha_2 \frac{\partial z_2}{\partial k_1} + \alpha_3 \frac{\partial z_3}{\partial k_1} \\
+	&= \alpha_1 x_1 + \alpha_2 x_2 + \alpha_3 x_3 
+	\end{aligned}
+\end{equation}
+\begin{equation}
+	\begin{aligned}
+	\frac{\partial L}{\partial k_2} &= \frac{\partial L}{\partial z_1} \frac{\partial z_1}{\partial k_2} + \frac{\partial L}{\partial z_2} \frac{\partial z_2}{\partial k_2} + \frac{\partial L}{\partial z_3} \frac{\partial z_3}{\partial k_2} \\
+	&= \alpha_1 \frac{\partial z_1}{\partial k_2} + \alpha_2 \frac{\partial z_2}{\partial k_2} + \alpha_3 \frac{\partial z_3}{\partial k_2} \\
+	&= \alpha_1 x_2 + \alpha_2 x_3 + \alpha_3 x_4 
+	\end{aligned}
+\end{equation}
+\begin{equation}
+	\begin{aligned}
+	\frac{\partial L}{\partial k_3} &= \frac{\partial L}{\partial z_1} \frac{\partial z_1}{\partial k_3} + \frac{\partial L}{\partial z_2} \frac{\partial z_2}{\partial k_3} + \frac{\partial L}{\partial z_3} \frac{\partial z_3}{\partial k_3} \\
+	&= \alpha_1 \frac{\partial z_1}{\partial k_3} + \alpha_2 \frac{\partial z_2}{\partial k_3} + \alpha_3 \frac{\partial z_3}{\partial k_3} \\
+	&= \alpha_1 x_3 + \alpha_2 x_4 + \alpha_3 x_5 
+	\end{aligned}
+\end{equation}
+\begin{equation}
+	\begin{aligned}
+	\frac{\partial L}{\partial b} &= \frac{\partial L}{\partial z_1} \frac{\partial z_1}{\partial b} + \frac{\partial L}{\partial z_2} \frac{\partial z_2}{\partial b} + \frac{\partial L}{\partial z_3} \frac{\partial z_3}{\partial b} \\
+	&= \alpha_1 \frac{\partial z_1}{\partial b} + \alpha_2 \frac{\partial z_2}{\partial b} + \alpha_3 \frac{\partial z_3}{\partial b} \\
+	&= \alpha_1 + \alpha_2 + \alpha_3
+	\end{aligned}
+\end{equation}
+\subsection{} %3.5
+\begin{equation}
+	\begin{aligned}
+	\frac{\partial L}{\partial k_j} &= \sum_{i=1}^{m} \frac{\partial L}{\partial z_i} \frac{\partial z_i}{\partial k_j} \\
+	&= \sum_{i=1}^{m} \alpha_i \frac{\partial z_i}{\partial k_j} 
+	\end{aligned}
+\end{equation}
+\begin{equation}
+	\begin{aligned}
+	\frac{\partial z_i}{\partial k_j} &= x_{i+j-1}
+	\end{aligned}
+\end{equation}
+\begin{equation}
+	\begin{aligned}
+	\frac{\partial L}{\partial k_j} &= \sum_{i=1}^{m} \alpha_i x_{i+j-1} 
+	\end{aligned}
+\end{equation}
+\begin{equation}
+	\begin{aligned}
+	\frac{\partial L}{\partial b} &= \sum_{i=1}^{m} \alpha_i
+	\end{aligned}
+\end{equation}
+\section{} %4
+\subsection{} %4.1
+\begin{equation}
+\lfloor \frac{205-k}{3} \rfloor + 1 = 66
+\end{equation}
+$ k = 8, 9, 10$ are all possible values of $ k $.
+\subsection{} %4.2
+Assuming $ k = 9 $, we have $ 9 \times 9 \times 10 \times 96 + 96 = 8, 064 $ learnable parameters.
+\subsection{} %4.3
+We have $ 9 \times 9 \times 10 = 810 $ multiplications for each convolution. 
+We have $ 65 \times 65 $ of those convolutions. So we have $ 810 \times 65 \times 65 = 4, 985, 250 $ multiplications in total.
+
+
+
+
+\end{document}

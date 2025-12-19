@@ -1,0 +1,353 @@
+\documentclass[]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{parskip}
+
+% \renewcommand\thesection{Problem \arabic{section}}
+% \renewcommand\thesubsection{\arabic{subsection}}
+\numberwithin{equation}{section}
+
+\DeclareMathOperator*{\trace}{trace}
+\DeclareMathOperator*{\rank}{rank}
+\newcommand{\AHA}[1]{#1\hermit #1}
+\newcommand{\norm}[2][]{\Vert #2\Vert_{#1}}
+\newcommand{\hermit}{^H}
+\newcommand{\transpose}{^T}
+\newcommand{\inverse}{^{-1}}
+\newcommand{\ATA}[1]{#1\transpose #1}
+\newcommand{\at}[2][]{#1|_{#2}}
+\DeclareMathOperator{\EX}{\mathbb{E}}% expected value
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\MSE}{MSE}
+
+
+%opening
+\title{Deep Learning Homework 2}
+\author{Ali Abbasi - 98105879}
+
+\begin{document}
+\maketitle
+\section{Problem 1}
+The idea of pruning network weights after training, was first introduced by LeCun, et al. at paper \textbf{\href{https://proceedings.neurips.cc/paper/1989/file/6c9882bbac1c7093bd25041881277658-Paper.pdf}{Optimal Brain Damage}}.
+In this paper they suggest Taylor series approximation of degree 2 of the loss function to be used as a metric to find importance (saliency) of each weight in the network.
+And then they suggest to prune the weights with the lowest importance. Pruning in this context is done by setting the weights to zero and freezing them.
+
+\subsection{}
+So first, we find the effect of perturbing each weight on the loss function.
+Note that by setting a parameter to zero, the perturbation amount of that parameter is equal to the negative of value of that parameter itself.
+
+Taylor series approximation of the loss function is given by:
+\begin{align}
+\label{eq:1:Taylor}
+\delta E = \sum_i g_i \delta u_i + \frac{1}{2} \sum_{i, j} h_{ij} \delta u_i \delta u_j + \mathcal{O}(\norm{\delta U}^3) 
+\end{align}
+
+Where $u_i$s are weights and $U$ is the vector of all weights.
+$g_i$ is the gradient of the loss function with respect to the $i$th weight, $h_{ij}$ is the Hessian of the loss function with respect to the $i$th and $j$th weights, and $\delta U$ is the vector of perturbations of the weights:
+\begin{align}
+g_i = \frac{\partial E}{\partial u_i} \\
+h_{ij} = \frac{\partial^2 E}{\partial u_i \partial u_j}
+\end{align}
+
+So by considering \(\delta u_i = u_i\) to make \(i\)th weight zero, we can find weights that have the least effect on the loss function and can set them to zero.
+
+But more practical way of using Eq. \ref{eq:1:Taylor} will be introduced in the next subsection.
+
+\subsection{}
+As you know, computing the Hessian of the loss function is computationally expensive and of a \(O(n^2)\) complexity.
+So the paper uses another simplification, by assuming the Hessian to be diagonal.
+And as mentioned, pruning is done after training the network, so it will be on a local minima of the loss function and the gradients (\(g_i\)s) will be zero.
+And Eq. \ref{eq:1:Taylor} will be simplified to:
+\begin{align}
+\delta E = \frac{1}{2} \sum_{i} h_{ii} \delta u_i^2
+\end{align}
+So saliency of weight \(u_i\) is given by:
+\begin{align}
+s_i = \frac{1}{2} h_{ii}u_i^2
+\end{align}
+and we can prune the weight(s) with the lowest saliency.
+
+Our question asks to consider the Hessian to be the Identity matrix.
+So \( h_{ii} = 1 \) and saliency of weight \(u_i\) is equal to \( \frac{1}{2} u_i^2 \) and there would be no need to compute the Hessian.
+
+So we can summarize the whole process as follows:
+\begin{enumerate}
+    \item Train the network until reaching a good solution (local minima of the loss function).
+    \item Compute saliency values for each weight.
+    \item Prune some of the weights with the lowest saliency.
+    \item Go to step 1.
+\end{enumerate} 
+
+\section{Problem 2}
+We know that \(y_i = x_i\transpose b + \epsilon_i\) where \(\epsilon_i \sim \mathcal{N}(0, \sigma^2)\) and we want to estimate \(y\) with \(f(X) = X\hat{b}\) and find \(\hat{b}\) such that empirical risk is minimized.
+
+\subsection{}
+We can find the solution to the problem either by using the maximum likelihood approach or with minimizing the empirical risk:
+\begin{align}
+    \label{eq:2:ML}
+    \frac{1}{2N} \sum_i (y_i - f(x_i))^2 = \frac{1}{2N}\norm{y - X\hat{b}}^2
+\end{align}
+We can show that the two approaches are equivalent:
+\begin{gather}
+\label{eq:2:MLE}
+\epsilon \sim \mathcal{N}(0, \sigma^2 I) \implies y \sim \mathcal{N}(Xb, \sigma^2 I) \\
+\mathcal{L} = p(y\vert X, b) = \prod_i \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{1}{2\sigma^2} (y_i - x_i\transpose b)^2\right) = \frac{1}{(2\pi\sigma^2)^{N/2}} \exp\left(-\frac{1}{2\sigma^2} \norm{y - Xb}^2\right)\\
+\ln \mathcal{L} = -\frac{N}{2} \ln(2\pi\sigma^2) - \frac{1}{2\sigma^2} \norm{y - Xb}^2 \\
+\argmax_b \mathcal{L} = \argmax_b \ln \mathcal{L} = \argmin_b \frac{1}{2} \norm{y - Xb}^2
+\end{gather}
+And we can find minimum of \( \frac{1}{2} \norm{y - Xb}^2 \) by setting the gradient to zero:
+\begin{gather}
+    \label{eq:2:MSE}
+\frac{\partial}{\partial b} \frac{1}{2} \norm{y - Xb}^2 = -X\transpose (y - Xb) = 0 \\
+X\transpose y = X\transpose Xb \\
+\end{gather}
+And we know that X is full column rank (\(\rank(A)=d\)), so \(X\transpose X\) is invertible and we can find \(b\) as:
+\begin{gather}
+    \hat{b} = (X\transpose X)^{-1} X\transpose y = X^{\dagger} y
+\end{gather}
+Where \(X^{\dagger}\) is the Moore-Penrose pseudo-inverse of X. 
+
+\subsection{}
+First we show that \(\frac{1}{N}\norm{(XX^{\dagger} -I)\epsilon}^2\) is equal to empirical risk:
+\begin{align}
+\hat{y} &= X\hat{b}\\
+y &= Xb + \epsilon \\
+\epsilon &= y - Xb \\
+(XX^{\dagger} -I)\epsilon &= XX^{\dagger}\epsilon - \epsilon\\
+&= XX^\dagger y - XX^\dagger Xb - \epsilon\\
+&= X\hat{b} - Xb - \epsilon & (XX^\dagger X = X)\\
+&= \hat{y} - y
+\end{align}
+Now we calculate expected value of it using following properties of matrix \(A \triangleq XX^\dagger\).
+\begin{enumerate}
+\item \(A^2 = XX^\dagger XX^\dagger = X(X\transpose X)^{-1} X\transpose X (X\transpose X)^{-1} X\transpose = X (X\transpose X)^{-1} X\transpose = X X^\dagger = A\)
+\item \(A\transpose = A \implies A\transpose A = A^2 = A\)
+\item We can show that \(\rank(A)=\rank(X)=d \). We can do that using SVD decomposition of \(X\) and \(X^\dagger\).
+\begin{gather}
+XX^\dagger = U\Sigma V\transpose V \Sigma ^\dagger U\transpose = U\Sigma \Sigma ^\dagger U\transpose = U \begin{bmatrix}
+    I_d & 0 \\
+    0 & 0
+\end{bmatrix} U\transpose
+\end{gather}
+\item Using last section's result, number of \(A\) has \(d\) eigenvalues equal to 1 and \(N-d\) eigenvalues equal to 0. So \(\rank(A) = d\).
+\label{itm:eigenvalues}\\
+(We could show that eigenvalues of \(A\) being ones and zeros using \(A^2 = A\) too.)
+\item Defining \(B \triangleq A - I\), we can show that: 
+\begin{align}
+B\transpose B = (A - I)(A - I) = A^2 - 2A + I = I - A = -B
+\end{align}
+\item Using \ref{itm:eigenvalues}, \(-B\) has \(d\) eigenvalues equal to 0 and \(N-d\) eigenvalues equal to 1.
+\item \(\trace(-B) = \sum_{i=1}^{N} \lambda_i(-B) = N - d\)
+\end{enumerate}
+Finally we are ready!
+\begin{align}
+\EX\biggl[\norm{(XX^{\dagger} -I)\epsilon}^2\biggr] &= \EX\biggl[\norm{B\epsilon}^2\biggr]\\
+ &= \EX\biggl[\epsilon\transpose B\transpose B \epsilon \biggr] = \EX\biggl[\epsilon\transpose (-B) \epsilon \biggr]\\
+& = \EX\biggl[\sum_{i=1}^{N}\sum_{j}^{N} -B_{i,j} \epsilon_i \epsilon_j\biggr]\\
+& = \sum_{i=1}^{N}\sum_{j=1}^{N} -B_{i,j} \EX[ \epsilon_i \epsilon_j] \\
+& = \sum_{i\neq j}^{N} -B_{i,j} \EX[ \epsilon_i \epsilon_j] + \sum_{i=1}^{N} -B_{i,i} \EX[ \epsilon_i^2]
+\end{align}
+When \(i \neq j\), \(\epsilon_i\) and \(\epsilon_j\) are independent, so \(\EX[ \epsilon_i \epsilon_j]=\EX[ \epsilon_i]\EX[\epsilon_j] = 0\). And \(\EX[\epsilon_i^2] = \EX[\epsilon_i]^2 + Var(\epsilon_i) = \sigma^2\). So we have:
+
+\begin{align}
+    \frac{1}{N} \EX\biggl[\norm{(XX^{\dagger} -I)\epsilon}^2\biggr] &=\frac{1}{N} \sum_{i=1}^{N} -B_{i,i} \sigma^2 \\
+    &= \frac{1}{N}\trace(-B) \sigma^2 \\
+    &= \frac{N-d}{N}\ \sigma^2
+\end{align}
+
+\subsection{}
+As number of linearly-independent features of \(X\) increases, columns of \(X\) span a broader subspace of \(R^N\).
+So we can find \(\hat{b}\) such that \(\hat{y}\) is closer to \(y\); thus strength of the model increases.
+We can observe the same thing by result of last part of the problem. As \(d\) approaches to \(N\), expected value of the empirical loss approaches to zero.
+And when \(d=N\), \(X\) is square matrix and invertible we have \(X^{\dagger} = X^{-1}\) and we can find \(\hat{b}\) as \(X^{-1}y\) and \(\hat{y}=Xb=y\) exactly.
+
+\section{Problem 3}
+\subsection{}
+This part is similar to Eq. \ref{eq:2:MSE}. But we will solve it again for the sake of completeness!
+\begin{align}
+\hat{\beta} &= \argmin_\beta \MSE(\beta)\\
+&= \argmin_\beta \frac{1}{N} \sum_{i=1}^{N} (y_i - \beta\transpose x_i)^2 \\
+&= \argmin_\beta \frac{1}{N} \norm{Y - X\beta}^2 \\
+\implies \frac{\partial}{\partial \beta} \MSE(\beta) &= \frac{-1}{N} X\transpose (Y - X\beta) = 0 \\
+\implies \hat{\beta} &= (X\transpose X)^{-1} X\transpose Y\\
+\end{align}
+
+\subsection{}
+Note that in this question, we are going to add L2 regularization to the \(\MSE\) loss function and not the least square error.
+So don't be surprised if you see an extra \(N\) in the solution!
+
+If we add an L2 regularization term to the loss function, we have:
+\begin{align}
+\hat{\beta} &= \argmin_\beta \MSE(\beta) + \lambda \norm{\beta}^2\\
+\implies & \frac{2}{N} X\transpose (X\beta - Y) + 2\lambda \beta = 0 \\
+& (\frac{1}{N} X\transpose X + \lambda I) \beta = \frac{1}{N} X\transpose Y \\
+& (X\transpose X + \lambda N I) \beta = X\transpose Y \\
+& \hat{\beta} = (X\transpose X + \lambda N I)^{-1} X\transpose Y
+\end{align}
+
+\subsection{}
+\begin{enumerate}
+\item \(F\) is non-singular and \(\Sigma X = X F\). So:
+\begin{align}
+\Sigma X = X F &\xrightarrow{\times \Sigma^{-1}} X = \Sigma^{-1} X F \\
+&\xrightarrow{\times F^{-1}} XF^{-1} = \Sigma^{-1} X\\
+&\xrightarrow{\textup{Transpose}} F^{-T}X\transpose = X\transpose \Sigma^{-1} & \Sigma,\Sigma^{-1} \textup{ are symmetric}
+\end{align}
+So we have:
+\begin{align}
+\beta^* &= (X\transpose \Sigma^{-1} X)^{-1} X\transpose \Sigma^{-1} Y\\
+& = (F^{-T}X\transpose X)\inverse F^{-T}X\transpose Y\\
+& = (X\transpose X)^{-1}F^{T} F^{-T} X\transpose Y & \textup{using } (AB)\inverse = B\inverse A\inverse \\
+& = (X\transpose X)^{-1} X\transpose Y\\
+& = \hat{\beta}
+\end{align}
+\item If \(\hat{\beta} = \beta^*\), then there is a non-singular \(F\) such that \(\Sigma X = X F\):
+\begin{gather}
+\beta^* = \hat{\beta} \implies \forall Y:\ (X\transpose X)\inverse X\transpose Y = (X\transpose \Sigma^{-1} X)^{-1} X\transpose \Sigma^{-1} Y\\
+\implies (X\transpose X)\inverse X\transpose = (X\transpose \Sigma^{-1} X)^{-1} X\transpose \Sigma^{-1}\\
+\xrightarrow{\times X\transpose X} X\transpose = (X\transpose X) (X\transpose \Sigma^{-1} X)^{-1} X\transpose \Sigma^{-1}\\
+\xrightarrow{\times \Sigma} X\transpose \Sigma = (X\transpose X) (X\transpose \Sigma^{-1} X)^{-1} X\transpose
+\end{gather}
+We define:
+\(F \triangleq (X\transpose \Sigma^{-1} X)^{-T}(X\transpose X)\).
+So we have:
+\begin{gather}
+X\transpose \Sigma = F\transpose X\transpose \implies \Sigma X = X F
+\end{gather}
+It's enough to show that \(F\) is non-singular. We know that \(X\transpose X\) is invertible and \(X\transpose \Sigma^{-1} X\) is obviously invertible.
+And multiplying two invertible matrices gives an invertible matrix.
+So \(F\) is invertible and non-singular. And we have shown its existence.
+\end{enumerate}
+With 1 and 2, we have proved what the question asked.
+
+\subsection{}
+\begin{enumerate}
+    \item \(L(\beta, \lambda_1, \lambda_2) = \norm{y - X\beta}^2 + \lambda_1 \norm[2]{\beta}^2 + \lambda_2 \norm[1]{\beta}\) 
+    \item \(L^\prime(\beta, \lambda_2) = \norm{y^\prime - X^\prime \beta}^2 + \lambda_2 \norm[1]{\beta}\) 
+\end{enumerate}
+We want to add datapoints to \(X\) and \(y\) such that the value of loss function \(L\) on original data, is equal to the value of the function \(L^\prime\) on new data.
+
+First we note that by adding vector \(e_i\) (all zeros except for the \(i^{th}\) element which is 1) to \(X\) and zero as its corresponding label, change in MSE is equal to:
+\begin{gather}
+    \norm{0 - e_i\transpose \beta}^2 = \norm{\beta_i}^2
+\end{gather}
+So by defining \(X^\prime and y^\prime\) as:
+\begin{gather}
+X^\prime = \begin{bmatrix} X \\ \sqrt{\lambda_1}e_1 \\ \sqrt{\lambda_1}e_2 \\ \vdots \\ \sqrt{\lambda_1}e_d \end{bmatrix} 
+\ \& \ y^\prime = \begin{bmatrix} y \\ 0 \\ 0 \\ \vdots \\ 0 \end{bmatrix}\\
+{\MSE}^\prime = \norm{y^\prime - X^\prime \beta}^2 = \norm{y - X\beta}^2 + \lambda_1 \norm[2]{\beta}^2 = \MSE + \lambda_1 \norm[2]{\beta}^2
+\end{gather}
+So value of the loss function \(L\) on \(X\) and \(y\) is equal to the value of the function \(L^\prime\) on \(X^\prime\) and \(y^\prime\).
+
+\section{Problem 4}
+The purpose of this problem is to estimate \(y\) with \(\sum_{k=1}^n w_k x_k\).
+But during the training, we will multiply weights (or equivalently inputs of the model) with a gaussian noise with distribution \(\delta_i \sim \mathcal{N}(1, \sigma^2)\).
+We name loss function with gaussian dropout as \(J_D = (y - \sum_{k=1}^n \delta_k w_k x_k)^2\) and normal loss function (when we don't use gaussian dropout) as \(J_N = (y - \sum_{k=1}^n w_k x_k)^2\).
+And during training, we are minimizing \(J_D\).
+\subsection{}
+\begin{align}
+\nabla_{w_i} J_D &= \nabla_{w_i} (y - \sum_{k=1}^n \delta_k w_k x_k)^2\\
+&= -2(y - \sum_{k=1}^n \delta_k w_k x_k) \delta_i x_i\\
+&= -2(y\delta_i x_i - \delta_i^2 x_i^2 w_i - \sum_{k\neq i} \delta_k \delta_i w_k x_k x_i) \\
+\EX\bigl[\nabla_{w_i} J_D\bigr] &= -2(y\EX[\delta_i]x_i - \EX[\delta_i^2] x_i^2 w_i - \sum_{k\neq i} \EX[\delta_k \delta_i] w_k x_k x_i) \\
+\EX[\delta_i] &= 1\\
+\EX[\delta_i^2] &= \EX[\delta_i]^2 + var(\delta_i) = 1 + \sigma^2\\
+\EX[\delta_k \delta_i] &= \EX[\delta_k] \EX[\delta_i] = 1 & \textup{for \(i\neq k\)}\\
+\implies \EX\bigl[\nabla_{w_i} J_D\bigr] &= -2(yx_i - (1 + \sigma^2) x_i^2 w_i - \sum_{k\neq i} w_k x_k x_i) \\
+&= -2(yx_i - \sigma^2 x_i^2 w_i - \sum_{k=1}^n w_k x_k x_i) \\
+&= -2(y - \sum_{k=1}^n w_k x_k) x_i + 2\sigma^2 x_i^2 w_i\\
+\nabla_{w_i} J_N &= \nabla_{w_i} (y - \sum_{k=1}^n w_k x_k)^2\\
+&= -2(y - \sum_{k=1}^n w_k x_k) x_i\\
+\implies \EX\bigl[\nabla_{w_i} J_N\bigr] &= \nabla_{w_i} J_N + 2\sigma^2 x_i^2 w_i
+\end{align}
+
+\subsection{}
+Note how the term added to the gradient of normal loss function resembles ordinary weight decay regularization!
+It's like \(\nabla_{w_i}\sigma^2\sum_i x_i^2 w_i^2\) is added to the gradient of normal loss function.
+Which is like a variant of L2 regularization where \(\lambda = \sigma^2\) and each \(w_i\) is punished differently proportional to the square of its corresponding element in data, \(x_i^2\).
+
+\section{Problem 5}
+We want to minimize \(w\transpose H w\) and we know \(H=Q\Lambda Q\transpose\).
+\subsection{}
+\begin{align}
+w_t &= w_{t-1} - \epsilon \nabla_w (w\transpose H w)\at{w=w_{t-1}} = w_{t-1} - 2\epsilon H w_{t-1}\ & H \textup{ is symmetric}
+\end{align}
+
+\subsection{}
+\begin{align}
+w_t &= (I - 2\epsilon H) w_{t-1}\\
+\implies & w_t = (I - 2\epsilon H)^t w_{0}
+\end{align}
+
+\subsection{}
+We know that H is decomposable using eigen decomposition.
+So \(I - 2\epsilon H\) too is decomposable using \(Q\) as its matrix of eigen-vectors and its eigenvalues are \(1 - 2\epsilon \lambda_i\) where \(\lambda_i\) are the eigenvalues of H.
+\begin{align}
+w^* &= \lim_{t\rightarrow \infty} w_t = \lim_{t\rightarrow \infty} (I - 2\epsilon H)^t w_{0}\\
+&= \lim_{t\rightarrow \infty} Q A^t Q\transpose w_{0}
+\end{align}
+Where \[A = \begin{bmatrix} 1 - 2\epsilon \lambda_1 & 0 & \cdots & 0 \\ 0 & 1 - 2\epsilon \lambda_2 & \cdots & 0 \\ \vdots & \vdots & \ddots & \vdots \\ 0 & 0 & \cdots & 1 - 2\epsilon \lambda_n \end{bmatrix}\]
+and \[A^t= \begin{bmatrix} (1 - 2\epsilon \lambda_1)^t & 0 & \cdots & 0 \\ 0 & (1 - 2\epsilon \lambda_2)^t & \cdots & 0 \\ \vdots & \vdots & \ddots & \vdots \\ 0 & 0 & \cdots & (1 - 2\epsilon \lambda_n)^t \end{bmatrix}\]
+So if absolute value of all eigenvalues of A are less than 1, then \(w^*\) will converge and will converge to zero. Otherwise, it will diverge.
+\begin{align}
+-1 < 1 - 2\epsilon \lambda_i < 1 &\implies -2 < -2\epsilon \lambda_i < 0 \implies 0 < \epsilon \lambda_i < 1\\
+ &\implies \begin{cases}
+    \forall i, \lambda_i > 0 \implies H \textup{ is Positive Definite}\\
+    \forall i, \epsilon < \frac{1}{\lambda_i} \implies \epsilon \epsilon < \frac{1}{\lambda_{max}}
+ \end{cases}
+\end{align}
+
+\subsection{}
+\begin{align}
+w_{t+1} &= w_{t} - \nabla^2_{w} (w\transpose H w)\inverse \nabla_w (w\transpose H w)\at{w=w_t} \\
+&= w_t - (2H)\inverse (2H w_t)\\
+&= w_t - w_t\\
+&= 0
+\end{align}
+It will converge to minimum in a single step (of course \(0\) is minimum of this function if \(H\) is positive semi-definite matrix. Other wise it can take any negative value too).
+
+\subsection{}
+Because gradient descent minimizes loss function using its (first order) derivative.
+But Newton method uses second order derivative to minimize the loss function. 
+And computing second order derivatives is of \(O(n^2)\) complexity and computing its inverse is of \( O(n^3) \) (however there are more efficient methods for computing inverse of a matrix).
+
+Because of more information it has about the loss function, Newton method can converge faster than gradient descent and its a good choice when second order derivative is available or easy to compute (for example, sometimes Newton method is used for logistic regression).
+But in neural networks where we have thousands to millions of parameters, paying cost of \(O(n^2)\) for computing second order derivative is not feasible and gradient descent is a better choice.
+
+
+\section{Problem 6}
+\subsection{}
+This network can be used to learn an embedding \(h_1\) and \(h_2\) for each of its input \(x_1\) and \(x_2\) respectively such that \(h_1\) and \(h_2\) are close to each other in the embedding space if \(x_1\) and \(x_2\) are similar (if they are a positive pair!).
+
+\subsection{}
+Considering that we have a batch of \(B\) pairs (to not be confused with bias) of inputs, we define loss function for \(i^{th}\) pair as:
+\begin{gather}
+h_1^{(i)} = \tanh(Wx_1^{(i)} + b)\\
+h_2^{(i)} = \tanh(Wx_2^{(i)} + b)\\
+J^{(i)} = \norm{h_1^{(i)} - h_2^{(i)}}^2\\
+\tag{\textup{we'll add regularization to the whole cost function}}\\
+\nabla_W J^{(i)} = 2\biggl[(h_1^{(i)} - h_2^{(i)}) \odot (\mathbf{1} - h_1^{(i)} \odot h_1^{(i)})\biggr] {x_1^{(i)}}\transpose - 2\biggl[(h_1^{(i)} - h_2^{(i)}) \odot (\mathbf{1} - h_2^{(i)} \odot h_2^{(i)})\biggr] {x_2^{(i)}}\transpose\\
+\nabla_b J^{(i)} = 2\biggl[(h_1^{(i)} - h_2^{(i)}) \odot (\mathbf{1} - h_1^{(i)} \odot h_1^{(i)})\biggr] - 2\biggl[(h_1^{(i)} - h_2^{(i)}) \odot (\mathbf{1} - h_2^{(i)} \odot h_2^{(i)})\biggr]\\
+\xrightarrow{\textup{Simplify}} \nabla_b J^{(i)} = 2(h_1^{(i)} - h_2^{(i)}) \odot (h_2^{(i)} \odot h_2^{(i)} - h_1^{(i)} \odot h_1^{(i)})
+\end{gather}
+Where \(\odot\) is element wise multiplication and \(\mathbf{1}\) is a vector of ones with similar size as \(h_1^{(i)}\) and \(h_2^{(i)}\).
+And we have used the fact that \(\tanh'(z) = 1 - \tanh^2(z)\) (as we know \(\tanh\) activation is applied element wise).
+
+So the total loss is:
+\begin{align}
+J &= \norm[F]{W}^2 + \sum_{i}^B J^{(i)}\\
+\nabla J &= \nabla \norm[F]{W}^2 + \sum_{i=1}^B \nabla J^{(i)}\\
+\implies \nabla_W J &= 2W + 2 \sum_{i=1}^B \biggl[(h_1^{(i)} - h_2^{(i)}) \odot (\mathbf{1} - h_1^{(i)} \odot h_1^{(i)})\biggr] {x_1^{(i)}}\transpose - \biggl[(h_1^{(i)} - h_2^{(i)}) \odot (\mathbf{1} - h_2^{(i)} \odot h_2^{(i)})\biggr] {x_2^{(i)}}\transpose\\
+\nabla_b J &= 2 \sum_{i=1}^B (h_1^{(i)} - h_2^{(i)}) \odot (h_2^{(i)} \odot h_2^{(i)} - h_1^{(i)} \odot h_1^{(i)})
+\end{align}
+So we can update the parameters using gradient descent as:
+\begin{align}
+W &\leftarrow W - \eta \nabla_W J\\
+b &\leftarrow b - \eta \nabla_b J
+\end{align}
+
+\end{document}

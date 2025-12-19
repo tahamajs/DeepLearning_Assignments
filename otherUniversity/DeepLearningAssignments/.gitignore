@@ -1,0 +1,9 @@
+*.zip
+*/.vscode
+*/.idea/*   
+*.aux
+*latexmk
+*.fls
+*.log
+*.out
+*.gz

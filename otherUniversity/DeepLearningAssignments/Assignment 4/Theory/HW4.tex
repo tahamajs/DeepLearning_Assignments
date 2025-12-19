@@ -1,0 +1,39 @@
+\documentclass{article}
+
+\usepackage{geometry}
+\usepackage{amsmath}
+
+\newcommand{\rond}[2][]{\frac{\partial #1}{\partial #2}}
+
+\title{Deep Learning Assignment 4}
+\author{Ali Abbasi - 98105879}
+\begin{document}
+\maketitle
+\section{}
+\subsection{}
+
+This is an instance of Gated Recurrent Unit (GRU) cell.
+
+If \(z_t\) is zero, then last hidden state of the cell doesn't affect the next hidden value and \(h_t = \tilde{h}_t\).
+And if \(z_t\) is one, then the hidden state doesn't change from the previous time and \(h_t = h_{t-1}\).
+So \(z_t\) is the update gate, averaging between last and the new values of the hidden state.
+
+\(r_t\) on the other hand, is the reset gate, controlling the amount of information that is used from the previous hidden state to calculate the new one (or the new candidate hidden state).
+If \(r_t = 0\) then the new candidate hidden state is calculated solely from the current input and the previous hidden state is ignored.
+
+\subsection{}
+Using the formula we had for calculating gradients in RNNs:
+\begin{align*}
+\rond[L_j]{W} &= \sum_{k=1}^{j} \rond[L_j]{\hat{y}_j}\rond[\hat{y}_j]{h_j}\rond[h_j]{h_k}\rond[h_k]{W}\\
+\text{where } \rond[h_j]{h_k} &= \prod_{m=k+1}^{j} \rond[h_m]{h_{m-1}}
+\end{align*}
+
+In GRU, the gradients back propagate through the hidden states very well:
+\begin{align*}
+\rond[h_m]{h_{m-1}} &= z_m + (1-z_m)\rond[\tilde{h}_m]{h_{m-1}}
+\end{align*}
+So if \(z_m\approx 1\) then \(\rond[h_m]{h_{m-1}} \approx 1\) and if \(z_m\approx 0\) then \(\rond[h_m]{h_{m-1}} \approx \rond[\tilde{h}_m]{h_{m-1}} = W^{(hh)^T}\left[(1 - \tilde{h}_m^2) \odot r_t\right]\).
+And in both cases, a significant amount of the gradient is passed back to the previous hidden state.
+Thus, the gradient vanishing problem is less severe in GRU.
+
+\end{document}

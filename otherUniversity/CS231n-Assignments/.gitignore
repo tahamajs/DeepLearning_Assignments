@@ -1,0 +1,10 @@
+/assignment2/.idea/
+/assignment2/.ipynb_checkpoints/
+/assignment2/cs231n/datasets/cifar-10-batches-py/
+/assignment2/cs231n/datasets/imagenet_val_25.npz
+/assignment2/cs231n/build/
+/assignment2/cs231n/im2col_cython.cpython-37m-x86_64-linux-gnu.so
+/assignment2/collect_submission.ipynb
+/.idea/
+*/.vscode/
+/assignment3/cs231n/__pycache__/

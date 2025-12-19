@@ -1,0 +1,7 @@
+*/.vscode
+*.aux
+*latexmk
+*.fls
+*.log
+*.out
+*.gz

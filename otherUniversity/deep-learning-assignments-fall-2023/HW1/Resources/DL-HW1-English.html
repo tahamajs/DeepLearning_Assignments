@@ -1,0 +1,222 @@
+<h1 id="deep-learning-homework-1">Deep Learning HomeWork 1</h1>
+<h2 id="theory-part">Theory Part</h2>
+<h3 id="problem-1-a-review-to-linear-algebra">Problem 1: A Review to
+Linear Algebra</h3>
+<ol type="1">
+<li><p>Prove that you can represent the Hessian matrix of a
+transformation like <span
+class="math inline"><em>y</em> = <em>ϕ</em>(<em>u</em>,<em>v</em>,<em>z</em>)</span>,
+as a gradient Jacobian matrix of this transformation. Assume u, v, z are
+singe-dimension, and y is a function of these three parameters.</p></li>
+<li><p>Provide the proof for the following (Assume <span
+class="math inline"><em>y</em> ∈ ℝ</span>, <span
+class="math inline"><em>x</em> ∈ ℝ<sup><em>n</em></sup></span>. <span
+class="math inline"><em>a</em> ∈ ℝ<sup><em>n</em></sup></span>, <span
+class="math inline"><em>X</em> ∈ ℝ<sup><em>n</em> * <em>n</em></sup></span>,
+<span
+class="math inline"><em>A</em> ∈ ℝ<sup><em>n</em> * <em>n</em></sup></span>)</p>
+<p>A. <span class="math inline">$\frac{∂ (x^⊤ a)}{∂ x} = \frac{\partial
+(a^\top x)}{∂ x} = a^\top$</span></p>
+<p>B. <span class="math inline">$\frac{∂ }{∂ y}tr(X) = tr(\frac{\partial
+}{∂ y}X)$</span></p>
+<p>C. <span class="math inline">$\frac{\partial}{∂ x}tr(X^⊤ AX) = X^⊤ (A
++ A^\top)$</span></p>
+<p>D. <span class="math inline">$\frac{\partial}{∂ x}log(det(X)) =
+X^{-\top}$</span></p></li>
+</ol>
+<p>Hint: Remember that the inverse of a square matrix can be derived via
+the following formula:</p>
+<p><span class="math inline">$(X^{-1})_{ij} =
+\frac{1}{det(A)}C_{ij}$</span></p>
+<ol start="3" type="1">
+<li><p>The matrix for rotation in two dimensions, in <span
+class="math inline"><em>θ</em></span> degrees has the following
+form:</p>
+<p><span class="math inline">$R(\theta) = \begin{bmatrix} \cos(\theta)
+&amp; -\sin(\theta) \\ \sin(\theta) &amp; \cos(\theta) \\
+\end{bmatrix}$</span></p></li>
+</ol>
+<p>Find the eigenvalues, and the eigenvectors of the above matrix. Then,
+prove the following statement stands correct:</p>
+<p><span class="math inline">$det(X) = \prod_{i=1}^n \lvert \lambda_i
+\rvert$</span> (<span
+class="math inline"><em>λ</em><sub><em>i</em></sub></span> is an
+eigenvalue of matrix X.)</p>
+<p>Finally, by making use of “Diagonalization of Eigenvalues”, prove the
+following:</p>
+<p><span
+class="math inline"><em>R</em>(<em>n</em><em>θ</em>) = <em>R</em><sup><em>n</em></sup>(<em>θ</em>)</span></p>
+<h3 id="problem-2-optimization">Problem 2: Optimization</h3>
+<ol type="1">
+<li><p>Explain that why in higher dimensions, there are more saddle
+points than there are local minimum points.</p></li>
+<li><p>Assume the optimization path is visualized for 4 methods
+“Nestrov-Momentum”, “Momentum”, “GD”, “RMSprop”, for a second order
+function from in interval [-2, +2].</p>
+<p>A. Explain what would be the optimization path curve look like, for
+each one of the methods.</p>
+<p>B. Explain about advantages, and disadvantages of all the mentioned
+methods, and discuss how the problems with GD, is solved by each one of
+the 3 other methods.</p></li>
+<li><p>Explain how the ADAM method solves the problem with “Momentum”
+method, and why do we use “Bias Correction” in this approach.</p></li>
+</ol>
+<h3 id="problem-3-regularization">Problem 3: Regularization</h3>
+<p>Read the paper titled “Dropout: A Simple Way to Prevent Neural
+Networks from Overfitting”, by Srivastava, Hinton et al. Here is the
+abstract of the paper. The full text is freely accessible on the
+internet.</p>
+<p>“Deep neural nets with a large number of parameters are very powerful
+machine learning systems. However, overfitting is a serious problem in
+such networks. Large networks are also slow to use, making it difficult
+to deal with overfitting by combining the predictions of many different
+large neural nets at test time. Dropout is a technique for addressing
+this problem. The key idea is to randomly drop units (along with their
+connections) from the neural network during training. This prevents
+units from co-adapting too much. During training, dropout samples from
+an exponential number of different thinned networks. At test time, it is
+easy to approximate the effect of averaging the predictions of all these
+thinned networks by simply using a single unthinned network that has
+smaller weights. This significantly reduces overfitting and gives major
+improvements over other regularization methods. We show that dropout
+improves the performance of neural networks on supervised learning tasks
+in vision, speech recognition, document classification and computational
+biology, obtaining state-of-the-art results on many benchmark data
+sets.”</p>
+<p>After reading the paper, provide answer to questions 1 to 4.</p>
+<ol type="1">
+<li>Explain why Dropout has a performance similar to Ensemble-Learning,
+and why Dropout technique has better performance in networks with a high
+number of parameters?</li>
+<li>Explain how Dropout technique, basically acts like a regularization
+technique, and is considered a regularization technique.</li>
+<li>What is the difference between using Dropout technique during
+training vs during test? What is the reason behind this difference?</li>
+<li>In the linear regression problem with N samples, with a data matrix
+<span
+class="math inline"><em>X</em> ∈ ℝ<sup><em>N</em> * <em>D</em></sup></span>,
+and the target output <span
+class="math inline"><em>y</em> ∈ ℝ<sup><em>N</em></sup></span>, and the
+Loss Function of <span
+class="math inline"><em>J</em>(<em>ω</em>) = ∥<em>y</em> − <em>X</em><em>ω</em>∥<sub>2</sub><sup>2</sup></span>,
+if we apply Dropout technique to the input (i.e. Each element of matrix
+X will be present in regression problem with a probability <span
+class="math inline"><em>p</em></span>), Then, Prove that using Dropout
+technique is equivalent to using regularization term in the loss
+function. (Provide a comprehensive, detailed answer)</li>
+<li>Explain why Batch-Normalization allows us to easily control learning
+rate of weights.</li>
+<li>Discuss how Batch-Normalization results in regularization. With a
+solid reasoning, discuss the effect of larger batch size, on it’s
+normalization property and characteristics.</li>
+</ol>
+<h3 id="problem-4-activation-functions">Problem 4: Activation
+Functions</h3>
+<ol type="1">
+<li>For each one of the following classification problems, determine
+what is the proper activation function, for it’s output layer. Discuss
+the reason behind your choice.</li>
+</ol>
+<p>A. An image classifier that labels images either “Dog” or “Cat”.</p>
+<p>B. An image classifier that classifies which animal is in the input
+image. Assume there are 100 animals (classes).</p>
+<p>C. An image classifier that determines what animals are present in an
+image. (There can be multiple animals in the image). This is a
+multi-class, multi-label classification problem.</p>
+<ol start="2" type="1">
+<li>ReLU is one of the commonly used activation functions to address the
+problem of vanishing gradients. However, the output of this function is
+zero, for inputs below zero. This results in some units not being
+trained and updated during training. For dealing with this problem, many
+variations of ReLU function have been proposed throughout the years. One
+of the most recent onces, is the DPReLU activation function. By
+referring to the paper that introduced this function, compare it with
+ReLU. Determine the rule of each parameter in this activation function.
+Finally, discuss what problems had the previous version of the DPReLU
+function, and how this function has been able to improve, or overcome
+those problems.</li>
+</ol>
+<p>The paper you are going to refer to, is named “DPReLU: Dynamic
+Parametric Rectified Linear Unit and Its Proper Weight Initialization
+Method”, published in 2023, in International Journal of Computational
+Intelligence Systems. The paper is open access and you can access to the
+full text freely. Here is the abstract of the said paper:</p>
+<p>“Activation functions are essential in deep learning, and the
+rectified linear unit (ReLU) is the most widely used activation function
+to solve the vanishing gradient problem. However, owing to the dying
+ReLU problem and bias shift effect, deep learning models using ReLU
+cannot exploit the potential benefits of negative values. Numerous ReLU
+variants have been proposed to address this issue. In this study, we
+propose Dynamic Parametric ReLU (DPReLU), which can dynamically control
+the overall functional shape of ReLU with four learnable parameters. The
+parameters of DPReLU are determined by training rather than by humans,
+thereby making the formulation more suitable and flexible for each model
+and dataset. Furthermore, we propose an appropriate and robust weight
+initialization method for DPReLU. To evaluate DPReLU and its weight
+initialization method, we performed two experiments on various image
+datasets: one using an autoencoder for image generation and the other
+using the ResNet50 for image classification. The results show that
+DPReLU and our weight initialization method provide faster convergence
+and better accuracy than the original ReLU and the previous ReLU
+variants.”</p>
+<h3 id="problem-5-neural-networks-and-backpropagation">Problem 5: Neural
+Networks and Backpropagation</h3>
+<p>Consider the following architecture, for a two layered neural
+network:</p>
+<pre><code>Nodes: 
+  - Input: x1, x2
+  - Hidden Layer: h1, h2
+  - Output: y
+
+Edges: 
+  w1: (x1 -&gt; h1)
+  w2: (x1 -&gt; h2)
+  w3: (x2 -&gt; h1)
+  w4: (x2 -&gt; h2)
+  b1: (-&gt; h1)
+  b2: (-&gt; h2)
+  w5: (h1 -&gt; y)
+  w6: (h2 -&gt; y)</code></pre>
+<p>Assume that the activation function of the hidden layer is LreLU, and
+the output activation function is sigmoid. Also, here are the values for
+weights, biases, inputs and Loss function:</p>
+<ul>
+<li><span
+class="math inline">[<em>x</em><sub>1</sub>,<em>x</em><sub>2</sub>] = [0,1]</span></li>
+<li><span class="math inline">[<em>y</em>] = [1]</span></li>
+<li><span
+class="math inline">[<em>w</em><sub>1</sub>,<em>w</em><sub>2</sub>,<em>w</em><sub>3</sub>,<em>w</em><sub>4</sub>] = [0.3,0.2,0.2,−0.6]</span></li>
+<li><span
+class="math inline">[<em>w</em><sub>5</sub>,<em>w</em><sub>6</sub>] = [0.5,−1]</span></li>
+<li><span
+class="math inline">[<em>b</em>1,<em>b</em>2] = [0.2,−1.4]</span></li>
+<li><span
+class="math inline"><em>L</em><em>r</em><em>e</em><em>L</em><em>U</em>(<em>x</em>) = {1|<em>x</em> ≥ 0, <em>o</em><em>t</em><em>h</em><em>e</em><em>r</em><em>w</em><em>i</em><em>s</em><em>e</em> : 0.2<em>x</em>|<em>x</em> &lt; 0}</span></li>
+<li><span class="math inline">$L = \frac{1}{2}(\hat{y} -
+y)^2$</span></li>
+</ul>
+<ol type="1">
+<li>Calculate Backpropagation for one step. Assume the loss function to
+be MSE, and the learning rate (<span
+class="math inline"><em>α</em></span>) to be 0.1.</li>
+<li>The batch normalization technique, which can be used in various
+layers of a network, by normalizing data belonging to a batch in a
+layer, helps the performance of the model on new data. assume <span
+class="math inline">[<em>x</em><sub>1</sub>,<em>x</em><sub>2</sub>]</span>
+is given as the input of the batch normalization layer, and intermittent
+variables <span class="math inline">$[\hat{x_1}, \hat{x_2}]$</span> are
+produced, which then are used in calculation of the output of the layer
+with the equation <span class="math inline">$\hat{y_k} = γ\hat{x_k} +
+β$</span>. By describing the computational graph of the batch
+normalization layer in details, write the relation between mean and
+variance given that we have the input and output of the layer. (The
+learnable parameters of the layer are <span
+class="math inline"><em>β</em></span> and <span
+class="math inline"><em>γ</em></span>.) Finally, calculate the partial
+derivative equations of the Loss function of network, with respect to
+<span
+class="math inline"><em>β</em>, <em>γ</em>, <em>x</em><sub>1</sub>, <em>x</em><sub>2</sub></span>,
+assuming that we have the values for <span
+class="math inline">$\frac{\partial L}{∂ y_1}$</span>, and <span
+class="math inline">$\frac{\partial L}{∂ y_2}$</span>.</li>
+</ol>

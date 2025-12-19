@@ -1,0 +1,10 @@
+{
+  "name": "docs",
+  "description": "Updates documentation and notebooks while keeping outputs light.",
+  "tools": ["Read", "Write"],
+  "rules": [
+    "Edit Markdown/LaTeX/notebooks only; avoid code changes unless documenting.",
+    "Strip heavy notebook outputs and keep instructions synced with code.",
+    "Preserve formatting in templates and keep file paths stable."
+  ]
+}

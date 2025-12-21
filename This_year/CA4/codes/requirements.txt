@@ -1,0 +1,13 @@
+torch>=1.12.0
+numpy
+pandas
+scikit-learn
+seqeval
+tqdm
+kaggle
+sentencepiece
+transformers
+PyYAML
+matplotlib
+tensorboard
+pytest

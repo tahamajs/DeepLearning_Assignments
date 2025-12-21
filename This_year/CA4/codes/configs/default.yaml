@@ -1,0 +1,14 @@
+model:
+  name: birnn
+  embed_dim: 128
+  hidden_dim: 128
+  bidirectional: true
+  dropout: 0.5
+training:
+  batch_size: 32
+  num_epochs: 10
+  lr: 0.001
+  device: auto
+paths:
+  raw_data: data/raw
+  processed: data/processed

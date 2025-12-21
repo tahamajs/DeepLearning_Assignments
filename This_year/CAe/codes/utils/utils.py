@@ -47,3 +47,28 @@ def save_figure(fig, path, dpi=300, tight=True):
         # If fig is a Figure instance
         fig.figure.savefig(path, dpi=dpi, bbox_inches='tight' if tight else None)
     return path
+
+
+def make_fig_name(section, metric, desc, ext='png', images_dir=None):
+    """Create a canonical filename for figures with timestamp and normalization."""
+    from datetime import datetime
+    if images_dir is None:
+        images_dir = os.path.join(os.path.dirname(__file__), '..', 'q1_image_captioning', 'images')
+    ts = datetime.now().strftime('%Y%m%d-%H%M%S')
+    name = f"fig-{section}-{metric}-{desc}-{ts}.{ext}"
+    name = name.replace(' ', '-').lower()
+    ensure_dir(images_dir)
+    return os.path.join(images_dir, name)
+
+
+def save_asset_manifest(manifest, images_dir):
+    """Save a manifest (list of dicts) to images_dir/manifest.csv and return path."""
+    import csv
+    ensure_dir(images_dir)
+    path = os.path.join(images_dir, 'manifest.csv')
+    with open(path, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=['filename','width_in','height_in','dpi','caption_placeholder'])
+        writer.writeheader()
+        for r in manifest:
+            writer.writerow(r)
+    return path

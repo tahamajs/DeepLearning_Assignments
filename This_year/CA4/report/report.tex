@@ -1,0 +1,127 @@
+% !TEX program = pdflatex
+\documentclass[conference]{IEEEtran}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{siunitx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{cite}
+
+\title{Homework 4: RNN Models for SLU and Recursive Time-Series Forecasting}
+\author{\IEEEauthorblockN{Student Name}
+\IEEEauthorblockA{Department of Electrical and Computer Engineering\\
+University of Tehran\\
+Email: student@example.com}
+}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+This report documents the experiments for Homework 4 (Sequence Modeling) including: (1) Spoken Language Understanding (SLU) with RNN-based models on the ATIS dataset (slot filling and intent detection), and (2) recursive time-series forecasting of the S\&P 500 index using baseline MLP and recurrent/CNN-based models. We provide the preprocessing steps, model architectures, experimental setup, evaluation metrics and results. Figures used in this report are saved in the project's `codes/images` directories; ensure the notebooks have been executed to generate the referenced images before compiling this report.
+\end{abstract}
+
+\section{Introduction}
+This homework investigates two sequence modeling problems: (1) Joint intent detection and slot filling for spoken language understanding (SLU), and (2) time-series forecasting for financial data (S\&P 500). We implemented data preprocessing, several model families (RNN/bi-RNN, BiLSTM joint models, encoder-decoder), and evaluation pipelines. For time-series, we implemented feature engineering (cyclical encoding), baseline MLP, and CNN+RNN variants.
+
+\section{ATIS: Dataset and Preprocessing}
+\subsection{Dataset}
+We use the ATIS corpus (siddhadev/atis-dataset-clean). The dataset was downloaded via the `kagglehub` helper and contains utterances labeled with BIO slot tags and an intent label per utterance. After preprocessing, the data is split into training/validation/test sets and saved under `data/processed`.
+
+\subsection{Tokenization and Vocabularies}
+We used whitespace tokenization. Three vocabularies are built from the training split: (i) Word vocabulary including special tokens \texttt{<PAD>} and \texttt{<UNK>}, (ii) Slot vocabulary (BIO tags), and (iii) Intent vocabulary. \texttt{<PAD>} is used for dynamic batch padding; \texttt{<UNK>} represents out-of-vocabulary words at inference time.
+
+\subsection{Collate function (Dynamic Padding)}
+A custom \texttt{collate\_fn} pads each batch to the length of the longest sequence in that batch using the padding token id (0). Batch-level padding reduces wasted computation compared to dataset-level (max-length) padding and typically results in faster training and lower memory use.
+
+\section{Models and Training (SLU)}
+\subsection{BiRNN Slot-Filling Baseline}
+Architecture: \texttt{Embedding(128)} $\rightarrow$ Bi-RNN (hidden=128, dropout 0.5) $\rightarrow$ Linear per-token classifier. Optimizer: Adam (lr=1e-3), batch size 32, epochs 10.
+
+Figure~\ref{fig:birnn_loss} shows the small demo training loss curve (saved as `codes/images/atis/birnn_train_loss_demo.png`) and Figure~\ref{fig:birnn_f1} the demo F1 curve (`codes/images/atis/birnn_test_f1_demo.png`).
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.98\columnwidth]{../codes/images/atis/birnn_train_loss_demo.png}
+  \caption{BiRNN training loss (demo).}
+  \label{fig:birnn_loss}
+\end{figure}
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.98\columnwidth]{../codes/images/atis/birnn_test_f1_demo.png}
+  \caption{BiRNN test slot F1 (demo).}
+  \label{fig:birnn_f1}
+\end{figure}
+
+\subsection{BiLSTM Joint Model (Intent + Slot)}
+Shared Bi-LSTM encoder with two heads: a pooled intent head (classification) and a per-token slot head (sequence labeling). Training minimizes the sum of intent cross-entropy and slot cross-entropy (with padding ignored). Joint learning can improve performance by sharing sentence-level features across tasks.
+
+\subsection{Encoder--Decoder (Non-aligned) Joint Model}
+An encoder LSTM (128) produces a context vector; a decoder LSTM (256) generates slot tags step-by-step and optionally predicts intent from the encoder context. We handle \texttt{<BOS>} and \texttt{<EOS>} tokens for decoding. Greedy decoding may suffer from error accumulation; beam search or structured decoders (CRF) can improve sequence labeling.
+
+\section{Evaluation: SLU}
+Slot F1 is computed with the \texttt{seqeval} package. Intent accuracy uses standard classification metrics. Use the saved classification reports and seqeval results in the `outputs/` folder (or re-run the evaluation notebook cells to reproduce tables and confusion matrices).
+
+\section{S\&P 500 Time-Series Forecasting}
+\subsection{Data & Feature Engineering}
+We downloaded daily S\&P 500 data via `yfinance` from 2000-01-01. Features include OHLC columns and date-based cyclical encodings: month and day are converted to sine/cosine pairs to preserve periodicity. Year is normalized with MinMax.
+
+Figure~\ref{fig:sp_cyclical} shows the cyclical month encoding, and Figures~\ref{fig:sp_acf}--\ref{fig:sp_acf_diff} show the ACF/PACF and differenced ACF plots (saved in `codes/images/sp500/`).
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.98\columnwidth]{../codes/images/sp500/sp500_cyclical_month.png}
+  \caption{Cyclical encoding example (month sine/cosine for the first year).}
+  \label{fig:sp_cyclical}
+\end{figure}
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.98\columnwidth]{../codes/images/sp500/sp500_acf_close.png}
+  \caption{ACF of the close price.}
+  \label{fig:sp_acf}
+\end{figure}
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.98\columnwidth]{../codes/images/sp500/sp500_acf_close_diff.png}
+  \caption{ACF of the differenced close price (first difference).}
+  \label{fig:sp_acf_diff}
+\end{figure}
+
+\subsection{Stationarity, ACF/PACF and Window Selection}
+We used ACF/PACF to guide the choice of input window size. Differencing and the Augmented Dickey--Fuller (ADF) test help determine stationarity. Depending on analysis, we use sliding windows sized to capture significant lags from PACF.
+
+\subsection{Models: Baseline MLP and Recursive Architectures}
+Baseline MLP: two hidden layers, BatchNorm, Dropout, trained with AdamW and MSE loss. CNN+LSTM and CNN+GRU models use a Conv1D feature extractor followed by a recurrent layer. For the CNN, we feed the full sequence outputs into the LSTM to allow temporal modeling across the window. The final prediction uses the last hidden state.
+
+\subsection{Evaluation: Metrics and Long-Term Forecasting}
+We report RMSE, MAE, MAPE and R2 for test period (2024--2025). For multi-step forecasting, models are iterated recursively: the predicted value is fed back as input for the next step. Error accumulation and stability are discussed in the results.
+
+\section{CLIP Demo (Appendix)}
+We include a small CLIP demo that demonstrates image-text similarity on six synthetic examples. A heatmap and a sample image table are exported by the demo notebook and placed in the project's `q1_clip/images` folder. The sample table (LaTeX) can be directly included using the provided `table-clip-samples.tex` file.
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.8\columnwidth]{../CAe/codes/q1_clip/images/clip_similarity_heatmap.png}
+  \caption{Image-Text similarity heatmap from the CLIP demo (synthetic examples).}
+  \label{fig:clip_heatmap}
+\end{figure}
+
+\input{../CAe/codes/q1_clip/images/table-clip-samples.tex}
+
+\section{Reproducibility and How to Compile the Report}
+1. Execute the notebooks or scripts to generate images: the notebooks save figures to `codes/images/atis/`, `codes/images/sp500/`, and the CLIP demo saves to `CAe/codes/q1_clip/images/`.
+2. From the `report/` directory, run: `pdflatex report.tex` (twice) and `bibtex` if necessary.
+
+\section{Conclusion}
+We implemented baseline and joint RNN models for SLU and a set of recursive/cnn models for stock prediction, along with reproducible preprocessing and evaluation pipelines. The generated figures and exported LaTeX table assets make it straightforward to assemble an IEEE-format report. Re-run the notebooks to fill numeric result placeholders and include final metric tables.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

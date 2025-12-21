@@ -395,8 +395,172 @@ Numerical results should be appended to Table~\ref{tab:slu-results} and a simila
   \label{tab:sp-results}
 \end{table}
 
+\section{Related Work and Literature Context}
+This section situates our work relative to prior research in SLU and time-series forecasting.
+
+\subsection{SLU and Joint Models}
+Spoken language understanding has a long history beginning with HMM and CRF-based pipelines. Modern neural approaches have used RNNs and attention models for joint slot filling and intent detection; early influential work includes Mesnil et al., "Using recurrent neural networks for slot filling" and later joint models like the BiLSTM-CRF architecture and attention-based joint models (Hakkani-Tur et al.). Our architectures (BiRNN, BiLSTM joint, encoder--decoder) follow this lineage: using bidirectional recurrent encoders for sequence representations and optionally adding structured layers (CRF) to improve sequence consistency.
+
+\subsection{Time-series forecasting}
+Classical ARIMA/GARCH models have been widely used as benchmarks; deep learning approaches such as CNNs, RNNs, TCNs and hybrid CNN-RNN architectures have been shown to capture nonlinear temporal patterns with superior empirical performance on many datasets (see Bai et al., 2018). Our Conv+LSTM and TCN implementations follow these trends, combining convolutional feature extraction with recurrence and dilated convolutions respectively.
+
+\section{Theoretical Background and Derivations}
+This section explains the key mathematical foundations used in our models and offers derivations where relevant.
+
+\subsection{RNNs, LSTMs and GRUs}
+A simple RNN updates its hidden state $h_t$ from input $x_t$ as:
+\begin{equation}
+  h_t = \phi(W_h x_t + U_h h_{t-1} + b_h),
+\end{equation}
+where $\phi$ is a nonlinearity (tanh or ReLU). LSTMs mitigate vanishing gradients using gating:
+\begin{align}
+  i_t &= \sigma(W_i x_t + U_i h_{t-1} + b_i) \\
+  f_t &= \sigma(W_f x_t + U_f h_{t-1} + b_f) \\
+  o_t &= \sigma(W_o x_t + U_o h_{t-1} + b_o) \\
+  \tilde{c}_t &= \tanh(W_c x_t + U_c h_{t-1} + b_c) \\
+  c_t &= f_t \odot c_{t-1} + i_t \odot \tilde{c}_t \\
+  h_t &= o_t \odot \tanh(c_t)
+\end{align}
+GRUs are a lightweight alternative that combine gates and typically perform comparably while having fewer parameters.
+
+\subsection{Cross-Entropy, Masking and Loss Aggregation}
+For sequence labeling with padding, let $m_{t}^{(n)}$ denote the mask for batch sample $n$ at time $t$ (1 if valid, 0 if PAD). The masked cross-entropy loss:
+\begin{equation}
+  L = -\frac{1}{\sum_{n,t} m_{t}^{(n)}}\sum_{n,t} m_{t}^{(n)} \log p_{t,y_t}^{(n)}
+\end{equation}
+This normalization ensures comparable loss values across batches of different average length.
+
+\subsection{Conditional Random Fields (CRF) for sequence labeling}
+CRF models the conditional probability of a label sequence $y_{1:T}$ given inputs $x_{1:T}$ as:
+\begin{equation}
+  P(y|x) = \frac{\exp\left(\sum_{t} s_{t}(y_t) + \sum_{t} T_{y_{t-1},y_t}\right)}{\sum_{y'} \exp(\sum_{t}s_{t}(y'_t) + \sum_{t} T_{y'_{t-1},y'_t}))}
+\end{equation}
+where $s_t(y_t)$ are per-token scores (from BiLSTM) and $T$ are learned transition scores. Decoding uses the Viterbi algorithm. Integrating CRF addresses BIO coherence and improves entity-level F1.
+
+\section{Algorithms and Pseudocode}
+We include pseudocode for key algorithms used in training and decoding.
+
+\subsection{Teacher Forcing with Scheduled Sampling}
+\begin{verbatim}
+for epoch in 1..E:
+    p_tf = schedule(epoch)
+    for each batch:
+        enc = encoder(inputs)
+        dec_input = BOS
+        for t in 1..T:
+            logits, hidden = decoder(dec_input, hidden)
+            if rand() < p_tf:
+                dec_input = gold[t]
+            else:
+                dec_input = argmax(logits)
+            compute loss with logits vs gold[t]
+        backprop and step
+\end{verbatim}
+
+\subsection{Greedy Decoding vs Beam Search (decoder)}
+Greedy decoding chooses the highest-probability token at each step; beam search maintains the top-$k$ partial hypotheses and expands them, pruning less likely sequences. Beam search pseudocode (simplified):
+\begin{verbatim}
+beams = [(BOS, 0.0)]
+for t in 1..max_len:
+    candidates = []
+    for seq, score in beams:
+        logits = model(seq)
+        topk = select_topk(logits, k)
+        for token, prob in topk:
+            candidates.append((seq + [token], score - log(prob)))
+    beams = select_topk(candidates, k)
+return best_sequence from beams
+\end{verbatim}
+
+\section{Experimental Design and Hyperparameters}
+We designed experiments to be reproducible and comparable across models. All runs use a fixed random seed (42) and deterministic dropout where possible. Hardware, date/time, git commit hash and the exact command line used are saved alongside outputs.
+
+\subsection{Hyperparameter grids (examples)}
+\begin{table}[!t]
+  \centering
+  \caption{Example hyperparameter grid for SLU models}
+  \begin{tabular}{lcc}
+  \toprule
+  Hyperparam & Values & Notes \\
+  \midrule
+  Embedding dim & 64, 128 & default 128 \\
+  Hidden dim & 64, 128, 256 & BiLSTM hidden per-direction \\
+  Dropout & 0.3, 0.5 & between RNN and heads \\
+  LR & 1e-3, 5e-4 & Adam \\
+  Batch size & 16, 32 & GPU permitting \\
+  Epochs & 10, 24 & use patience 5 early stop \\
+  \bottomrule
+  \end{tabular}
+  \label{tab:hp-grid}
+\end{table}
+
+For S\&P experiments tune window lengths (30, 60, 90), CNN filters (32,64,128), LSTM hidden (64,128), and learning rates (1e-3,1e-4). Use validation loss/metrics to choose best checkpoints.
+
+\section{Ablation Study Plan and Statistical Testing}
+We will run ablations to measure the effect of: (i) bidirectionality, (ii) CRF vs softmax slot head, (iii) attention pooling for intent, (iv) scheduled sampling vs full teacher forcing. For each comparison we will run $k$ seeds (e.g., 3--5) and report mean and standard deviation. Use paired t-tests or bootstrap confidence intervals to assess statistical significance of differences in F1 or RMSE (p < 0.05 threshold).
+
+\section{Error Analysis and Model Explainability}
+Error analysis includes per-entity confusion tables, visualization of attention weights (for attention-based pooling), and inspection of failure cases (utterances with low confidence). For time-series, analyze residual autocorrelation, distribution of errors across market regimes (bull/bear) and sensitivity to input window length.
+
+\section{Limitations and Future Work}
+Limitations of the current work include:
+\begin{itemize}
+  \item Limited exploration of pretrained Transformer encoders for SLU (likely to improve intent accuracy and slot generalization).\
+  \item No CRF in the default pipeline (we provide code hooks but full integration and hyperparameter tuning remain to be done).\
+  \item Computational limits may prevent full hyperparameter sweeps; recommend leveraging GPU clusters for full runs.\
+\end{itemize}
+Future directions: integrate pretrained contextual embeddings (BERT/DistilBERT), CRF and structured inference, uncertainty quantification for time-series forecasts, and exploring probabilistic forecasting methods.
+
+\section{Ethical Considerations}
+When working with financial forecasting, note the potential for models to be used in automated trading systems; users should be aware of overfitting to historical regimes and the non-stationary nature of markets. For SLU, consider privacy of user utterances: do not train on or expose sensitive personal data; use anonymized/public datasets and follow institutional policies on data usage.
+
+\section{Appendices}
+\subsection{Appendix A — Commands to reproduce main experiments}
+Below are example commands to reproduce experiments remotely:
+\begin{verbatim}
+# Preprocess
+python -m src.data.preprocess --input data/raw --out data/processed
+
+# Train BiRNN slot filler
+python scripts/train_birnn.py --data_dir data/processed --out_dir outputs/birnn --epochs 10 --batch_size 32
+
+# Train BiLSTM joint
+python scripts/train_bilstm_joint.py --data_dir data/processed --out_dir outputs/bilstm --epochs 24
+
+# Train Encoder-Decoder (demo)
+python scripts/train_encoder_decoder.py --data_dir data/processed --out_dir outputs/encdec --epochs 24
+
+# S&P MLP baseline (requires prepared X/y numpy arrays)
+python scripts/sp_train_mlp.py --x_train data/sp/X_train.npy --y_train data/sp/y_train.npy --x_val data/sp/X_val.npy --y_val data/sp/y_val.npy
+\end{verbatim}
+
+\subsection{Appendix B — Hyperparameter tables and config example}
+A YAML configuration example used for experiments:
+\begin{verbatim}
+model:
+  name: bilstm_joint
+  embed_dim: 128
+  hidden_dim: 128
+  dropout: 0.5
+training:
+  batch_size: 32
+  epochs: 24
+  lr: 1e-3
+  seed: 42
+\end{verbatim}
+
+\subsection{Appendix C — File manifest and responsibilities}
+\begin{itemize}
+  \item `src/data/preprocess.py`: data loaders, vocabs, collate fn.\
+  \item `src/models/baseline.py`: BiRNN and BiLSTM joint implementations.\
+  \item `src/models/encoder_decoder.py`: encoder-decoder joint model.\
+  \item `src/models/sp_models.py`: S&P model implementations (MLP, Conv+RNN, TCN).\
+  \item `scripts/*.py`: training and evaluation scripts for each model.\
+  \item `notebooks/`: reproducing analyses, plotting, and figure generation for the report.\
+\end{itemize}
+
 \section{Conclusion}
-This report provides a full, reproducible pipeline for the assigned tasks. It includes explicit answers to the questions in the assignment (data processing, tokenization, special tokens, collate functions, model descriptions, training recipes, evaluation metrics and interpretations). To finalize the report, run the provided scripts (preferably on GPU), collect the numeric results, paste them into the tables above, and compile the PDF. Any additional analysis (e.g., adding CRF to the slot head, running beam search for the decoder, or hyperparameter sweeps) can be added under the experiments section.
+We extended the report with extensive theoretical background, reproducible experiment plans, algorithmic pseudocode, ablation and statistical significance plans, limitations, ethical considerations, and appendices containing commands, configs and file manifests. The next step is to run the full experiments on the chosen hardware, populate the numeric tables, insert generated figures, and compile the final PDF. Please confirm whether to proceed with the Full run now (on CPU, MPS, or GPU/CUDA) and I will begin executing the experiment pipeline and update the report with results as they come.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

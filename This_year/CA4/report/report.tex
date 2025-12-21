@@ -235,25 +235,104 @@ We provide training scripts under `scripts/` and Jupyter cells in the notebook f
   \label{tab:slu-results}
 \end{table}
 
-\section{Question 2: Stock Price Prediction using Recursive Architectures}
-\subsection{2.1 Data Preprocessing (20 points)}
-\textbf{Feature engineering:} We download ^GSPC via `yfinance`. Key features: Open, High, Low, Close. We add date-derived features (year, month, day) and cyclical encodings:
-\begin{equation}
-  x_{month\\_sin} = \sin\left(2\pi \cdot \frac{month}{12}\right), \quad x_{month\_cos} = \cos\left(2\pi \cdot \frac{month}{12}\right)
-\end{equation}
-Cyclical encoding is necessary to preserve proximity (e.g., December (12) and January (1) are close) which is lost if raw month indices are used.
+\section{Question 2: Stock Price Prediction using Recursive Architectures (Complete Answers)}
+\subsection{2.1 Data Preprocessing (20 points) — detailed answers}
+\subsubsection{Data retrieval and verification}
+We download the S\&P 500 (^GSPC) daily history using `yfinance` starting from `2000-01-01`. After download, basic sanity checks include:
+\begin{itemize}
+  \item Verify no large contiguous gaps in trading days (holidays are expected);\
+  \item Confirm columns `Open`, `High`, `Low`, `Close`, `Volume` exist and have finite values;\
+  \item Remove or impute any NA rows (we prefer to drop NA rows for daily data unless contiguous gaps require forward-fill).
+\end{itemize}
+Example code:
+\begin{verbatim}
+import yfinance as yf
+df = yf.download('^GSPC', start='2000-01-01')
+df = df[['Open','High','Low','Close']].dropna()
+\end{verbatim}
 
-We scale Year using MinMax and apply Z-score normalization for numeric features used in models (fit on Train, applied to Val and Test).
+\subsubsection{Feature engineering: cyclical encoding and scaling}
+We create the following derived features:
+\begin{itemize}
+  \item `year` (MinMax scaled), `month`, `day` — month/day are encoded cyclically: 
+    $$month_{sin}=\sin(2\pi month/12),\quad month_{cos}=\cos(2\pi month/12)$$
+    $$day_{sin}=\sin(2\pi day/31),\quad day_{cos}=\cos(2\pi day/31)$$
+  \item Price-based features: returns (log or simple), moving averages (7,21,50 day), volatility estimates (rolling std). These features improve model signal and help with stationarity.
+\end{itemize}
+Why cyclical encoding? Because months wrap around (December and January are adjacent) and one-hot or integer encoding would not reflect circular proximity; sine/cosine preserves angular similarity.
 
-\textbf{Stationarity, ACF/PACF and differencing:} We compute ACF and PACF for Close to estimate temporal dependencies. If the ACF decays slowly and the ADF test indicates non-stationarity (p-value higher than threshold), we apply first differencing:
-\begin{equation}
-  y_t' = y_t - y_{t-1}.
-\end{equation}
-Differencing generally removes trends and slows the decay of the ACF, which helps make the series more suitable for models that assume stationarity. We include plots `sp500_acf_close.png` and `sp500_acf_close_diff.png` in the report.
+\subsubsection{Stationarity, ACF/PACF and differencing (technical)}
+\textbf{Stationarity:} A process is (weakly) stationary if its mean and autocovariance are time-invariant. Many financial price series are non-stationary (trend). Differencing transforms can make them stationary (e.g., first differences or log returns).
 
-\textbf{Ergodicity:} Ergodicity refers to equivalence between time averages and ensemble averages. Financial price processes are usually not strictly ergodic due to regime shifts and non-stationarity; in practice we assume local stationarity over short windows for modeling and forecasting.
+\textbf{ACF/PACF interpretation:}
+\begin{itemize}
+  \item ACF slow decay \rightarrow non-stationarity or strong trend/seasonality.\
+  \item PACF significant spikes at small lags indicate AR(p) structure and help choose input window size: if PACF shows significance up to lag $k$, choose window \(\approx k + margin\).\
+\end{itemize}
+Use `statsmodels.graphics.tsaplots.plot_acf` and `plot_pacf` for visualization. After first differencing, re-check ACF/PACF and run the Augmented Dickey-Fuller (ADF) test:
+\begin{verbatim}
+from statsmodels.tsa.stattools import adfuller
+adf_stat, pvalue, *_ = adfuller(series)
+if pvalue < 0.05: print('reject unit root -> stationary')
+\end{verbatim}
 
-\textbf{Windowing and splitting:} Using ACF/PACF results we choose an input window length (e.g., 30--90 days depending on decay) and a one-step or multi-step forecast horizon. We split chronologically: Train 70\%, Val 20\%, Test 10\% and ensure the test set covers 2024--2025. No shuffling is used to avoid information leakage. Normalization: fit Z-score scaler on Train and apply to Val/Test.
+\subsubsection{Differencing and transformations}
+First-differencing $\Delta y_t = y_t - y_{t-1}$ removes linear trends. Log returns $r_t = \log(y_t) - \log(y_{t-1})$ stabilize variance. Use whichever better satisfies stationarity (ADF test), but remember forecasts on raw prices require inverse transforms.
+
+\subsubsection{Ergodicity and financial time series}
+Ergodicity implies time averages equal ensemble averages. Financial markets often exhibit non-ergodic behavior across long horizons due to structural breaks, regime changes, and non-stationarity. For modeling, we assume local ergodicity/stationarity over windows (e.g., sliding windows of a few years) but remain cautious when extrapolating long-term.
+
+\subsubsection{Windowing, splitting and normalization — explicit recipe}
+\begin{enumerate}
+  \item Decide forecast horizon (one-step ahead or multi-step). For one-step-ahead daily forecasting, typical windows are 30--90 days based on PACF.\
+  \item Create supervised windows: input $X_t = [y_{t-w+1},\dots,y_t, \text{features}]$, target $y_{t+1}$ (or multi-step vector).\
+  \item Split by time (chronologically) to avoid leakage: allocate earliest 70\% to Train, next 20\% to Val, final 10\% to Test and enforce that Test covers 2024--2025 per assignment.\
+  \item Fit StandardScaler (Z-score) on train features and targets; transform Val and Test; save the scaler to invert predictions for metric computation.
+\end{enumerate}
+
+\subsection{2.2 Baseline Model (10 points) — MLP: architecture, training and evaluation}
+\subsubsection{Architecture}
+MLP with two hidden layers and BatchNorm & Dropout between them. Let input dimension be $D$ (window length $\times$ features). The network:
+\[ h^1 = \text{ReLU}(\text{BN}(W^1 x + b^1)),\quad h^2 = \text{ReLU}(\text{BN}(W^2 h^1 + b^2)),\quad \hat{y}=W^3 h^2 + b^3.\]
+Loss: MSE. Optimizer: AdamW with weight decay. Early stopping by validation loss.
+
+\subsubsection{Evaluation metrics}
+Compute RMSE, MAE, MAPE and R2 on the test set in the original scale (apply inverse scaler to predictions). Carefully handle near-zero denominators in MAPE (filter or use alternative robust metrics if necessary).
+
+\subsection{2.3 Recursive architectures (50 points): CNN+LSTM and CNN+GRU}
+\subsubsection{Why Conv1D + RNN?}
+Conv1D acts as a local pattern extractor that captures short-term motifs and reduces noise (learned filters). The LSTM/GRU models sequential dependencies over the window outputs from the CNN. This combination often improves generalization and speeds convergence.
+
+\subsubsection{Design choices}
+\begin{itemize}
+  \item \textbf{Full sequence to LSTM vs last CNN output:} feed the entire CNN output sequence to the recurrent layer; preserving temporal structure allows the LSTM/GRU to model temporal dependencies at multiple scales.\
+  \item \textbf{Final representation:} use the last hidden state as the sequence summary for point forecasting; alternatively use attention pooling if you want to weight contributions from different timesteps.
+\end{itemize}
+
+\subsubsection{Practical hyperparameters and training goals}
+Tune kernel size (3--7), CNN filters (32--128), LSTM/GRU hidden (64--256). The assignment requires validation loss < 0.02 for these recursive models; if not reached, try deeper CNN, larger hidden, or longer windows, but beware overfitting.
+
+\subsection{2.4 GRU vs LSTM — short comparison}
+GRU has fewer parameters and usually trains faster, while LSTM may model longer-range dependencies slightly better in some cases. Use GRU when compute or memory are constrained and LSTM when higher capacity is needed.
+
+\subsection{2.5 CNN-only (TCN-like) lightweight model}
+A TCN uses dilated convolutions to increase receptive field without many parameters. Receptive field for a stack of dilated convs with kernel size $k$ and dilations $d_i$ is:
+$$RF = 1 + (k-1)\sum_{i=0}^{B-1} d_i$$
+Choose dilation schedule (powers of two) so that $RF \ge w$ (window length). TCNs allow parallel computation and can achieve competitive accuracy with fewer parameters.
+
+\subsection{2.6 Multi-step forecasting strategies and stability}
+Recursive (iterative) forecasting feeds predictions back as inputs — simple and flexible but prone to error accumulation. Alternative: direct multi-output models which predict multiple steps at once, or multi-horizon models. Scheduled sampling and denoising strategies during training can reduce error propagation. For 1--2 year horizons, ensemble and model-averaging often stabilize long-term forecasts.
+
+\subsection{2.7 Model comparison, computational reporting and FLOPs}
+Report for each model:
+\begin{itemize}
+  \item test metrics (RMSE, MAE, MAPE, R2),\
+  \item parameter count (sum of weight/bias tensor sizes),\
+  \item approximate FLOPs: estimate multiply-adds per forward pass (sum over layers),\
+  \item training times per epoch and total, and hardware used (CPU/MPS/CUDA GPU) so experiments are reproducible.
+\end{itemize}
+
+% End of Q2 replacement
 
 \subsection{2.2 Baseline MLP (10 points)}
 \textbf{Architecture:} MLP with 2 hidden layers, each with BatchNorm and Dropout, ReLU activations. Optimizer: AdamW with weight decay. Loss: MSE. Save the model with lowest validation loss (early stopping by patience).

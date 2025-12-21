@@ -60,5 +60,63 @@ class DecoderLSTM(nn.Module):
         return out, (h, c), alpha
 
     def forward(self, captions, encoder_out):
-        # full forward used in training loops (teacher forcing)
-        pass
+        """Teacher-forcing forward pass.
+
+        captions: (batch, max_len) LongTensor with <start> and <end> tokens
+        encoder_out: (batch, encoder_dim)
+        returns: logits (batch, max_len-1, vocab_size) and attention weights list
+        """
+        device = captions.device
+        batch_size = captions.size(0)
+        max_len = captions.size(1)
+        vocab_size = self.fc.out_features
+
+        # initialize hidden states (simple zeros) — could use encoder projection
+        h = torch.zeros(batch_size, self.lstm.hidden_size, device=device)
+        c = torch.zeros(batch_size, self.lstm.hidden_size, device=device)
+
+        inputs = captions[:, :-1]  # input tokens (excluding last token)
+        targets = captions[:, 1:]
+
+        logits = []
+        alphas = []
+        for t in range(inputs.size(1)):
+            word = inputs[:, t]
+            out, (h, c), alpha = self.forward_step(word, encoder_out, (h, c))
+            logits.append(out.unsqueeze(1))
+            alphas.append(alpha.unsqueeze(1))
+        logits = torch.cat(logits, dim=1)  # (batch, seq_len, vocab)
+        alphas = torch.cat(alphas, dim=1)
+        return logits, alphas
+
+    def greedy_decode(self, encoder_out, start_token, end_token, max_len=30):
+        """Greedy decode a sequence given encoder outputs."""
+        device = encoder_out.device
+        batch_size = encoder_out.size(0)
+        h = torch.zeros(batch_size, self.lstm.hidden_size, device=device)
+        c = torch.zeros(batch_size, self.lstm.hidden_size, device=device)
+
+        seqs = torch.full((batch_size, max_len), fill_value=0, dtype=torch.long, device=device)
+        seqs[:,0] = start_token
+        finished = torch.zeros(batch_size, dtype=torch.bool, device=device)
+
+        outputs = []
+        for t in range(1, max_len):
+            prev = seqs[:, t-1]
+            out, (h, c), _ = self.forward_step(prev, encoder_out, (h, c))
+            probs = torch.softmax(out, dim=1)
+            next_tok = torch.argmax(probs, dim=1)
+            seqs[:, t] = next_tok
+            outputs.append(next_tok.unsqueeze(1))
+            finished = finished | (next_tok == end_token)
+            if finished.all():
+                break
+        # return sequences up to first end token per example as list
+        result = []
+        for i in range(batch_size):
+            toks = seqs[i].tolist()
+            # truncate at first end token
+            if end_token in toks:
+                toks = toks[:toks.index(end_token)+1]
+            result.append(toks)
+        return result

@@ -1,0 +1,64 @@
+"""
+Encoder/Decoder skeletons with Attention for Image Captioning
+"""
+import torch
+import torch.nn as nn
+import torchvision.models as models
+
+class EncoderCNN(nn.Module):
+    def __init__(self, encoded_dim=512, freeze_backbone=True):
+        super().__init__()
+        vgg = models.vgg16(pretrained=True)
+        modules = list(vgg.features.children())
+        self.feature_extractor = nn.Sequential(*modules)
+        if freeze_backbone:
+            for p in self.feature_extractor.parameters():
+                p.requires_grad = False
+        self.pool = nn.AdaptiveAvgPool2d((7,7))
+        self.project = nn.Linear(512*7*7, encoded_dim)
+
+    def forward(self, x):
+        feat = self.feature_extractor(x)
+        feat = self.pool(feat)
+        feat = feat.view(feat.size(0), -1)
+        out = self.project(feat)
+        return out
+
+class Attention(nn.Module):
+    def __init__(self, encoder_dim, decoder_dim, attention_dim):
+        super().__init__()
+        self.enc_att = nn.Linear(encoder_dim, attention_dim)
+        self.dec_att = nn.Linear(decoder_dim, attention_dim)
+        self.full_att = nn.Linear(attention_dim, 1)
+        self.relu = nn.ReLU()
+        self.softmax = nn.Softmax(dim=1)
+
+    def forward(self, encoder_out, decoder_hidden):
+        # encoder_out: (batch, enc_dim), decoder_hidden: (batch, dec_dim)
+        att1 = self.enc_att(encoder_out)
+        att2 = self.dec_att(decoder_hidden)
+        att = self.full_att(self.relu(att1 + att2))
+        alpha = self.softmax(att)
+        att_embedding = encoder_out * alpha
+        return att_embedding, alpha
+
+class DecoderLSTM(nn.Module):
+    def __init__(self, vocab_size, embed_dim=300, decoder_dim=512, encoder_dim=512):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
+        self.attention = Attention(encoder_dim, decoder_dim, attention_dim=256)
+        self.lstm = nn.LSTMCell(embed_dim + encoder_dim, decoder_dim)
+        self.fc = nn.Linear(decoder_dim, vocab_size)
+
+    def forward_step(self, word, encoder_out, states):
+        embedded = self.embedding(word)
+        dec_hidden, dec_cell = states
+        att_embed, alpha = self.attention(encoder_out, dec_hidden)
+        lstm_input = torch.cat([embedded, att_embed], dim=1)
+        h, c = self.lstm(lstm_input, (dec_hidden, dec_cell))
+        out = self.fc(h)
+        return out, (h, c), alpha
+
+    def forward(self, captions, encoder_out):
+        # full forward used in training loops (teacher forcing)
+        pass

@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.env
+venv/
+.env*
+.ipynb_checkpoints/
+
+# Checkpoints and models
+checkpoints/
+*.ckpt
+*.pt
+*.pth
+
+# Data
+data/
+
+# Logs
+wandb/
+logs/
+
+# Mac
+.DS_Store

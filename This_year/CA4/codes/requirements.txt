@@ -5,9 +5,13 @@ scikit-learn
 seqeval
 tqdm
 kaggle
+kagglehub
 sentencepiece
 transformers
 PyYAML
 matplotlib
+seaborn
 tensorboard
 pytest
+yfinance
+statsmodels

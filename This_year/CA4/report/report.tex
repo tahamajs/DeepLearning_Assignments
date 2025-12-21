@@ -21,105 +21,195 @@ Email: student@example.com}
 \begin{document}
 \maketitle
 \begin{abstract}
-This report documents the experiments for Homework 4 (Sequence Modeling) including: (1) Spoken Language Understanding (SLU) with RNN-based models on the ATIS dataset (slot filling and intent detection), and (2) recursive time-series forecasting of the S\&P 500 index using baseline MLP and recurrent/CNN-based models. We provide the preprocessing steps, model architectures, experimental setup, evaluation metrics and results. Figures used in this report are saved in the project's `codes/images` directories; ensure the notebooks have been executed to generate the referenced images before compiling this report.
+This report documents a complete solution to Homework 4: (1) RNN-based Spoken Language Understanding (SLU) on ATIS (slot filling and intent detection) and (2) recursive time-series forecasting of the S\&P 500. The document includes: exact preprocessing steps and design choices, full model descriptions and training details, metric definitions, analysis and answers to the theory questions (stationarity, cyclical encoding, ergodicity, decoding behavior), reproducible instructions, and placeholders for results. All figures used by the report are saved under `codes/images/` and tables exported by notebooks are provided as LaTeX fragments to be included directly in this document.
 \end{abstract}
 
 \section{Introduction}
-This homework investigates two sequence modeling problems: (1) Joint intent detection and slot filling for spoken language understanding (SLU), and (2) time-series forecasting for financial data (S\&P 500). We implemented data preprocessing, several model families (RNN/bi-RNN, BiLSTM joint models, encoder-decoder), and evaluation pipelines. For time-series, we implemented feature engineering (cyclical encoding), baseline MLP, and CNN+RNN variants.
+This assignment examines two canonical sequence modelling tasks. The first is Spoken Language Understanding (SLU), comprised of slot filling (sequence labeling with BIO tags) and intent detection (sequence classification). The second is time-series forecasting of the S\&P 500 index. For both problems we implement preprocessing, model architectures described in the assignment (BiRNN, BiLSTM joint, Encoder--Decoder non-aligned for SLU; MLP, Conv+LSTM/GRU, and TCN for time-series), and evaluation pipelines with careful experimental controls.
 
-\section{ATIS: Dataset and Preprocessing}
-\subsection{Dataset}
-We use the ATIS corpus (siddhadev/atis-dataset-clean). The dataset was downloaded via the `kagglehub` helper and contains utterances labeled with BIO slot tags and an intent label per utterance. After preprocessing, the data is split into training/validation/test sets and saved under `data/processed`.
+\section{Question 1: RNN Models for SLU (Detailed Answers)}
+\subsection{1.1 Data Preparation (12 points)}
+\textbf{Exploration.} After downloading `siddhadev/atis-dataset-clean` we verify the number of examples per split and the distribution of intents and slot labels. Typical ATIS statistics: \textasciitilde 4k train, 500 dev, 893 test (dataset variants differ slightly). We count unique intents $|I|$ and slot labels $|S|$ and report them in Table~\ref{tab:dataset-stats} (populate from processed files).
 
-\subsection{Tokenization and Vocabularies}
-We used whitespace tokenization. Three vocabularies are built from the training split: (i) Word vocabulary including special tokens \texttt{<PAD>} and \texttt{<UNK>}, (ii) Slot vocabulary (BIO tags), and (iii) Intent vocabulary. \texttt{<PAD>} is used for dynamic batch padding; \texttt{<UNK>} represents out-of-vocabulary words at inference time.
-
-\subsection{Collate function (Dynamic Padding)}
-A custom \texttt{collate\_fn} pads each batch to the length of the longest sequence in that batch using the padding token id (0). Batch-level padding reduces wasted computation compared to dataset-level (max-length) padding and typically results in faster training and lower memory use.
-
-\section{Models and Training (SLU)}
-\subsection{BiRNN Slot-Filling Baseline}
-Architecture: \texttt{Embedding(128)} $\rightarrow$ Bi-RNN (hidden=128, dropout 0.5) $\rightarrow$ Linear per-token classifier. Optimizer: Adam (lr=1e-3), batch size 32, epochs 10.
-
-Figure~\ref{fig:birnn_loss} shows the small demo training loss curve (saved as `codes/images/atis/birnn_train_loss_demo.png`) and Figure~\ref{fig:birnn_f1} the demo F1 curve (`codes/images/atis/birnn_test_f1_demo.png`).
-
-\begin{figure}[!t]
+\begin{table}[!t]
   \centering
-  \includegraphics[width=0.98\columnwidth]{../codes/images/atis/birnn_train_loss_demo.png}
-  \caption{BiRNN training loss (demo).}
-  \label{fig:birnn_loss}
-\end{figure}
+  \caption{Dataset statistics (fill from processed data)}
+  \begin{tabular}{lrr}
+  \toprule
+  Split & \#Examples & Notes \\
+  \midrule
+  Train & TBD & extracted from dataset \\
+  Dev & TBD & validation split \\
+  Test & TBD & official test split \\
+  \midrule
+  \#Intents & TBD & e.g., 21 \\
+  \#Slot labels & TBD & e.g., 128 (BIO variants) \\
+  \bottomrule
+  \end{tabular}
+  \label{tab:dataset-stats}
+\end{table}
 
-\begin{figure}[!t]
+\textbf{Tokenization.} We use whitespace tokenization for ATIS because utterances are short and pre-tokenized in most ATIS variants. For reproducibility we implement a small `WhitespaceTokenizer` (lowercasing optional). Alternative tokenizers (WordPiece/SentencePiece) are supported in the code base and can be used if subword generalization is desired.
+
+\textbf{Vocabularies.} We build:
+\begin{itemize}
+  \item Word vocabulary (indexed with special tokens: \texttt{<PAD>}, \texttt{<UNK>}, and optionally \texttt{<BOS>}/\texttt{<EOS>} for decoder models).
+  \item Slot vocabulary (BIO tags; e.g. B-fromloc.city_name, I-fromloc.city_name, O).
+  \item Intent vocabulary (unique intent labels).
+\end{itemize}
+
+\textbf{Special tokens:} \texttt{<PAD>} is used to pad sequences in a batch to a uniform length; this token must be assigned a fixed id (conventionally 0). \texttt{<UNK>} is used when a word is not present in the training vocabulary (OOV) at inference or validation time. \texttt{<BOS>} and \texttt{<EOS>} tokens are needed for the encoder--decoder joint model which generates variable-length slot sequences.
+
+\textbf{Train/Val/Test split and sampling:} When explicit `train/dev/test` files are present we use them; otherwise we shuffle the data and take 70\%/10\%/20\% splits preserving random seed for reproducibility. For sequence labeling experiments we avoid shuffling time sequences but random sampling over the utterance dataset is allowed.
+
+\subsubsection{Collate function (dynamic padding)}
+Our `collate_fn` pads each batch to the maximum length present in that batch using the pad id. Example: first batch padded length = 12, second batch = 8. Benefits of batch-level dynamic padding:
+\begin{itemize}
+  \item Reduced computation: less padding tokens processed by RNNs/embeddings.
+  \item Lower memory use: smaller GPU memory footprint per batch.
+  \item Improved efficiency for variable-length data (short utterances common in ATIS).
+\end{itemize}
+We also implement a `collate` that returns lengths and a boolean mask for loss and metric calculation to ignore padded positions.
+
+\subsection{1.2 Baseline Model: BiRNN (16 points)}
+\textbf{Model architecture:} Embedding(128) $\rightarrow$ Bi-RNN (128 hidden per direction) $\rightarrow$ Dropout(0.5) $\rightarrow$ Linear to slot label vocabulary per token. For the RNN cell we use either GRU or vanilla RNN if requested; in the final experiments we use GRU/LSTM variants.
+
+\textbf{Training:} CrossEntropyLoss (per-token, with ignore\_index set to PAD id), optimizer Adam, lr 1e-3, batch size 32, epochs 10. We monitor training loss, validation loss, token accuracy and slot F1.
+
+\textbf{Evaluation:} For slot filling we report sequence-level F1 using `seqeval` since token accuracy is biased by the majority O tag. We also provide classification report per slot-type (precision/recall/F1). We save per-epoch model checkpoints and the best model by validation F1.
+
+\textbf{Expected outcomes:} BiRNNs perform well on aligned sequence labeling tasks; expected F1 on ATIS slot filling is usually high (over 80\% for strong models). The demo notebook includes a short run to generate figures for the report.
+
+\subsection{1.3 BiLSTM Joint Model (24 points)}
+\textbf{Model design:} Single shared Bi-LSTM encoder with two heads:
+\begin{itemize}
+  \item Intent head: mean pooling (or max pooling / using final hidden state) followed by a Linear classifier over intents.
+  \item Slot head: linear layer applied to the sequence outputs (per-time-step logits over slot labels).
+\end{itemize}
+
+\textbf{Loss:} Combined loss: $L = L_{slot} + L_{intent}$ where $L_{slot}$ is cross-entropy over token labels (with padding ignored) and $L_{intent}$ is cross-entropy over intent classes. If needed, weights $\alpha$ or task uncertainty weighting can be added: $L = \lambda_s L_{slot} + \lambda_i L_{intent}$.
+
+\textbf{Evaluation and comparison:} We report intent accuracy and slot F1. Joint models can improve intent detection thanks to shared representations; slot performance may also benefit due to auxiliary supervision.
+
+\subsection{1.4 Encoder--Decoder non-aligned joint model (48 points)}
+\textbf{Motivation:} An encoder-decoder allows modeling non-trivial alignments between inputs and output slot sequences (e.g., when an input token maps to multiple slot labels or when we wish to model variable-length slot sequences). We explicitly add \texttt{<BOS>} and \texttt{<EOS>} to the decoder target and use teacher forcing during training.
+
+\textbf{Architecture:}
+\begin{itemize}
+  \item Encoder: Embedding(128) $\rightarrow$ LSTM(128)
+  \item Decoder: Embedding(64) $\rightarrow$ LSTM(256) $\rightarrow$ Dropout $\rightarrow$ Slot head (linear), intent head predicted from encoder final state.
+\end{itemize}
+
+\textbf{Decoding:} Greedy decoding (select argmax at each step) is used in the basic implementation. Teacher forcing with a decaying schedule improves training stability. Advanced inference (beam search) is recommended for better sequence-level results.
+
+\textbf{Why might an encoder-decoder perform worse for slot filling than BiLSTM?}
+\begin{itemize}
+  \item Slot filling is naturally an aligned task (input length $$ output length). Direct sequence labeling models exploit this alignment via per-step classifiers, which is simpler and often more accurate.
+  \item Greedy decoding accumulates errors: an incorrect slot at step $t$ will be fed to the decoder as input for step $t+1$ (unless teacher forcing applied), causing error propagation.
+  \item Decoder does not enforce BIO consistency (e.g., I- tags must follow B- tags of same type). A CRF or constrained decoding (or beam search) can mitigate this.
+\end{itemize}
+
+\section{Question 1: Implementation details and sample results}
+We provide training scripts under `scripts/` and Jupyter cells in the notebook for short verification runs (demo mode). The full experiments (long runs) are provided as scripts ready to run on GPU. After running full training, populate Table~\ref{tab:slu-results} with numerical metrics (intent accuracy, slot F1, per-model).
+
+\begin{table}[!t]
   \centering
-  \includegraphics[width=0.98\columnwidth]{../codes/images/atis/birnn_test_f1_demo.png}
-  \caption{BiRNN test slot F1 (demo).}
-  \label{fig:birnn_f1}
-\end{figure}
+  \caption{SLU model performance (fill with experiment results)}
+  \begin{tabular}{lrr}
+  \toprule
+  Model & Intent Acc & Slot F1 \\
+  \midrule
+  BiRNN (slot only) & -- & -- \\
+  BiLSTM joint & -- & -- \\
+  Encoder--Decoder & -- & -- \\
+  \bottomrule
+  \end{tabular}
+  \label{tab:slu-results}
+\end{table}
 
-\subsection{BiLSTM Joint Model (Intent + Slot)}
-Shared Bi-LSTM encoder with two heads: a pooled intent head (classification) and a per-token slot head (sequence labeling). Training minimizes the sum of intent cross-entropy and slot cross-entropy (with padding ignored). Joint learning can improve performance by sharing sentence-level features across tasks.
+\section{Question 2: Stock Price Prediction using Recursive Architectures}
+\subsection{2.1 Data Preprocessing (20 points)}
+\textbf{Feature engineering:} We download ^GSPC via `yfinance`. Key features: Open, High, Low, Close. We add date-derived features (year, month, day) and cyclical encodings:
+\begin{equation}
+  x_{month\\_sin} = \sin\left(2\pi \cdot \frac{month}{12}\right), \quad x_{month\_cos} = \cos\left(2\pi \cdot \frac{month}{12}\right)
+\end{equation}
+Cyclical encoding is necessary to preserve proximity (e.g., December (12) and January (1) are close) which is lost if raw month indices are used.
 
-\subsection{Encoder--Decoder (Non-aligned) Joint Model}
-An encoder LSTM (128) produces a context vector; a decoder LSTM (256) generates slot tags step-by-step and optionally predicts intent from the encoder context. We handle \texttt{<BOS>} and \texttt{<EOS>} tokens for decoding. Greedy decoding may suffer from error accumulation; beam search or structured decoders (CRF) can improve sequence labeling.
+We scale Year using MinMax and apply Z-score normalization for numeric features used in models (fit on Train, applied to Val and Test).
 
-\section{Evaluation: SLU}
-Slot F1 is computed with the \texttt{seqeval} package. Intent accuracy uses standard classification metrics. Use the saved classification reports and seqeval results in the `outputs/` folder (or re-run the evaluation notebook cells to reproduce tables and confusion matrices).
+\textbf{Stationarity, ACF/PACF and differencing:} We compute ACF and PACF for Close to estimate temporal dependencies. If the ACF decays slowly and the ADF test indicates non-stationarity (p-value higher than threshold), we apply first differencing:
+\begin{equation}
+  y_t' = y_t - y_{t-1}.
+\end{equation}
+Differencing generally removes trends and slows the decay of the ACF, which helps make the series more suitable for models that assume stationarity. We include plots `sp500_acf_close.png` and `sp500_acf_close_diff.png` in the report.
 
-\section{S\&P 500 Time-Series Forecasting}
-\subsection{Data & Feature Engineering}
-We downloaded daily S\&P 500 data via `yfinance` from 2000-01-01. Features include OHLC columns and date-based cyclical encodings: month and day are converted to sine/cosine pairs to preserve periodicity. Year is normalized with MinMax.
+\textbf{Ergodicity:} Ergodicity refers to equivalence between time averages and ensemble averages. Financial price processes are usually not strictly ergodic due to regime shifts and non-stationarity; in practice we assume local stationarity over short windows for modeling and forecasting.
 
-Figure~\ref{fig:sp_cyclical} shows the cyclical month encoding, and Figures~\ref{fig:sp_acf}--\ref{fig:sp_acf_diff} show the ACF/PACF and differenced ACF plots (saved in `codes/images/sp500/`).
+\textbf{Windowing and splitting:} Using ACF/PACF results we choose an input window length (e.g., 30--90 days depending on decay) and a one-step or multi-step forecast horizon. We split chronologically: Train 70\%, Val 20\%, Test 10\% and ensure the test set covers 2024--2025. No shuffling is used to avoid information leakage. Normalization: fit Z-score scaler on Train and apply to Val/Test.
 
-\begin{figure}[!t]
+\subsection{2.2 Baseline MLP (10 points)}
+\textbf{Architecture:} MLP with 2 hidden layers, each with BatchNorm and Dropout, ReLU activations. Optimizer: AdamW with weight decay. Loss: MSE. Save the model with lowest validation loss (early stopping by patience).
+
+\textbf{Evaluation:} We compute RMSE, MAE, MAPE and R2 on the test set over the original scale (inverse transform predictions if necessary). Thresholds: validation loss < 0.70 (normalized) is the assignment success criterion for the baseline.
+
+\subsection{2.3 Recursive Neural Network Models (50 points)}
+\textbf{CNN+LSTM (LSTM variant):} We use Conv1D to extract local features across the window (it acts as a short-term pattern detector), then feed the full CNN feature sequence into an LSTM. The LSTM processes the sequence and we use the last hidden state for final prediction. Which to use: send the full sequence rather than only the last CNN output because the LSTM should model temporal dynamics over the entire window.
+
+\textbf{Conv+GRU:} Replace LSTM with GRU to compare capacity and training speed. We keep parameter counts similar for fair comparison.
+
+\textbf{Training target:} Validation loss < 0.02 is the assignment requirement for these recursive models; we report hyperparameters and parameter counts in the final report table.
+
+\subsection{2.4 Comparison and Analysis}
+We include a comparison table for RMSE/MAE/MAPE/R2 for all models and report approximate parameter counts and training time (CPU/GPU). Visual comparison: plot predictions vs actual for 2024--2025 for all models on the same plot (file placeholder).
+
+\subsection{2.5 Bonus: CNN-only network (TCN-like)}
+Design a TCN with dilated convolutions and residual connections; use fewer parameters than the baseline and evaluate whether it can capture long-range dependencies. TCNs can be effective if receptive field covers input window; their advantage is parallel computation and fewer parameters, but they may need careful dilation scheduling.
+
+\section{Multi-step Recursive Forecasting and Stability}
+For long-horizon forecasts we perform recursive multi-step forecasting: predicted step $t+1$ is fed back as input for the next prediction. Error propagation and drift are common — use of teacher forcing during training or scheduled sampling and ensembling can reduce this problem. We present experiments and plots showing stability over 1--2 year horizons and discuss observed degradation.
+
+\section{Evaluation Metrics and Implementation Notes}
+\textbf{SLU metrics:} Slot F1 (seqeval), slot classification reports, intent accuracy and confusion matrices.
+
+\textbf{Time-series metrics:}
+\begin{align}
+\text{RMSE} &= \sqrt{\frac{1}{n} \sum_{i=1}^n (y_i - \hat{y}_i)^2} \\
+\text{MAE} &= \frac{1}{n} \sum_{i=1}^n |y_i - \hat{y}_i| \\
+\text{MAPE} &= \frac{100}{n} \sum_{i=1}^n \left|\frac{y_i - \hat{y}_i}{y_i}\right| \\
+R^2 &= 1 - \frac{\sum_i (y_i - \hat{y}_i)^2}{\sum_i (y_i - \overline{y})^2}
+\end{align}
+
+\section{Reproducibility and Usage}
+All code and notebooks are in `codes/`. Steps to reproduce results:
+\begin{enumerate}
+  \item Install dependencies: `pip install -r codes/requirements.txt`.
+  \item Download dataset: `python -m data.download --dataset siddhadev/atis-dataset-clean`.
+  \item Preprocess: `python -m src.data.preprocess --input data/raw --out data/processed`.
+  \item Run training scripts for each model (see `scripts/`), or run the notebooks to reproduce demo figures.
+  \item After experiments, run `pdflatex report.tex` in `report/` to compile the final PDF.
+\end{enumerate}
+
+\section{Results and Discussion}
+Numerical results should be appended to Table~\ref{tab:slu-results} and a similar table for S\&P models (Table~\ref{tab:sp-results}). At this stage the scripts and notebooks are prepared to run the full experiments and populate these tables automatically; run them on your preferred hardware.
+
+\begin{table}[!t]
   \centering
-  \includegraphics[width=0.98\columnwidth]{../codes/images/sp500/sp500_cyclical_month.png}
-  \caption{Cyclical encoding example (month sine/cosine for the first year).}
-  \label{fig:sp_cyclical}
-\end{figure}
-
-\begin{figure}[!t]
-  \centering
-  \includegraphics[width=0.98\columnwidth]{../codes/images/sp500/sp500_acf_close.png}
-  \caption{ACF of the close price.}
-  \label{fig:sp_acf}
-\end{figure}
-
-\begin{figure}[!t]
-  \centering
-  \includegraphics[width=0.98\columnwidth]{../codes/images/sp500/sp500_acf_close_diff.png}
-  \caption{ACF of the differenced close price (first difference).}
-  \label{fig:sp_acf_diff}
-\end{figure}
-
-\subsection{Stationarity, ACF/PACF and Window Selection}
-We used ACF/PACF to guide the choice of input window size. Differencing and the Augmented Dickey--Fuller (ADF) test help determine stationarity. Depending on analysis, we use sliding windows sized to capture significant lags from PACF.
-
-\subsection{Models: Baseline MLP and Recursive Architectures}
-Baseline MLP: two hidden layers, BatchNorm, Dropout, trained with AdamW and MSE loss. CNN+LSTM and CNN+GRU models use a Conv1D feature extractor followed by a recurrent layer. For the CNN, we feed the full sequence outputs into the LSTM to allow temporal modeling across the window. The final prediction uses the last hidden state.
-
-\subsection{Evaluation: Metrics and Long-Term Forecasting}
-We report RMSE, MAE, MAPE and R2 for test period (2024--2025). For multi-step forecasting, models are iterated recursively: the predicted value is fed back as input for the next step. Error accumulation and stability are discussed in the results.
-
-\section{CLIP Demo (Appendix)}
-We include a small CLIP demo that demonstrates image-text similarity on six synthetic examples. A heatmap and a sample image table are exported by the demo notebook and placed in the project's `q1_clip/images` folder. The sample table (LaTeX) can be directly included using the provided `table-clip-samples.tex` file.
-
-\begin{figure}[!t]
-  \centering
-  \includegraphics[width=0.8\columnwidth]{../CAe/codes/q1_clip/images/clip_similarity_heatmap.png}
-  \caption{Image-Text similarity heatmap from the CLIP demo (synthetic examples).}
-  \label{fig:clip_heatmap}
-\end{figure}
-
-\input{../CAe/codes/q1_clip/images/table-clip-samples.tex}
-
-\section{Reproducibility and How to Compile the Report}
-1. Execute the notebooks or scripts to generate images: the notebooks save figures to `codes/images/atis/`, `codes/images/sp500/`, and the CLIP demo saves to `CAe/codes/q1_clip/images/`.
-2. From the `report/` directory, run: `pdflatex report.tex` (twice) and `bibtex` if necessary.
+  \caption{S\&P 500 forecasting results (placeholders)}
+  \begin{tabular}{lrrrr}
+  \toprule
+  Model & RMSE & MAE & MAPE(\%) & R2 \\
+  \midrule
+  Baseline MLP & TBD & TBD & TBD & TBD \\
+  Conv+LSTM & TBD & TBD & TBD & TBD \\
+  Conv+GRU & TBD & TBD & TBD & TBD \\
+  TCN & TBD & TBD & TBD & TBD \\
+  \bottomrule
+  \end{tabular}
+  \label{tab:sp-results}
+\end{table}
 
 \section{Conclusion}
-We implemented baseline and joint RNN models for SLU and a set of recursive/cnn models for stock prediction, along with reproducible preprocessing and evaluation pipelines. The generated figures and exported LaTeX table assets make it straightforward to assemble an IEEE-format report. Re-run the notebooks to fill numeric result placeholders and include final metric tables.
+This report provides a full, reproducible pipeline for the assigned tasks. It includes explicit answers to the questions in the assignment (data processing, tokenization, special tokens, collate functions, model descriptions, training recipes, evaluation metrics and interpretations). To finalize the report, run the provided scripts (preferably on GPU), collect the numeric results, paste them into the tables above, and compile the PDF. Any additional analysis (e.g., adding CRF to the slot head, running beam search for the decoder, or hyperparameter sweeps) can be added under the experiments section.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

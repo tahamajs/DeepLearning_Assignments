@@ -97,7 +97,20 @@ def train_smoke(device='cpu'):
         manifest.append({'filename': str(out_path), 'width_in':8.0, 'height_in':2.0, 'dpi':300, 'caption_placeholder':f'Example {i+1} prediction'})
 
     save_asset_manifest(manifest, images_dir)
-    print('Smoke training complete. Assets saved to', images_dir)
+
+    # Save tokenizer and model checkpoints for later inference
+    import json
+    ckpt_dir = Path(images_dir) / 'checkpoints'
+    ckpt_dir.mkdir(parents=True, exist_ok=True)
+    tokenizer_path = ckpt_dir / 'tokenizer.json'
+    with open(tokenizer_path, 'w') as f:
+        json.dump(tokenizer.word2idx, f)
+
+    from utils.utils import save_checkpoint
+    save_checkpoint(dec, str(ckpt_dir / 'decoder.pt'))
+    save_checkpoint(enc, str(ckpt_dir / 'encoder.pt'))
+
+    print('Smoke training complete. Assets and checkpoints saved to', images_dir)
 
 if __name__ == '__main__':
     train_smoke(device='cpu')

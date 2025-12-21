@@ -30,23 +30,47 @@ def load_checkpoint(model, path, map_location=None):
     return model
 
 
-def save_figure(fig, path, dpi=300, tight=True):
-    """Save a matplotlib figure to disk ensuring directories exist.
+def save_figure(fig, path, dpi=300, tight=True, save_pdf=True):
+    """Save a matplotlib figure or PIL image to PNG and optionally PDF.
 
-    Args:
-        fig: matplotlib.figure.Figure or pyplot object
-        path: destination file path (including filename).
-        dpi: resolution for publication-quality images.
-        tight: whether to call plt.tight_layout() before saving.
+    Returns a dict with 'png' and 'pdf' keys (pdf may be None if not created).
     """
+    from PIL import Image
     ensure_dir(os.path.dirname(path))
+    png_path = path
+    pdf_path = None
     try:
-        # If fig is a pyplot module (plt), call savefig on plt
-        fig.savefig(path, dpi=dpi, bbox_inches='tight' if tight else None)
+        # Matplotlib Figure or pyplot
+        try:
+            fig.savefig(png_path, dpi=dpi, bbox_inches='tight' if tight else None)
+        except Exception:
+            # If fig is matplotlib.pyplot module
+            fig.figure.savefig(png_path, dpi=dpi, bbox_inches='tight' if tight else None)
+        if save_pdf:
+            pdf_path = os.path.splitext(png_path)[0] + '.pdf'
+            try:
+                # try saving as vector/pdf directly
+                try:
+                    fig.savefig(pdf_path, format='pdf', bbox_inches='tight' if tight else None)
+                except Exception:
+                    # fallback: rasterize and save
+                    fig.figure.savefig(pdf_path, format='pdf', bbox_inches='tight' if tight else None)
+            except Exception:
+                pdf_path = None
     except Exception:
-        # If fig is a Figure instance
-        fig.figure.savefig(path, dpi=dpi, bbox_inches='tight' if tight else None)
-    return path
+        # If fig is a PIL Image
+        if isinstance(fig, Image.Image):
+            fig.save(png_path)
+            if save_pdf:
+                pdf_path = os.path.splitext(png_path)[0] + '.pdf'
+                try:
+                    fig.convert('RGB').save(pdf_path, 'PDF', resolution=dpi)
+                except Exception:
+                    pdf_path = None
+        else:
+            raise
+    return {'png': png_path, 'pdf': pdf_path}
+
 
 
 def make_fig_name(section, metric, desc, ext='png', images_dir=None):
@@ -61,9 +85,38 @@ def make_fig_name(section, metric, desc, ext='png', images_dir=None):
     return os.path.join(images_dir, name)
 
 
-def save_asset_manifest(manifest, images_dir):
-    """Save a manifest (list of dicts) to images_dir/manifest.csv and return path."""
+def _latex_safe_label(fname):
+    import re
+    base = os.path.splitext(os.path.basename(fname))[0]
+    label = re.sub(r'[^0-9a-zA-Z]+', '_', base)
+    return 'fig:' + label
+
+
+def write_latex_figure_snippet(pdf_path, caption, label=None, width='\\columnwidth', tex_path=None):
+    """Write a LaTeX figure snippet referencing the PDF file. Returns path of tex file."""
+    if label is None:
+        label = _latex_safe_label(pdf_path)
+    if tex_path is None:
+        tex_path = os.path.splitext(pdf_path)[0] + '.tex'
+    tex = f"""\begin{{figure}}[t]
+\centering
+\includegraphics[width={width}]{{{os.path.basename(pdf_path)}}}
+\caption{{{caption}}}
+\label{{{label}}}
+\end{{figure}}
+"""
+    with open(tex_path, 'w') as f:
+        f.write(tex)
+    return tex_path
+
+
+def save_asset_manifest(manifest, images_dir, create_ieee_assets=True):
+    """Save manifest CSV; copy PDFs to an `ieee_assets/` folder and write LaTeX snippets.
+
+    Returns path to manifest CSV and a list of generated tex files.
+    """
     import csv
+    from shutil import copy2
     ensure_dir(images_dir)
     path = os.path.join(images_dir, 'manifest.csv')
     with open(path, 'w', newline='') as csvfile:
@@ -71,4 +124,22 @@ def save_asset_manifest(manifest, images_dir):
         writer.writeheader()
         for r in manifest:
             writer.writerow(r)
-    return path
+
+    tex_files = []
+    if create_ieee_assets:
+        assets_dir = os.path.join(images_dir, 'ieee_assets')
+        ensure_dir(assets_dir)
+        for r in manifest:
+            fname = r['filename']
+            if isinstance(fname, str):
+                base = os.path.basename(fname)
+                pdf_src = os.path.splitext(fname)[0] + '.pdf'
+                if os.path.exists(pdf_src):
+                    pdf_dst = os.path.join(assets_dir, os.path.basename(pdf_src))
+                    copy2(pdf_src, pdf_dst)
+                    # write TEX snippet
+                    caption = r.get('caption_placeholder', 'Figure')
+                    tex_path = os.path.join(assets_dir, os.path.splitext(os.path.basename(pdf_src))[0] + '.tex')
+                    write_latex_figure_snippet(pdf_dst, caption, label=None, width='0.48\\textwidth', tex_path=tex_path)
+                    tex_files.append(tex_path)
+    return path, tex_files

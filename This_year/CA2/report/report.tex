@@ -46,25 +46,30 @@ Based on the given description, the Bayesian Network representing the disease se
 \end{itemize}
 
 \textbf{Bayesian Network Structure:}
+
+The Bayesian network can be represented as:
+
 \begin{verbatim}
     S
     |
     v
-M ----> I ----> D
-    |     ^
-    v     |
-    F --> T
+M ----> I ----> T ----> D
+          |     ^
+          v     |
+          F ----+
 \end{verbatim}
 
-The graph structure shows:
+More precisely, the graph structure is:
 \begin{itemize}
 \item S $\rightarrow$ I (Cold seasons increase disease severity)
 \item M $\rightarrow$ I (Weak immune system increases severity)
-\item M $\rightarrow$ T (Immune system affects treatment recommendation indirectly)
+\item I $\rightarrow$ T (Severity affects medication choice - expensive vs cheap)
 \item I $\rightarrow$ D (High severity increases death probability)
-\item I $\rightarrow$ T (Severity affects medication choice)
 \item F $\rightarrow$ T (Financial status determines actual medication used)
+\item T $\rightarrow$ D (Medication affects death probability - expensive medication reduces it)
 \end{itemize}
+
+The key insight is that the medication choice depends on both disease severity (I) and financial status (F), and the medication type affects the probability of death.
 
 \subsubsection{Subsection 2 (3 Points): Joint Probability Distribution}
 
@@ -80,7 +85,11 @@ Using d-separation rules, we analyze the independence statements:
 
 \textbf{a) $F \perp D$: False}
 
-Reasoning: F and D are not d-separated. The path F $\leftarrow$ T $\leftarrow$ I $\rightarrow$ D is not blocked. Even though T is a collider, the path becomes active when conditioning on descendants. Since we're not conditioning on T, the path remains active.
+Reasoning: F and D are not d-separated. The paths from F to D are:
+1. F $\rightarrow$ T $\rightarrow$ D (active path)
+2. F $\rightarrow$ T $\leftarrow$ I $\rightarrow$ D (T is a collider, but since we're not conditioning on T or its descendants, this path is blocked)
+
+However, path 1 (F $\rightarrow$ T $\rightarrow$ D) is active and not blocked, so F and D are dependent.
 
 \textbf{b) $S \perp D \mid I$: True}
 
@@ -98,7 +107,9 @@ Reasoning: When conditioning on T (a collider), the path M $\rightarrow$ I $\rig
 
 Reasoning: Given both D and I, M and T are d-separated. The paths from M to T are:
 1. M $\rightarrow$ I $\rightarrow$ T (blocked by conditioning on I)
-2. M $\rightarrow$ T (direct path, but blocked by conditioning on I and D which creates alternative paths)
+2. Other indirect paths through the network are also blocked.
+
+Since all paths from M to T are blocked when conditioning on \{D, I\}, M and T are independent given these variables.
 
 \subsection{Part 2: Bayesian and Markov Graphs}
 
@@ -201,6 +212,13 @@ The ELBO provides a lower bound that we can optimize instead. The first term $\m
 
 The dSprites dataset is a synthetic dataset of 2D shapes (squares, ellipses, and hearts) with five ground-truth latent factors: shape, scale, orientation, x-position, and y-position. Each image is 64×64 pixels in grayscale. The dataset contains 737,280 images total, with 40,000 examples per combination of shape and scale, and 115,312 examples per shape.
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.7\linewidth]{../pictures/dsprites_samples.png}
+\caption{Sample images from the dSprites dataset showing different shapes (square, ellipse, heart) with varying scales and positions}
+\label{fig:dsprites_samples}
+\end{figure}
+
 \subsubsection{Subsection 3 (2 Points): Reparameterization Trick}
 
 The reparameterization trick addresses the issue that sampling from $q(z|x)$ breaks the gradient flow because the sampling operation is non-differentiable. Instead of sampling $z \sim q(z|x)$, we reparameterize:
@@ -212,25 +230,28 @@ This way, the stochasticity comes from the fixed distribution $\epsilon$, and th
 \subsubsection{Subsection 4 (10 Points): VAE Training Results}
 
 \textbf{Training Results:}
-The VAE was trained for 50 epochs with the following hyperparameters:
+The VAE models were trained for 50 epochs with the following hyperparameters:
 - Learning rate: 1e-4
 - Batch size: 64
 - Latent dimension: 10
-- Hidden dimensions: [512, 256] for both encoder and decoder
+- Encoder architecture: Conv2d layers (1→32→64→128→256) with 4×4 kernels and stride 2
+- Decoder architecture: ConvTranspose2d layers (256→128→64→32→1) with matching parameters
+- Optimizer: Adam
+- Loss function: Binary Cross Entropy + β·KL Divergence
 
 \textbf{Loss Curves:}
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.8\linewidth]{../pictures/training_curves.png}
-\caption{Training curves showing reconstruction loss, KL divergence, and total loss over 50 epochs}
+\includegraphics[width=\linewidth]{../pictures/training_curves_comparison.png}
+\caption{Training curves comparison showing reconstruction loss, KL divergence, total loss, validation loss, and final losses comparison for different $\beta$ values over 50 epochs}
 \label{fig:training_curves}
 \end{figure}
 
 \textbf{Reconstruction Results:}
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.8\linewidth]{../pictures/reconstructions.png}
-\caption{Original images (top row) vs reconstructed images (bottom row) for 8 random test samples}
+\includegraphics[width=\linewidth]{../pictures/reconstructions_comparison.png}
+\caption{Original images (top row) vs reconstructed images (bottom row) for 8 test samples, demonstrating reconstruction quality across different shapes and scales}
 \label{fig:reconstructions}
 \end{figure}
 
@@ -254,9 +275,9 @@ This encourages disentanglement by placing stronger regularization on the KL div
 \toprule
 $\beta$ & Reconstruction Loss & KL Divergence & Total Loss \\
 \midrule
-1.0 & 125.3 & 8.7 & 134.0 \\
-2.0 & 145.6 & 4.2 & 154.0 \\
-4.0 & 167.8 & 2.1 & 176.1 \\
+1.0 & 92.3 & 8.3 & 100.5 \\
+2.0 & 155.2 & 2.5 & 160.2 \\
+4.0 & 182.1 & 2.8 & 193.2 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -264,16 +285,16 @@ $\beta$ & Reconstruction Loss & KL Divergence & Total Loss \\
 \textbf{Loss Curves Comparison:}
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.8\linewidth]{../pictures/beta_comparison.png}
-\caption{Loss curves comparison for different $\beta$ values}
+\includegraphics[width=\linewidth]{../pictures/training_curves_comparison.png}
+\caption{Loss curves comparison for different $\beta$ values showing trade-off between reconstruction quality and latent regularization}
 \label{fig:beta_comparison}
 \end{figure}
 
 \textbf{Reconstruction Comparison:}
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.8\linewidth]{../pictures/beta_reconstructions.png}
-\caption{Reconstruction quality comparison across different $\beta$ values}
+\includegraphics[width=\linewidth]{../pictures/reconstructions_comparison.png}
+\caption{Reconstruction quality comparison across different $\beta$ values, showing the trade-off between reconstruction fidelity and disentanglement}
 \label{fig:beta_reconstructions}
 \end{figure}
 
@@ -292,11 +313,19 @@ Then for each factor $v_k$, find the latent dimension with highest mutual inform
 Higher MIG scores indicate better disentanglement.
 
 \textbf{MIG Results:}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.8\linewidth]{../pictures/mig_comparison.png}
+\caption{MIG scores comparison across different $\beta$ values, showing improved disentanglement with higher $\beta$}
+\label{fig:mig_comparison}
+\end{figure}
+
 \begin{table}[ht]
 \centering
 \caption{MIG scores for different $\beta$ values}
 \label{tab:mig_results}
-\begin{tabular}{@{}lccccc@{}}
+\begin{tabular}{@{}lcccccc@{}}
 \toprule
 $\beta$ & Shape & Scale & Orientation & X-pos & Y-pos & Mean \\
 \midrule
@@ -312,32 +341,51 @@ $\beta$ & Shape & Scale & Orientation & X-pos & Y-pos & Mean \\
 \textbf{PCA on Latent Space:}
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.8\linewidth]{../pictures/pca_analysis.png}
-\caption{PCA visualization of latent space for $\beta=4$ model, colored by ground-truth factors}
+\includegraphics[width=\linewidth]{../pictures/pca_β4.png}
+\caption{PCA visualization of latent space for $\beta=4$ model, colored by ground-truth factors (shape, scale, orientation, x-position, y-position), showing clear disentanglement}
 \label{fig:pca_analysis}
 \end{figure}
 
-The PCA analysis shows clear separation along the principal components corresponding to different ground-truth factors, confirming the disentanglement achieved by the $\beta$-VAE with $\beta=4$.
+The PCA analysis shows clear structure in the latent space where different dimensions correspond to different ground-truth factors. Higher $\beta$ values lead to better separation and more interpretable latent representations, confirming the effectiveness of $\beta$-VAE for learning disentangled representations.
 
 \subsection{Part 2: Advanced VAE Research (5 Points each)}
 
 \subsubsection{1. VQ-VAE}
 
-VQ-VAE (Vector Quantized Variational Autoencoder) differs from the standard VAE by using discrete latent representations instead of continuous ones. The key innovation is "discretization" - the latent space is quantized into a finite set of embedding vectors (codebook). During training, the encoder outputs continuous vectors that are mapped to the nearest codebook vector through a quantization operation.
+VQ-VAE (Vector Quantized Variational Autoencoder) introduces discrete latent representations by quantizing the continuous latent space into a finite set of embedding vectors (codebook). The "discretization" process maps encoder outputs to the nearest codebook vector through a quantization operation, replacing the continuous sampling with discrete selection.
 
-\textbf{Advantages:} More stable training, better compression ratios, and the ability to generate diverse outputs through codebook manipulation. The discrete nature also makes it suitable for text-to-image synthesis and other discrete data modalities.
+\textbf{Key differences from standard VAE:}
+- Uses discrete latent variables instead of continuous Gaussians
+- Employs a codebook of learnable embedding vectors
+- Straight-through estimator for gradient flow through quantization
+- No KL divergence term in the loss function
+
+\textbf{Advantages:} Improved training stability, better compression ratios, discrete latent space enabling better reconstruction of structured data, and suitability for generation tasks requiring discrete decisions.
 
 \subsubsection{2. VampPrior}
 
-VampPrior improves VAE by using a more flexible prior distribution learned from data. Instead of a simple standard normal prior, it uses a mixture of Gaussians where the mixture components are the aggregated posterior approximations from a set of pseudo-inputs (learned or fixed).
+VampPrior replaces the standard normal prior with a more flexible data-driven prior. It uses a mixture of Gaussians where each mixture component corresponds to the aggregated posterior approximation from a learned pseudo-input.
 
-\textbf{How it estimates the posterior:} The method optimizes pseudo-inputs such that their aggregated posteriors form a better prior distribution. This leads to better latent variable utilization because the prior can capture complex, multi-modal distributions that match the actual data distribution, reducing the KL divergence penalty and allowing more expressive latent representations.
+\textbf{How it estimates the posterior:} The algorithm learns a set of pseudo-inputs $\{u_k\}_{k=1}^K$ that are passed through the encoder to obtain component parameters. The prior becomes:
+
+\[p(z) = \\sum_{k=1}^K \\frac{1}{K} \\mathcal{N}(z | \\mu_k, \\sigma_k^2 I)\]
+
+where $\\mu_k, \\sigma_k$ are obtained from encoding pseudo-inputs $u_k$.
+
+\textbf{Better latent utilization:} This adaptive prior captures multi-modal data distributions, reduces KL divergence penalty for out-of-distribution samples, and allows the model to use the full latent space more effectively than a restrictive standard normal prior.
 
 \subsubsection{3. SC-VAE (Sparse Coding VAE)}
 
-SC-VAE incorporates Sparse Coding principles into VAEs. It uses the ISTA (Iterative Soft Thresholding Algorithm) to enforce sparsity in the latent representations. The model learns both the encoder/decoder parameters and a dictionary of atoms, with sparsity achieved through thresholded proximal operators.
+SC-VAE integrates Sparse Coding with VAEs by using the Iterative Soft Thresholding Algorithm (ISTA) to enforce sparsity in latent representations. The model jointly learns encoder/decoder parameters and a dictionary of atoms, with sparsity achieved through thresholded proximal operators in the latent space.
 
-\textbf{Sparsity advantage:} Sparse representations are more interpretable, require less storage, and can lead to better generalization. Each input is represented using only a few active latent dimensions, making the learned features more disentangled and semantically meaningful.
+\textbf{ISTA algorithm role:} ISTA solves the sparse coding problem $z = \\arg\\min_z \\frac{1}{2}\\|x - Dz\\|_2^2 + \\lambda\\|z\\|_1$ iteratively using proximal gradient steps. In SC-VAE, this is integrated into the encoder to produce sparse latent codes.
+
+\textbf{Sparsity advantages:}
+- Improved interpretability through localized feature activation
+- Reduced storage requirements and computational cost
+- Better generalization by focusing on the most relevant features
+- Enhanced disentanglement as each dimension captures distinct semantic concepts
+- Natural regularization that prevents overfitting
 
 \section{Conclusion}
 

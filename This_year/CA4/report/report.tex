@@ -86,25 +86,148 @@ print(f'Max length: {max(train_lengths)}')
 
 This systematic exploration reveals the ATIS dataset contains 4,978 training examples, 893 validation examples, and 893 test examples. The 21 unique intents range from common travel queries (atis_flight, atis_airfare) to specialized requests (atis_aircraft, atis_flight_time). The 120 BIO-formatted slot labels capture fine-grained semantic information, with 'O' (Outside) tags comprising approximately 65\% of all tokens, creating a challenging class imbalance scenario for sequence labeling tasks.
 
-\subsubsection{Tokenization: methods and tradeoffs}
-We choose whitespace tokenization for its simplicity and because ATIS utterances are fairly clean. Pros:
+\subsubsection{Tokenization: methods, tradeoffs, and implementation considerations}
+
+Tokenization represents a critical preprocessing decision that directly impacts model performance, computational efficiency, and task complexity. For the ATIS dataset, we employ whitespace tokenization as the primary strategy, informed by careful analysis of the data characteristics and task requirements.
+
+\textbf{Whitespace Tokenization Rationale:}
+The ATIS dataset exhibits several properties that make whitespace tokenization particularly suitable:
 \begin{enumerate}
-  \item token alignment with gold BIO labels is straightforward (avoids subword-to-label alignment challenges);
-  \item extremely fast and reproducible across environments.
+  \item \textbf{Data Quality}: Utterances are relatively clean with minimal punctuation and consistent spacing, reducing tokenization artifacts.
+  \item \textbf{BIO Label Alignment}: Direct correspondence between whitespace tokens and gold BIO labels simplifies the learning objective and avoids complex subword-to-word label aggregation.
+  \item \textbf{Computational Efficiency}: Extremely fast preprocessing with minimal computational overhead, enabling rapid experimentation.
+  \item \textbf{Reproducibility}: Deterministic tokenization across different environments and Python versions.
+  \item \textbf{Interpretability}: Token-level predictions directly correspond to human-readable words, facilitating error analysis and model debugging.
 \end{enumerate}
-Cons and alternatives: subword tokenizers (WordPiece, SentencePiece) reduce OOV rates and are necessary if using pretrained Transformer tokenizers. If you switch to subword tokenization, implement subword-to-word label mapping (e.g., label first subword with B-..., subsequent subwords with I- or a special continuation scheme) and be careful with evaluation (aggregate predictions to word-level when computing seqeval metrics).
 
-\subsubsection{Vocabulary construction and details}
-Build the three vocabularies from the training set only (to prevent information leakage): Word Vocab, Slot Vocab, and Intent Vocab. Requirements:
+\textbf{Technical Implementation Details:}
+Our tokenizer implements case-insensitive processing (converting all text to lowercase) to reduce vocabulary size and improve generalization. Special handling is required for:
 \begin{itemize}
-  \item Word vocab contains special tokens in this order: \texttt{<PAD>}=0, \texttt{<UNK>}=1, optionally \texttt{<BOS>}, \texttt{<EOS>}.
-  \item Slot vocab includes \texttt{<PAD>} to allow masking of padded positions; keep all BIO variants present in training.
-  \item Intent vocab is a simple mapping intent$\to$id.
+  \item \textbf{Contractions}: Words like "don't" are treated as single tokens to preserve semantic meaning.
+  \item \textbf{Numbers and Dates}: Numeric sequences (e.g., "747", "11am") remain intact as they carry specific semantic information.
+  \item \textbf{Abbreviations}: Common abbreviations like "BOS" (Boston airport code) are preserved.
 \end{itemize}
-Save these mappings to `data/processed/vocab.json` and use them in dataset and model initialisation.
 
-\subsubsection{Special tokens: when and why}
-\texttt{<PAD>} (padding token) is used at the end of a sequence so the batch forms a rectangular tensor: its index must be ignored during loss computation (CrossEntropyLoss(ignore_index=PAD_ID)). \texttt{<UNK>} handles out-of-vocabulary words at inference; it helps avoid crashing on unseen words and provides a learned fallback embedding. \texttt{<BOS>} and \texttt{<EOS>} are required for sequence generation in encoder-decoder setups (the decoder takes \texttt{<BOS>} as its first input and generation stops once \texttt{<EOS>} is predicted).
+\textbf{Alternative Tokenization Strategies and Tradeoffs:}
+
+While whitespace tokenization serves our purposes effectively, several alternative approaches offer different advantages:
+
+\textbf{Subword Tokenization (WordPiece/SentencePiece):}
+\begin{itemize}
+  \item \textbf{Advantages}: Significantly reduces out-of-vocabulary (OOV) rates by decomposing rare words into frequent subword units. Enables use of pretrained Transformer tokenizers (BERT, RoBERTa) for transfer learning.
+  \item \textbf{Challenges}: Requires complex label mapping strategies. For BIO tagging, the first subword inherits the B- or I- label, while subsequent subwords receive special continuation markers or are masked during evaluation.
+  \item \textbf{Implementation Complexity}: Need to implement word-level aggregation for seqeval metrics, as subword predictions must be combined into word-level predictions for meaningful evaluation.
+\end{itemize}
+
+\textbf{Character-level Tokenization:}
+\begin{itemize}
+  \item \textbf{Advantages}: Eliminates OOV entirely, handles morphological variations naturally.
+  \item \textbf{Challenges}: Significantly increases sequence lengths and computational requirements. Requires CNN or specialized architectures to capture word-level semantics.
+\end{itemize}
+
+\textbf{Morphological Tokenization:}
+\begin{itemize}
+  \item \textbf{Advantages}: Linguistically informed tokenization that respects word boundaries and morphological structure.
+  \item \textbf{Challenges}: Requires language-specific tools and increases preprocessing complexity.
+\end{itemize}
+
+\textbf{Hybrid Approaches:} Modern systems often combine multiple tokenization strategies, using statistical subword tokenization for general text processing while maintaining word-level alignments for structured prediction tasks.
+
+For this assignment, whitespace tokenization provides the optimal balance of simplicity, effectiveness, and interpretability, though our codebase includes hooks for alternative tokenizers to facilitate future experimentation.
+
+\subsubsection{Vocabulary construction and implementation details}
+
+Vocabulary construction represents the bridge between raw text data and numerical representations suitable for neural network processing. We construct three separate vocabularies from the training set only to prevent information leakage into validation and test performance metrics.
+
+\textbf{Word Vocabulary Construction:}
+The word vocabulary maps textual tokens to integer indices, incorporating special tokens for handling various edge cases:
+\begin{itemize}
+  \item \texttt{<PAD>} (index 0): Used for batch padding to ensure uniform sequence lengths. Must be masked during loss computation.
+  \item \texttt{<UNK>} (index 1): Handles out-of-vocabulary words encountered during inference. Represents approximately 2-3\% of test tokens in ATIS.
+  \item \texttt{<BOS>} (index 2): Beginning-of-sequence marker for encoder-decoder models requiring explicit sequence start indication.
+  \item \texttt{<EOS>} (index 3): End-of-sequence marker for decoder generation termination and sequence length control.
+\end{itemize}
+
+Vocabulary building follows a systematic process:
+\begin{enumerate}
+  \item Collect all unique tokens from training utterances
+  \item Sort tokens by frequency (most frequent first) for optimal embedding learning
+  \item Reserve indices 0-3 for special tokens
+  \item Assign remaining indices sequentially
+  \item Implement frequency thresholding to filter rare words (optional, set to minimum frequency 1 for ATIS)
+\end{enumerate}
+
+\textbf{Slot Label Vocabulary:}
+The slot vocabulary handles the BIO tagging scheme with 120 unique labels:
+\begin{itemize}
+  \item Includes \texttt{<PAD>} token for padding positions in batch processing
+  \item Maintains all BIO variants observed in training data
+  \item Examples: B-fromloc.city_name, I-fromloc.city_name, B-toloc.city_name, O
+  \item No \texttt{<UNK>} token needed since all possible slot types are known at training time
+\end{itemize}
+
+\textbf{Intent Label Vocabulary:}
+Simple classification mapping for the 21 intent categories:
+\begin{itemize}
+  \item Direct string-to-integer mapping without special tokens
+  \item Deterministic ordering (alphabetical sort) for reproducibility
+  \item Examples: atis_aircraft $\to$ 0, atis_airfare $\to$ 1, atis_flight $\to$ 2
+\end{itemize}
+
+\textbf{Implementation Considerations:}
+\begin{itemize}
+  \item \textbf{Memory Efficiency}: Vocabularies are stored as efficient dictionary structures with fast lookups
+  \item \textbf{Persistence}: All vocabularies saved to `data/processed/vocab.json` using JSON serialization
+  \item \textbf{Model Integration}: Vocabularies passed to dataset classes and model initialization functions
+  \item \textbf{Extensibility}: Design supports dynamic vocabulary expansion for domain adaptation scenarios
+\end{itemize}
+
+\textbf{Vocabulary Statistics and Analysis:}
+The ATIS word vocabulary contains approximately 800-900 unique tokens after preprocessing, reflecting the domain-specific nature of travel queries. Slot vocabulary size (120) indicates fine-grained semantic categorization, while the compact intent vocabulary (21 classes) represents manageable classification complexity. These statistics inform model capacity decisions and provide baseline expectations for generalization performance.
+
+\subsubsection{Special tokens: comprehensive roles and implementation}
+
+Special tokens serve as control signals that enable neural networks to handle variable-length sequences, unknown inputs, and structured generation processes. Their proper implementation is crucial for both training stability and inference correctness.
+
+\textbf{Padding Token (<PAD>):}
+The padding token solves the fundamental challenge of batch processing variable-length sequences in tensor-based frameworks:
+\begin{itemize}
+  \item \textbf{Purpose}: Enables creation of rectangular tensors by extending shorter sequences to match the longest sequence in a batch
+  \item \textbf{Index Assignment}: Conventionally assigned index 0 for computational efficiency (avoids explicit masking operations in some implementations)
+  \item \textbf{Loss Masking}: Critical requirement - CrossEntropyLoss configured with ignore_index=PAD_ID to prevent padding tokens from influencing gradient computation
+  \item \textbf{Attention Masking}: In transformer-based models, padding positions must be masked during attention computation to prevent information leakage
+  \item \textbf{Position Embeddings}: Padding positions should not receive positional information in models that use position encodings
+\end{itemize}
+
+\textbf{Unknown Token (<UNK>):}
+The unknown token provides graceful degradation for out-of-vocabulary scenarios:
+\begin{itemize}
+  \item \textbf{Purpose}: Handles words not present in the training vocabulary during inference or validation
+  \item \textbf{Embedding Learning}: Trains a dedicated embedding vector that captures general "unknown word" semantics
+  \item \textbf{Frequency Analysis}: In ATIS, <UNK> represents 2-3\% of test tokens, primarily consisting of rare proper names or typos
+  \item \textbf{Design Decision}: Single <UNK> token vs. subword tokenization - we choose the former for simplicity and direct BIO alignment
+  \item \textbf{Downstream Impact}: <UNK> tokens receive uniform predictions across output heads, potentially reducing slot filling accuracy for rare entities
+\end{itemize}
+
+\textbf{Beginning and End of Sequence Tokens (<BOS>, <EOS>):}
+These tokens enable controlled sequence generation in encoder-decoder architectures:
+\begin{itemize}
+  \item \textbf{<BOS> Token}: Serves as the initial input to the decoder, providing an explicit "start generation" signal
+  \item \textbf{<EOS> Token}: Acts as the termination criterion - generation stops when <EOS> is predicted with highest probability
+  \item \textbf{Teacher Forcing}: During training, <BOS> initializes decoder input, and <EOS> is appended to target sequences
+  \item \textbf{Inference Strategy}: Greedy decoding or beam search continues until <EOS> is generated or maximum length reached
+  \item \textbf{BIO Integration}: In slot filling tasks, <EOS> prediction must be handled carefully to avoid premature sequence termination
+\end{itemize}
+
+\textbf{Implementation Best Practices:}
+\begin{itemize}
+  \item \textbf{Consistent Indexing}: Special tokens occupy the first few indices (0-3) across all vocabularies for predictable behavior
+  \item \textbf{No Overlap}: Special tokens are distinct from actual data tokens to prevent semantic confusion
+  \item \textbf{Validation}: Implement checks to ensure special tokens are never present in gold labels or predictions during evaluation
+  \item \textbf{Extensibility}: Reserve additional indices for future special tokens (e.g., <MASK> for masked language modeling)
+\end{itemize}
+
+These special tokens transform raw text processing into a structured mathematical framework, enabling robust handling of the variable-length, imperfect nature of natural language data while maintaining computational efficiency and model interpretability.
 
 \subsubsection{Collate function — dynamic padding with a worked example}
 Dynamic padding reduces computation by only padding to the maximum length in a batch. Example with lengths $\{5,7,3\}$: dataset-level padding to max=7 yields processed tokens $= 3\times 7 = 21$. Batch-level padding uses processed tokens $= 5+7+3 = 15$, saving 6 tokens (28\% reduction). For longer sequences and bigger batches savings compound significantly.

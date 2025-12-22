@@ -40,6 +40,14 @@ To set up the environment and get started with the projects, follow these steps:
 
 3.  **Download datasets**: Datasets are typically managed through scripts located in the `scripts/` directory. For example, you might run specific downloaders as instructed in `scripts/download_datasets.py`.
 
+    ```bash
+    # Download Q1 Image Captioning dataset
+    python scripts/download_datasets.py --q1
+
+    # Download other datasets as needed
+    python scripts/download_datasets.py --urbansound --flickr
+    ```
+
 4.  **Run Smoke Tests**: To quickly verify that the environment is set up correctly and core modules can be imported, you can execute the `run_all.sh` script. This script runs a series of basic Python commands to check module imports for each sub-assignment.
 
     ```bash
@@ -47,7 +55,7 @@ To set up the environment and get started with the projects, follow these steps:
     ```
 
     The `run_all.sh` script currently performs the following checks:
-    -   Attempts to download UrbanSound and Flickr datasets (with `|| true` to prevent script failure if downloaders are not fully set up).
+    -   Attempts to download Q1 Image Captioning, UrbanSound, and Flickr datasets (with `|| true` to prevent script failure if downloaders are not fully set up).
     -   Verifies the import of `tokenizer` from `q1_image_captioning`.
     -   Verifies the import of `models` from `q1_clip`.
     -   Verifies the import of `data` from `q2_urban_sound`.

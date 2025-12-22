@@ -19,3 +19,4 @@ tqdm
 librosa
 soundfile
 wandb
+gdown

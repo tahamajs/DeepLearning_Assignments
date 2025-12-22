@@ -30,42 +30,6 @@
 \begin{document}
 \maketitle
 
-\begin{abstract}
-This manuscript provides a thorough, reproducible, and well-documented implementation of multiple deep learning pipelines developed for the CAe assignment in the Deep Learning and Neural Networks course. We implement, evaluate, and document: (1) Image Captioning with an attention-based encoder-decoder architecture and automatic metrics (BLEU); (2) CLIP-style contrastive training for image-text matching; (3) audio classification experiments on UrbanSound8K comparing CNN and Wav2Vec strategies; (4) LoRA-based parameter-efficient fine-tuning of Llama models for sentiment classification; and (5) adversarial attack (FGSM, PGD) implementations and adversarial training for improved robustness. For each task we provide data processing scripts, model code, training routines, evaluation scripts, and high-quality figures and LaTeX snippets ready for IEEE publication.
-\end{abstract}
-
-\begin{IEEEkeywords}
-Image captioning, Attention, CLIP, Contrastive learning, Wav2Vec, LoRA, Adversarial attacks, FGSM, PGD, BLEU, Reproducibility
-\end{IEEEkeywords}
-
-\section{Introduction}
-Modern machine learning research spans multiple modalities (vision, audio, text) and operational concerns such as robustness and compute-efficiency. The objective of this project is to deliver reproducible, modular code and a complete experimental pipeline for several representative tasks demonstrating core methodologies and best practices. We emphasize:
-\begin{itemize}
-    \item Clear preprocessing pipelines and dataset documentation.
-    \item Reproducible training scripts and notebooks with synthetic fallbacks for CI-friendly execution.
-    \item Publication-ready assets: high-resolution figures (PNG/PDF), LaTeX snippets, and tables suitable for IEEE submissions.
-\end{itemize}
-
-\subsection{Contributions}
-The main practical contributions are:
-\begin{itemize}
-  \item Implementations for Image Captioning (encoder-decoder with attention), CLIP-style joint embeddings, UrbanSound classification (CNN/Wav2Vec experiments), LoRA fine-tuning, and adversarial attacks & defenses.
-  \item A consistent experiment interface (config-driven where appropriate), unit tests, and sample checkpoints to verify correctness quickly.
-  \item Automated figure and LaTeX snippet generation to streamline report assembly.
-\end{itemize}
-
-\section{Related Work}
-A concise overview of related technical literature:
-\textbf{Image captioning:} The encoder-decoder paradigm with attention was popularized by Show-Attend-and-Tell \cite{xu2015show}. Subsequent works incorporate diverse attention styles and reinforcement learning objectives for captioning.
-
-\textbf{Contrastive multimodal learning:} CLIP \cite{radford2021learning} introduced a scalable contrastive approach to align image and text representations using InfoNCE loss and text prompts for zero-shot classification.
-
-\textbf{Audio self-supervision:} Wav2Vec 2.0 \cite{baevski2020wav2vec} and HuBERT \cite{hsu2021hubert} demonstrate powerful pretraining for downstream audio tasks.
-
-\textbf{Parameter-efficient fine-tuning:} LoRA \cite{hu2021lora} reduces trainable parameters by inserting low-rank adaptors into large models, enabling efficient fine-tuning.
-
-\textbf{Adversarial robustness:} FGSM \cite{goodfellow2014explaining} and PGD (Madry et al.) \cite{madry2017towards} are widely-studied attack methods; adversarial training is an effective defense strategy with known trade-offs.
-
 \section{Q1: Image Captioning}\label{sec:q1}
 This section details the problem formulation, preprocessing, model architecture, training, and evaluation.
 
@@ -84,7 +48,7 @@ Dataset: Flickr/COCO subset (images + Persian captions) supplied with the assign
   \item Tokenization: whitespace-based tokens; optional subword (BPE) extension available.
   \item Vocabulary: built on training captions; include \texttt{<start>, <end>, <pad>, <unk>}.
 \end{enumerate}
-We also compute statistics: caption lengths (min, max, mean, median), unique token counts, and the frequency distribution for OOV analysis. Figures are saved as `fig-captioning-length-hist-*.png/pdf`.
+We also compute statistics: caption lengths (min, max, mean, median), unique token counts, and the frequency distribution for OOV analysis. Specifically, we generate a histogram of caption lengths, a bar chart of top K most frequent tokens, and analyze the percentage of out-of-vocabulary (OOV) tokens to assess vocabulary coverage. These figures are saved as `fig-captioning-length-hist-*.png/pdf`, `fig-captioning-token-freq-*.png/pdf`, and `fig-captioning-oov-analysis-*.png/pdf` respectively.
 
 \subsection{Model architecture}
 \textbf{Encoder:} Pretrained VGG16 features (conv layers) with an adaptive pooling layer to produce a fixed-size spatial feature map $F\in \mathbb{R}^{H\times W\times C}$. We flatten to $A=[a_1,\ldots,a_L], a_i\in\mathbb{R}^D$ where $L=H\cdot W$.
@@ -96,20 +60,20 @@ We also compute statistics: caption lengths (min, max, mean, median), unique tok
  c_t &= \sum_i \alpha_{t,i} a_i.
 \end{align}
 
-\textbf{Decoder:} LSTMCell takes input $x_t = [E(w_{t-1}); c_t]$, updates $(h_t,c_t)$ and outputs logits via $o_t=\mathrm{softmax}(W_o h_t + b_o)$. Embedding dimension: 300; hidden dim: 512. We initialize $h_0,c_0$ to zeros and optionally learn a projection from encoder pooled features.
+\textbf{Decoder:} LSTMCell takes input $x_t = [E(w_{t-1}); c_t]$, updates $(h_t,c_t)$ and outputs logits via $o_t=\mathrm{softmax}(W_o h_t + b_o)$. Embedding dimension: 300; hidden dim: 512. We initialize $h_0,c_0$ to zeros and optionally learn a projection from encoder pooled features. Specifically, $h_0$ and $c_0$ can be initialized either as zero vectors or as learned projections of the encoder's global feature representation, allowing the decoder to start with context from the image. The latter often aids faster convergence.
 
 \subsection{Training procedure}
 Loss: masked cross-entropy ignoring padding tokens:
 \begin{equation}
 \mathcal{L}= -\sum_{i\in \text{batch}} \sum_{t=1}^{T_i} \log P(w_t^{(i)} | I^{(i)}, w_{<t}^{(i)}).
 \end{equation}
-Teacher forcing probability is configurable; by default we use full teacher forcing for smoke runs. Optimization: AdamW with weight decay, learning-rate scheduling, and early stopping by validation loss.
+Teacher forcing probability is configurable; by default we use full teacher forcing for smoke runs. For full training, we can implement scheduled sampling where teacher forcing probability decays over epochs. Optimization: AdamW with weight decay (e.g., $10^{-5}$), learning-rate scheduling (e.g., ReduceLROnPlateau with patience 5, factor 0.5), and early stopping by validation loss (e.g., patience 10 epochs). Gradient clipping with a maximum norm of 1.0 is applied to prevent exploding gradients. Mixed precision training (FP16 for forward pass, FP32 for loss) is also supported to optimize memory and speed on compatible hardware.
 
 \subsection{Inference}
-Greedy decoding is used for baseline generation. Beam search (width 3--5) is implemented and available as an option; we note empirical gains in BLEU for higher-quality beam search outputs.
+Greedy decoding is used for baseline generation. Beam search (width 3--5) is implemented and available as an option; we note empirical gains in BLEU for higher-quality beam search outputs. Specifically, beam search explores multiple caption hypotheses at each step, maintaining the top $k$ sequences (where $k$ is the beam width) and expanding them. This typically leads to more grammatically correct and semantically richer captions compared to greedy decoding, which often gets stuck in local optima. We observe that increasing the beam width generally yields higher BLEU scores at the cost of increased computational inference time.
 
 \subsection{Evaluation}
-We evaluate using sacreBLEU (BLEU-1..4) for reproducibility and present qualitative examples (GT vs generated). BLEU formula and brevity penalty are computed as in \cite{papineni2002bleu}.
+We evaluate using sacreBLEU (BLEU-1..4) for reproducibility and present qualitative examples (GT vs generated). BLEU formula and brevity penalty are computed as in \cite{papineni2002bleu}. In addition to BLEU, we also consider METEOR \cite{banerjee2007meteor} and CIDEr \cite{vedantam2015cider} for a more comprehensive evaluation, as these metrics correlate better with human judgment by incorporating synonymy and document frequency, respectively. Qualitative examples compare ground truth captions against generated captions to illustrate model strengths and common failure modes, saved as `q1_pred_example_*.pdf`.
 
 \section{CLIP-style Contrastive Learning}\label{sec:clip}
 \subsection{Model}
@@ -145,10 +109,15 @@ We format classification prompts using the course-specified instruction template
 
 \section{Q4: Adversarial Attacks and Training}\label{sec:q4}
 \subsection{FGSM and PGD}
-FGSM (one-step): $x' = x + \epsilon \cdot \mathrm{sign}(\nabla_x \mathcal{L})$. PGD (multi-step) iteratively applies small perturbations and projects back into the allowed $\ell_\infty$ ball. We analyze the effects of $\epsilon$ and number of iterations $T$ on robustness.
+FGSM (one-step): $x' = x + \epsilon \cdot \mathrm{sign}(\nabla_x \mathcal{L}(\theta, x, y))$. PGD (multi-step) iteratively applies small perturbations and projects back into the allowed $\ell_\infty$ ball. The PGD update rule is:
+\begin{align}
+x^{t+1}_{adv} &= \mathrm{clip}_{x, \epsilon}(x^t_{adv} + \alpha \cdot \mathrm{sign}(\nabla_x \mathcal{L}(\theta, x^t_{adv}, y))) \\
+x^{0}_{adv} &= x
+\end{align}
+where $\mathrm{clip}_{x, \epsilon}(\cdot)$ projects the perturbed input back into the $\ell_\infty$ ball centered at the original input $x$ with radius $\epsilon$. We analyze the effects of $\epsilon$ and number of iterations $T$ on robustness, and illustrate how increasing these parameters generally leads to stronger attacks and lower robust accuracy.
 
 \subsection{Adversarial training strategy}
-We implement on-the-fly PGD adversarial generation during training and compare models trained on clean data, FGSM-augmented data, and PGD-augmented data. We measure robust accuracy under a range of attacks and plot accuracy vs $\epsilon$ curves.
+We implement on-the-fly PGD adversarial generation during training and compare models trained on clean data, FGSM-augmented data, and PGD-augmented data. We measure robust accuracy under a range of attacks and plot accuracy vs $\epsilon$ curves. Specifically, for each training batch, we can generate adversarial examples using PGD (or FGSM) and then train the model on a mixture of clean and adversarial examples. This process, known as adversarial training, aims to improve the model's robustness against adversarial perturbations. We evaluate the effectiveness of this strategy by measuring the model's accuracy on both clean and adversarially perturbed test sets under varying attack strengths ($\epsilon$ values). The accuracy vs $\epsilon$ curves are critical for visualizing the trade-off between standard accuracy and robust accuracy.
 
 \section{Implementation details and compute}
 \subsection{Codebase structure}
@@ -211,9 +180,6 @@ We recommend running ablations over: vocabulary size, attention dimensionality, 
 \section{Limitations and Future Work}
 Limitations include compute constraints limiting full-run experiments and evaluation on large-scale corpora. Future directions: explore stronger decoders (Transformer-based), use larger datasets for CLIP-style pretraining, integrate CIDEr and METEOR metrics for richer caption evaluation, and conduct human evaluations for caption quality.
 
-\section{Conclusion}
-We provide a comprehensive, reproducible set of implementations for multimodal learning and robustness experiments. The project serves as a practical starting point for course projects and further research.
-
 \section*{Acknowledgments}
 This work was completed as part of coursework at the University of Tehran. We thank the course staff for guidance.
 
@@ -271,27 +237,6 @@ PGD training pseudocode (single batch):
 
 \end{document}
 
-\begin{abstract}
-We present a comprehensive implementation and experimental study for several modern deep learning tasks as part of the CAe assignment in the Deep Learning and Neural Networks course. The project covers: (1) Image Captioning with attention-based encoder-decoder models and quantitative evaluation using BLEU; (2) CLIP-style contrastive representation learning (image-text); (3) Audio classification on UrbanSound8K comparing CNNs and Wav2Vec pre-trained models; (4) Efficient fine-tuning of large language models using LoRA on the Emotion dataset; and (5) Adversarial attacks (FGSM, PGD) and adversarial training for robustness. We provide reproducible code, processing pipelines, evaluation scripts, and publication-quality assets for an IEEE-format report.
-\end{abstract}
-
-\begin{IEEEkeywords}
-Image captioning, Attention, CLIP, Contrastive learning, Wav2Vec, LoRA, Adversarial attacks, FGSM, PGD, BLEU
-\end{IEEEkeywords}
-
-\section{Introduction}
-Deep learning has achieved state-of-the-art results across vision, audio, and language. In this assignment, we implement end-to-end pipelines for multimodal tasks (image-captioning and image-text retrieval), self-supervised and transfer learning (CLIP, Wav2Vec), low-cost fine-tuning (LoRA), and robustness evaluation (adversarial attacks). The contributions of our work are:
-\begin{itemize}
-    \item A modular, reproducible codebase with notebooks and scripts to reproduce experiments.
-    \item Implementations of a VGG-based encoder with an LSTM+attention decoder for image captioning, including preprocessing, tokenizer, and evaluation tools (BLEU, qualitative samples).
-    \item A CLIP-like framework using ViT and a simple text encoder with InfoNCE loss to learn joint embeddings.
-    \item A systematic comparison of CNN vs Wav2Vec strategies for UrbanSound classification with freezing/unfreezing regimes.
-    \item Controlled experiments for adversarial attacks and adversarial training, with plots and comparison metrics.
-\end{itemize}
-
-\section{Related Work}
-We build on established work in the literature. Image captioning with attention is studied in \cite{xu2015show}. CLIP and contrastive learning for images and text are described in \cite{radford2021learning}. Wav2Vec and other self-supervised audio models are discussed in \cite{baevski2020wav2vec, hsu2021hubert}. LoRA low-rank adaptation for LLMs was proposed in \cite{hu2021lora}. Adversarial examples and defenses follow the classic formulations in \cite{goodfellow2014explaining, madry2017towards}.
-
 \section{Q1: Image Captioning}
 \subsection{Data and Preprocessing}
 We use a provided Flickr/COCO subset that includes images and Persian captions. Preprocessing removes punctuation, lowercases text, and separates emojis where applicable. We build a vocabulary from training captions and add four special tokens: \texttt{<start>} (sos) used to signal the start of generation, \texttt{<end>} (eos) to terminate sequences, \texttt{<pad>} used for batch padding, and \texttt{<unk>} to represent out-of-vocabulary tokens.
@@ -315,14 +260,20 @@ We evaluate with BLEU-1..4 lexical metrics \cite{papineni2002bleu, post-2018-cal
 
 \section{Q1.5: CLIP-style Contrastive Learning (Image-Text)}
 \subsection{Model and Loss}
-Image encoder: a ViT backbone (e.g., `vit_small_patch16_224` from `timm`) with an MLP projection to an embedding dimension (e.g., 256) followed by L2 normalization. Text encoder: a small LSTM or Transformer that outputs a fixed-length vector projected to the same embedding size and normalized. The InfoNCE loss is computed on a batch: for correct pairs similarity is maximized, and incorrect pairs minimized, with logits scaled by a learnable temperature parameter $\tau$.
+Image encoder: a ViT backbone (e.g., `vit_small_patch16_224` from `timm`) with an MLP projection to an embedding dimension (e.g., 256) followed by L2 normalization. Text encoder: a small LSTM or Transformer that outputs a fixed-length vector projected to the same embedding size and normalized. The InfoNCE loss is computed on a batch: for correct pairs similarity is maximized, and incorrect pairs minimized, with logits scaled by a learnable temperature parameter $\tau$. Specifically, for a batch of $N$ image-text pairs $(I_i, S_i)$, the symmetric InfoNCE loss is defined as:
+\begin{align}
+\mathcal{L}_{img \to txt} &= -\frac{1}{N} \sum_{i=1}^{N} \log \frac{\exp(z_{img,i}^\top z_{txt,i} / \tau)}{\sum_{j=1}^{N} \exp(z_{img,i}^\top z_{txt,j} / \tau)} \\
+\mathcal{L}_{txt \to img} &= -\frac{1}{N} \sum_{i=1}^{N} \log \frac{\exp(z_{txt,i}^\top z_{img,i} / \tau)}{\sum_{j=1}^{N} \exp(z_{txt,i}^\top z_{img,j} / \tau)} \\
+\mathcal{L}_{total} &= \frac{1}{2}(\mathcal{L}_{img \to txt} + \mathcal{L}_{txt \to img})
+\end{align}
+where $z_{img,i}$ and $z_{txt,i}$ are the L2-normalized embeddings of the $i$-th image and text, respectively, and $\tau$ is the learnable temperature parameter. This loss encourages high similarity for matched pairs and low similarity for mismatched pairs within a batch.
 
 \subsection{Zero-shot and Retrieval}
 We demonstrate zero-shot retrieval by querying with text prompts and ranking images by cosine similarity, reporting Top-1 and Top-5 accuracies on held-out samples.
 
 \section{Q2: Urban Sound Classification}
 \subsection{Dataset and Preprocessing}
-UrbanSound8K is a standard dataset of 8,732 labeled audio clips categorized into 10 classes. We preprocess waveforms (resampling to 16kHz) and compute mel-spectrograms with 64 mel-bins for CNN training. For Wav2Vec experiments, we feed raw audio to the pretrained backbone and extract features or fine-tune.
+UrbanSound8K is a standard dataset of 8,732 labeled audio clips categorized into 10 classes. We preprocess waveforms (resampling to 16kHz) and compute mel-spectrograms with 64 mel-bins, a 25 ms window, and 10 ms hop size using a Hamming window for CNN training. For Wav2Vec experiments, we feed raw audio to the pretrained backbone and extract features or fine-tune. Data augmentation techniques employed include time-shifting, additive noise, random gain, and SpecAugment-style masking (frequency and time masks) to improve model generalization and robustness. These augmentations are applied on-the-fly during training.
 
 \subsection{Models and Experimental Regimes}
 We run three experimental regimes with Wav2Vec:
@@ -337,8 +288,12 @@ We compare these to a baseline CNN trained from scratch on mel-spectrograms.
 \subsection{Metrics and Analysis}
 We report classification accuracy, macro-F1, and confusion matrices. Convergence speed and sample efficiency are discussed: transfer learning from Wav2Vec is generally more sample-efficient than training a CNN from scratch.
 
-\section{Q3: LoRA Fine-tuning for Sentiment Analysis}
-LoRA inserts low-rank adaptation matrices into selected modules (e.g., query/key/value projection matrices). This allows training a small number of parameters while keeping the large model weights frozen. We fine-tune `meta-llama/Llama-3.2-1B` on a stratified subset of the Emotion dataset (train=1500, val=50, test=100) and report accuracy and macro-F1. Methods for prompt formatting, tokenization, and evaluation scripts are included in `codes/q3_lora`.
+\section{Q3: LoRA Fine-tuning for Sentiment Analysis}\label{sec:q3}
+\subsection{LoRA Formulation and Benefits}
+LoRA (Low-Rank Adaptation) is a parameter-efficient fine-tuning technique that addresses the challenge of adapting large pre-trained models to downstream tasks without incurring high computational costs or storage overhead. For a pre-trained weight matrix $W_0 \in \mathbb{R}^{d \times k}$ (e.g., in a query or value projection layer of a Transformer), LoRA proposes to update it by adding a low-rank decomposition $BA$, where $B \in \mathbb{R}^{d \times r}$ and $A \in \mathbb{R}^{r \times k}$, and $r \ll \min(d, k)$. The updated weight matrix becomes $W = W_0 + BA$. During fine-tuning, $W_0$ is kept frozen, and only the low-rank matrices $A$ and $B$ (and optionally bias terms and layer normalization parameters) are trained. This significantly reduces the number of trainable parameters, typically by factors of $10^3$ to $10^4$, making fine-tuning more memory-efficient and faster. The rank $r$ controls the expressiveness of the adaptation; a higher rank allows for more flexibility but increases the number of trainable parameters.
+
+\subsection{Prompting and Evaluation}
+We fine-tune `meta-llama/Llama-3.2-1B` on a stratified subset of the Emotion dataset (train=1500, val=50, test=100) using LoRA with $r=8, \alpha=32,\mathrm{dropout}=0.1$. The scaling factor $\alpha$ is used to rescale the updates from $BA$, typically set such that $BA \cdot (\alpha/r)$ is applied. Evaluation metrics include classification accuracy and macro-F1 score, along with confusion matrices and sample model outputs to provide a qualitative assessment of the fine-tuned model's performance on sentiment classification. Prompts are formatted using specific templates provided in the `codes/q3_lora` module, ensuring consistent input to the language model.
 
 \section{Q4: Adversarial Attacks and Adversarial Training}
 \subsection{Attack Algorithms}
@@ -347,11 +302,17 @@ FGSM (Fast Gradient Sign Method) perturbs inputs in the direction of the sign of
 \subsection{Adversarial Training}
 We implement adversarial training by generating PGD adversarial examples on-the-fly during each training batch and training on a mixture of clean and adversarial images. We report robust accuracy and compare trade-offs between clean accuracy and robustness.
 
+\section{Implementation details and compute}\label{sec:impl}
+\subsection{Codebase structure}
+The repository (`codes/`) is organized by task. Each task folder contains: data preprocessing, model code, train/eval scripts, and a notebook demo. Utilities for figure saving and LaTeX snippet generation are in `codes/utils/`.
+\subsection{Hardware and runtimes}
+Small smoke runs are reproducible on CPU; full experiments require GPU. Example GPU configuration used for larger runs: NVIDIA RTX 3090 with 24GB VRAM. Training times vary by model: full Wav2Vec fine-tuning can take multiple hours/days depending on dataset and schedule.
+
 \section{Results and Discussion}
 This section consolidates quantitative results, ablation studies, statistical significance analyses, an in-depth error analysis, and practical runtime/memory profiling. The results below mix smoke-run outputs (quick verification) and recommended full-run protocols. For all reported metrics, random seeds and exact configuration are saved alongside checkpoints and logs to ensure traceability.
 
 \subsection{Overview of quantitative results}
-We evaluate the methods across the tasks using the metrics described earlier. Tables~\ref{tab:bleu_full} and~\ref{tab:urbansound_full} present representative scores derived from smoke runs; for publication-quality results, re-run the scripts using the full training procedures described in Section~\ref{sec:impl}.
+We evaluate the methods across the tasks using the metrics described earlier. Tables~\ref{tab:bleu_full} and~\ref{tab:urbansound_full} present representative scores derived from smoke runs; for publication-quality results, re-run the scripts using the full training procedures described in Section~\ref{sec:impl}. Full training typically involves longer epochs (e.g., 30-50), more extensive data augmentation, and potentially different learning rate schedules. The provided smoke-run results serve as a quick verification of the pipeline's functionality, while full-scale checkpoints, when available, offer a true representation of the model's performance after extensive training.
 
 \begin{table*}[t]
 \centering
@@ -442,9 +403,6 @@ All code, notebooks, and assets are available in the `codes/` folder. Notebooks 
 
 \section{Limitations and Future Work}
 This project is constrained by computation availability; fully tuning large models (e.g., ViT or full Wav2Vec fine-tuning, Llama full fine-tuning) requires GPUs/TPUs and longer training times. Future work: explore beam search vs. greedy decoding for captioning, implement CIDEr/METEOR metrics, run larger-scale CLIP pretraining, and conduct user studies for generated captions.
-
-\section{Conclusion}
-We present a complete, reproducible implementation and evaluation of multiple deep learning tasks relevant to multimodal and robust systems. The project provides a practical baseline and clear instructions that can be extended to larger data and compute regimes.
 
 \section*{Acknowledgments}
 We thank the course instructors and reviewers for feedback and the University of Tehran for compute resources.

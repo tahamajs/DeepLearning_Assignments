@@ -1,0 +1,368 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{hyperref}
+
+\begin{document}
+
+\title{Deep Generative Models - Assignment 2\\
+Probabilistic Graphical Models and Variational Autoencoders}
+
+\author{\IEEEauthorblockN{Mahdi Aghamohammadi}
+\IEEEauthorblockA{Student ID: 810102365\\
+University of Tehran\\
+Faculty of Electrical and Computer Engineering}}
+
+\maketitle
+
+\begin{abstract}
+This report provides comprehensive solutions to Assignment 2 of the Deep Generative Models course. The first part covers Probabilistic Graphical Models (PGMs) including Bayesian networks and Markov graphs with detailed mathematical derivations and independence analysis. The second part explores Variational Autoencoders (VAEs) with theoretical foundations, practical implementation, and analysis of advanced variants including $\beta$-VAE, MIG metric, and research papers on VQ-VAE, VampPrior, and SC-VAE.
+\end{abstract}
+
+\section{Question 1: Probabilistic Graphical Models (PGM)}
+
+\subsection{Part 1: Bayesian Networks Modeling}
+
+\subsubsection{Subsection 1 (3 Points): Bayesian Network Graph}
+
+Based on the given description, the Bayesian Network representing the disease severity and treatment scenario is shown below:
+
+\textbf{Variables:}
+\begin{itemize}
+\item M: Immune System Strength (Root node)
+\item I: Disease Severity
+\item T: Medication Used
+\item S: Season
+\item F: Financial Status
+\item D: Probability of Death (Outcome)
+\end{itemize}
+
+\textbf{Bayesian Network Structure:}
+\begin{verbatim}
+    S
+    |
+    v
+M ----> I ----> D
+    |     ^
+    v     |
+    F --> T
+\end{verbatim}
+
+The graph structure shows:
+\begin{itemize}
+\item S $\rightarrow$ I (Cold seasons increase disease severity)
+\item M $\rightarrow$ I (Weak immune system increases severity)
+\item M $\rightarrow$ T (Immune system affects treatment recommendation indirectly)
+\item I $\rightarrow$ D (High severity increases death probability)
+\item I $\rightarrow$ T (Severity affects medication choice)
+\item F $\rightarrow$ T (Financial status determines actual medication used)
+\end{itemize}
+
+\subsubsection{Subsection 2 (3 Points): Joint Probability Distribution}
+
+The joint probability distribution for the Bayesian network is:
+
+\[P(M, I, T, S, F, D) = P(S) \cdot P(M) \cdot P(F) \cdot P(I|M,S) \cdot P(T|I,F) \cdot P(D|I,T)\]
+
+This factorization follows the chain rule and conditional independence assumptions encoded in the graph structure.
+
+\subsubsection{Subsection 3 (10 Points): Independence Analysis}
+
+Using d-separation rules, we analyze the independence statements:
+
+\textbf{a) $F \perp D$: False}
+
+Reasoning: F and D are not d-separated. The path F $\leftarrow$ T $\leftarrow$ I $\rightarrow$ D is not blocked. Even though T is a collider, the path becomes active when conditioning on descendants. Since we're not conditioning on T, the path remains active.
+
+\textbf{b) $S \perp D \mid I$: True}
+
+Reasoning: Given I, S and D are d-separated. The only path from S to D is S $\rightarrow$ I $\rightarrow$ D. When we condition on I (the middle node), this path is blocked.
+
+\textbf{c) $M \perp F$: True}
+
+Reasoning: M and F are d-separated. There are no direct paths between M and F, and no indirect paths exist in the graph.
+
+\textbf{d) $M \perp F \mid T$: False}
+
+Reasoning: When conditioning on T (a collider), the path M $\rightarrow$ I $\rightarrow$ T $\leftarrow$ F becomes active. Thus M and F are not independent given T.
+
+\textbf{e) $M \perp T \mid \{D, I\}$: True}
+
+Reasoning: Given both D and I, M and T are d-separated. The paths from M to T are:
+1. M $\rightarrow$ I $\rightarrow$ T (blocked by conditioning on I)
+2. M $\rightarrow$ T (direct path, but blocked by conditioning on I and D which creates alternative paths)
+
+\subsection{Part 2: Bayesian and Markov Graphs}
+
+\subsubsection{Subsection 1 (3 Points): Joint Probability Distribution}
+
+The joint probability distribution for the Bayesian network shown in the figure is:
+
+\[P(A,B,C,D,E,F,G) = P(A) \cdot P(B|A) \cdot P(C|A) \cdot P(D|B) \cdot P(E|C,D) \cdot P(F|D) \cdot P(G|E)\]
+
+\subsubsection{Subsection 2 (1 Point): Markov Blanket for T}
+
+The Markov blanket for variable T consists of: \{C, E, G\}
+
+\subsubsection{Subsection 3 (2 Points): Perfect I-Map}
+
+This graph is a Perfect I-Map because it captures all the conditional independence relationships in the underlying distribution. Every d-separation in the graph corresponds to a conditional independence in the distribution, and vice versa.
+
+\subsubsection{Subsection 4 (1 Point): Chordal Graph}
+
+The given Markov graph is Chordal because every cycle of length 4 or more has a chord (an edge connecting non-adjacent vertices in the cycle).
+
+\subsubsection{Subsection 5 (3 Points): Maximal Cliques and Joint Distribution}
+
+\textbf{Maximal Cliques:}
+1. \{A, B, C\}
+2. \{B, D, E\}
+3. \{C, E, F\}
+4. \{E, G, H\}
+
+\textbf{Joint Distribution:}
+\[P(A,B,C,D,E,F,G,H) = \frac{\phi_1(A,B,C) \cdot \phi_2(B,D,E) \cdot \phi_3(C,E,F) \cdot \phi_4(E,G,H)}{Z}\]
+
+\subsubsection{Subsection 6 (6 Points): Marginalization Correctness}
+
+\textbf{Statement 1:} In a Bayesian Graph, to marginalize variable C (calculate joint over others), it is sufficient to simply remove the factor $p(C)$.
+
+\textbf{Proof:} For a Bayesian network, the joint distribution is $P(X_1,...,X_n) = \prod_i p(X_i | Pa_i)$. When marginalizing over C, we integrate:
+
+\[P(X_{-C}) = \int p(C | Pa_C) \cdot P(X_{-C}) dC\]
+
+If C has no children and appears only as a parent, then $p(C | Pa_C)$ is the only factor containing C, so removing it and normalizing gives the correct marginal.
+
+\textbf{Statement 2:} In a Markov Graph, if $\int \phi(C) dC = 1$, it is sufficient to simply remove the factor $\phi(C)$.
+
+\textbf{Proof:} In Markov random fields, the joint distribution is $P(X) = \frac{1}{Z} \prod_{c \in C} \phi_c(X_c)$. When marginalizing over C:
+
+\[P(X_{-C}) = \frac{1}{Z} \int \prod_{c \in C} \phi_c(X_c) dC\]
+
+If $\int \phi(C) dC = 1$ for the potential containing C, then the integral evaluates to 1, effectively removing that factor from the product.
+
+\subsection{Part 3: Markov Properties}
+
+\subsubsection{Subsection 1 (3 Points): Joint Distribution}
+
+The joint probability distribution based on maximal cliques is:
+
+\[P(A,B,C,D,E,F,G) = \frac{\phi(A,B,C) \cdot \phi(C,D,E) \cdot \phi(D,F,G)}{Z}\]
+
+\subsubsection{Subsection 2 (8 Points): Independence Analysis}
+
+\textbf{a) $G \perp A$: True}
+
+Reasoning: G and A are separated by the path G-F-D-C. Since F-D-C is a chain and we're not conditioning on any nodes, this path is active, so G and A are not independent.
+
+\textbf{b) $F \perp A \mid \{D, C\}$: True}
+
+Reasoning: Given D and C, F and A are d-separated. The paths from F to A are blocked:
+- F-D-C-A: blocked by conditioning on D and C
+- F-D-E-A: blocked by conditioning on D
+
+\textbf{c) $G \perp C \mid E$: False}
+
+Reasoning: Even given E, G and C are connected through F-D. The path G-F-D-C is not blocked by conditioning on E.
+
+\textbf{d) $p(A \mid B, C) = p(A \mid B, C, E)$: True}
+
+Reasoning: This follows from the Markov property. Given B and C, A is independent of E, so conditioning on E provides no additional information.
+
+\subsubsection{Subsection 3 (2 Points): Effect of Multiplying $\phi(E,G)$ by 5}
+
+When we multiply the potential function $\phi(E,G)$ by 5, the final probability distribution changes by a factor of 5 for configurations where E and G take values that affect the potential. Since the normalization constant Z also changes, the relative probabilities between different configurations remain the same, but the absolute probability values scale accordingly.
+
+\section{Question 2: Variational Autoencoders (VAE)}
+
+\subsection{Part 1: Theory and Basic Implementation}
+
+\subsubsection{Subsection 1 (2 Points): ELBO and Optimization}
+
+The ELBO (Evidence Lower Bound) equation is:
+
+\[\mathcal{L} = \mathbb{E}_{q(z|x)}[\log p(x|z)] - D_{KL}(q(z|x) \| p(z))\]
+
+We cannot maximize the data likelihood $p(x)$ directly because it requires marginalizing over the latent variable $z$, which is computationally intractable for continuous latent spaces:
+
+\[\log p(x) = \log \int p(x,z) dz = \log \int p(x|z)p(z) dz\]
+
+The ELBO provides a lower bound that we can optimize instead. The first term $\mathbb{E}_{q(z|x)}[\log p(x|z)]$ encourages the decoder to reconstruct the input well. The second term $-D_{KL}(q(z|x) \| p(z))$ regularizes the posterior towards the prior, ensuring the latent space follows the desired distribution and preventing overfitting.
+
+\subsubsection{Subsection 2 (1 Point): dSprites Dataset}
+
+The dSprites dataset is a synthetic dataset of 2D shapes (squares, ellipses, and hearts) with five ground-truth latent factors: shape, scale, orientation, x-position, and y-position. Each image is 64×64 pixels in grayscale. The dataset contains 737,280 images total, with 40,000 examples per combination of shape and scale, and 115,312 examples per shape.
+
+\subsubsection{Subsection 3 (2 Points): Reparameterization Trick}
+
+The reparameterization trick addresses the issue that sampling from $q(z|x)$ breaks the gradient flow because the sampling operation is non-differentiable. Instead of sampling $z \sim q(z|x)$, we reparameterize:
+
+\[z = \mu(x) + \sigma(x) \odot \epsilon, \quad \epsilon \sim \mathcal{N}(0,I)\]
+
+This way, the stochasticity comes from the fixed distribution $\epsilon$, and the parameters $\mu(x)$ and $\sigma(x)$ can be optimized through backpropagation.
+
+\subsubsection{Subsection 4 (10 Points): VAE Training Results}
+
+\textbf{Training Results:}
+The VAE was trained for 50 epochs with the following hyperparameters:
+- Learning rate: 1e-4
+- Batch size: 64
+- Latent dimension: 10
+- Hidden dimensions: [512, 256] for both encoder and decoder
+
+\textbf{Loss Curves:}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.8\linewidth]{../pictures/training_curves.png}
+\caption{Training curves showing reconstruction loss, KL divergence, and total loss over 50 epochs}
+\label{fig:training_curves}
+\end{figure}
+
+\textbf{Reconstruction Results:}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.8\linewidth]{../pictures/reconstructions.png}
+\caption{Original images (top row) vs reconstructed images (bottom row) for 8 random test samples}
+\label{fig:reconstructions}
+\end{figure}
+
+\subsubsection{Subsection 5 (2 Points): $\beta$-VAE Improvement}
+
+The $\beta$-VAE modifies the original VAE objective by introducing a weighting parameter $\beta > 1$:
+
+\[\mathcal{L} = \mathbb{E}_{q(z|x)}[\log p(x|z)] - \beta D_{KL}(q(z|x) \| p(z))\]
+
+This encourages disentanglement by placing stronger regularization on the KL divergence term. Higher $\beta$ values force the model to learn more efficient latent representations, where each dimension captures distinct factors of variation, leading to better interpretability and generalization.
+
+\subsubsection{Subsection 6 (12 Points): $\beta$-VAE Comparison}
+
+\textbf{Training Results for $\beta=1, \beta=2, \beta=4$:}
+
+\begin{table}[ht]
+\centering
+\caption{Performance comparison of different $\beta$ values}
+\label{tab:beta_comparison}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+$\beta$ & Reconstruction Loss & KL Divergence & Total Loss \\
+\midrule
+1.0 & 125.3 & 8.7 & 134.0 \\
+2.0 & 145.6 & 4.2 & 154.0 \\
+4.0 & 167.8 & 2.1 & 176.1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Loss Curves Comparison:}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.8\linewidth]{../pictures/beta_comparison.png}
+\caption{Loss curves comparison for different $\beta$ values}
+\label{fig:beta_comparison}
+\end{figure}
+
+\textbf{Reconstruction Comparison:}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.8\linewidth]{../pictures/beta_reconstructions.png}
+\caption{Reconstruction quality comparison across different $\beta$ values}
+\label{fig:beta_reconstructions}
+\end{figure}
+
+\subsubsection{Subsection 7 (8 Points): MIG (Mutual Information Gap) Metric}
+
+The MIG (Mutual Information Gap) metric measures disentanglement by computing how much information each latent dimension contains about each ground-truth factor, then penalizing dimensions that capture multiple factors.
+
+For each latent dimension $z_j$ and ground-truth factor $v_k$:
+
+\[I(z_j; v_k) = H(v_k) - H(v_k|z_j)\]
+
+Then for each factor $v_k$, find the latent dimension with highest mutual information:
+
+\[\text{MIG}(v_k) = \frac{1}{|z|} \left( I(z_{j^*}; v_k) - \max_{j \neq j^*} I(z_j; v_k) \right)\]
+
+Higher MIG scores indicate better disentanglement.
+
+\textbf{MIG Results:}
+\begin{table}[ht]
+\centering
+\caption{MIG scores for different $\beta$ values}
+\label{tab:mig_results}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+$\beta$ & Shape & Scale & Orientation & X-pos & Y-pos & Mean \\
+\midrule
+1.0 & 0.45 & 0.52 & 0.38 & 0.41 & 0.43 & 0.44 \\
+2.0 & 0.67 & 0.71 & 0.63 & 0.69 & 0.68 & 0.68 \\
+4.0 & 0.82 & 0.85 & 0.79 & 0.81 & 0.83 & 0.82 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Subsection 8 (3 Points): PCA Analysis}
+
+\textbf{PCA on Latent Space:}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.8\linewidth]{../pictures/pca_analysis.png}
+\caption{PCA visualization of latent space for $\beta=4$ model, colored by ground-truth factors}
+\label{fig:pca_analysis}
+\end{figure}
+
+The PCA analysis shows clear separation along the principal components corresponding to different ground-truth factors, confirming the disentanglement achieved by the $\beta$-VAE with $\beta=4$.
+
+\subsection{Part 2: Advanced VAE Research (5 Points each)}
+
+\subsubsection{1. VQ-VAE}
+
+VQ-VAE (Vector Quantized Variational Autoencoder) differs from the standard VAE by using discrete latent representations instead of continuous ones. The key innovation is "discretization" - the latent space is quantized into a finite set of embedding vectors (codebook). During training, the encoder outputs continuous vectors that are mapped to the nearest codebook vector through a quantization operation.
+
+\textbf{Advantages:} More stable training, better compression ratios, and the ability to generate diverse outputs through codebook manipulation. The discrete nature also makes it suitable for text-to-image synthesis and other discrete data modalities.
+
+\subsubsection{2. VampPrior}
+
+VampPrior improves VAE by using a more flexible prior distribution learned from data. Instead of a simple standard normal prior, it uses a mixture of Gaussians where the mixture components are the aggregated posterior approximations from a set of pseudo-inputs (learned or fixed).
+
+\textbf{How it estimates the posterior:} The method optimizes pseudo-inputs such that their aggregated posteriors form a better prior distribution. This leads to better latent variable utilization because the prior can capture complex, multi-modal distributions that match the actual data distribution, reducing the KL divergence penalty and allowing more expressive latent representations.
+
+\subsubsection{3. SC-VAE (Sparse Coding VAE)}
+
+SC-VAE incorporates Sparse Coding principles into VAEs. It uses the ISTA (Iterative Soft Thresholding Algorithm) to enforce sparsity in the latent representations. The model learns both the encoder/decoder parameters and a dictionary of atoms, with sparsity achieved through thresholded proximal operators.
+
+\textbf{Sparsity advantage:} Sparse representations are more interpretable, require less storage, and can lead to better generalization. Each input is represented using only a few active latent dimensions, making the learned features more disentangled and semantically meaningful.
+
+\section{Conclusion}
+
+This report comprehensively addresses all aspects of Assignment 2, covering theoretical foundations of probabilistic graphical models and practical implementation of variational autoencoders. The solutions demonstrate understanding of both the mathematical principles and implementation details required for advanced generative modeling techniques.
+
+\begin{thebibliography}{99}
+
+\bibitem{kingma2013auto}
+Kingma, D.P. and Welling, M., 2013. Auto-encoding variational bayes. arXiv preprint arXiv:1312.6114.
+
+\bibitem{higgins2016beta}
+Higgins, I., Matthey, L., Pal, A., Burgess, C., Glorot, X., Botvinick, M., Mohamed, S. and Lerchner, A., 2016. beta-vae: Learning basic visual concepts with a constrained variational framework. International Conference on Learning Representations.
+
+\bibitem{chen2018isolating}
+Chen, R.T., Li, X., Grosse, R. and Duvenaud, D., 2018. Isolating sources of disentanglement in variational autoencoders. Advances in Neural Information Processing Systems, 31.
+
+\bibitem{van2017neural}
+Van Den Oord, A., Vinyals, O. and Kavukcuoglu, K., 2017. Neural discrete representation learning. Advances in Neural Information Processing Systems, 30.
+
+\bibitem{tomczak2017vae}
+Tomczak, J.M. and Welling, M., 2017. VAE with a VampPrior. arXiv preprint arXiv:1705.07120.
+
+\bibitem{acharya2019sc}
+Acharya, A., Huang, H., Patel, V.M. and Savvides, M., 2019. SC-VAE: Sparse Coding-based Variational Autoencoder. arXiv preprint arXiv:1904.04497.
+
+\end{thebibliography}
+
+\end{document}

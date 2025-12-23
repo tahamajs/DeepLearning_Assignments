@@ -15,6 +15,11 @@ def set_seed(seed=42):
         torch.cuda.manual_seed_all(seed)
 
 
+def seed_everything(seed=42):
+    """Compatibility wrapper: alias for set_seed (used across notebooks)."""
+    set_seed(seed)
+
+
 def ensure_dir(path):
     if not os.path.exists(path):
         os.makedirs(path)

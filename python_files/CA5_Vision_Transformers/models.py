@@ -5,7 +5,7 @@ import torch.nn as nn
 import torchvision.models as models
 
 def get_resnet50(num_classes):
-    model = models.resnet50(pretrained=True)
+    model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1)
     # Modify the final layer for Re-ID (classification)
     num_ftrs = model.fc.in_features
     model.fc = nn.Linear(num_ftrs, num_classes)
@@ -52,7 +52,7 @@ class BotNet50(nn.Module):
     def __init__(self, num_classes, resolution=(256, 128)):
         super(BotNet50, self).__init__()
         # Load backbone
-        resnet = models.resnet50(pretrained=True)
+        resnet = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1)
         
         # Extract initial layers
         self.stem = nn.Sequential(resnet.conv1, resnet.bn1, resnet.relu, resnet.maxpool)

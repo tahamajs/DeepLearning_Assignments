@@ -40,6 +40,8 @@ class Seq2SeqJoint(nn.Module):
         self.decoder = decoder
         # intent head from encoder final hidden state
         self.intent_head = nn.Linear(encoder.lstm.hidden_size, num_intents)
+        # project encoder hidden state to decoder hidden size
+        self.hidden_projection = nn.Linear(encoder.lstm.hidden_size, decoder.lstm.hidden_size)
 
     def forward(self, src_ids: torch.Tensor, tgt_slot_ids: torch.Tensor = None, teacher_forcing: float = 0.5):
         # encode
@@ -55,9 +57,13 @@ class Seq2SeqJoint(nn.Module):
         device = src_ids.device
         outputs = []
 
+        # project encoder hidden state to decoder size
+        hn_proj = self.hidden_projection(hn)
+        cn_proj = self.hidden_projection(cn)
+        hidden = (hn_proj, cn_proj)
+
         # start with BOS (id 2) 
         cur_input = torch.full((B, 1), 2, dtype=torch.long, device=device)
-        hidden = (hn, cn)
         for t in range(max_len):
             logits, hidden = self.decoder(cur_input, hidden)
             # logits: (B, 1, V)

@@ -138,7 +138,7 @@ def eval_joint(model, dataloader, device,
     
     return (total_loss / len(dataloader), 
             torch.cat(intent_preds), torch.cat(intent_labels),
-            torch.cat(slot_preds), torch.cat(slot_labels))
+            slot_preds, slot_labels)
 
 
 def format_for_seqeval(preds, labels, id2label, padding_id=0):

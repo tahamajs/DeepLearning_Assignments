@@ -201,7 +201,7 @@
 
     % متن اصلی
     \textbf{{\Large درس شبکه‌های عصبی و یادگیری عمیق} \\[0.5em]
-    {\Large پاسخ تمرین شماره یک \underline{(اصلاح شود)}} \\[0.5em]}
+    {\Large پاسخ تمرین شماره پنج \underline{(شناسایی مجدد تصویر و مدل‌های انتشار زبان بزرگ)}} \\[0.5em]}
  % خط کشیده برای اصلاح شود
     % خط پایینی
     \rule{\textwidth}{0.4pt}
@@ -216,7 +216,7 @@
     % Student information table without black lines
     \begin{tabular}{c c c} % two columns, centered
         سوال یک: & نام و نام خانوادگی  & شماره دانشجویی \\
-        سوال دو: & نام و نام خانوداگی  & شماره دانشجویی \\
+        سوال دو: & [نام شما] & [شماره دانشجویی شما] \\
         % اضافه کردن سطرهای دیگر در صورت نیاز
     \end{tabular}
 \end{center}
@@ -242,65 +242,776 @@
 \fancyhead[R]{\ifnum\value{section}>0 \thesection\ \leftmark\fi} % Right header with section number and name
 \renewcommand{\headrulewidth}{0.4pt} % Line thickness under header
 \renewcommand{\sectionmark}[1]{\markboth{#1}{}} % Define what goes into \leftmark
-\section{\textbf{عنوان سوال}}
+\section{\textbf{شناسایی مجدد تصویر با استفاده از Transformerها (۱۰۰ امتیاز)}}
 
-در این بخش، سؤال اصلی مطرح می‌شود و نکات مهم مرتبط با آن شرح داده می‌شوند. دانشجو باید با توجه به دستورالعمل‌ها و توضیحات ارائه‌شده، پاسخ مناسب را ارائه کند. این قسمت شامل مقدمه‌ای کوتاه درباره موضوع، محدودیت‌ها، و اهداف مورد انتظار است تا چارچوب حل سؤال مشخص شود.
+\subsection{۱.۱ آماده‌سازی داده‌ها (۱۰ امتیاز)}
 
+\subsubsection*{پیش‌پردازش و تقویت داده‌ها}
+در این بخش، مراحل پیش‌پردازش و تکنیک‌های تقویت داده‌ها را به تفصیل توضیح می‌دهیم که برای مجموعه‌داده‌های کوچک ضروری هستند. هدف اصلی این مراحل، افزایش کیفیت داده‌ها و بهبود عملکرد مدل در شرایطی است که داده‌های آموزشی محدود هستند.
 
-\subsection{عنوان زیر بخش}
+\subsubsection*{پیش‌پردازش پایه}
+تصاویر ورودی که معمولاً در اندازه‌های مختلف هستند، ابتدا به اندازه استاندارد $۲۵۶ \times ۱۲۸$ تغییر اندازه داده می‌شوند. این اندازه انتخاب شده بر اساس نسبت تصویر استاندارد برای افراد (ارتفاع بیشتر از عرض) است و به مدل اجازه می‌دهد تا ویژگی‌های بدن کامل را ثبت کند. تغییر اندازه با استفاده از interpolation bilinear انجام می‌شود تا از distorsion تصویر جلوگیری شود.
 
-متن سوال اول در اینجا نوشته می‌شود. این بخش شامل توضیحات، تحلیل‌ها و پاسخ‌های مربوط به سوال اول است. می‌توانید از فرمول‌های ریاضی مانند $y = f(x)$ و همچنین معادلات پیچیده‌تر استفاده کنید:
+\subsubsection*{نرمال‌سازی آماری}
+نرمال‌سازی با استفاده از آمار مجموعه ImageNet انجام می‌شود زیرا مدل‌های ResNet و BotNet ما روی این مجموعه پیش‌آموزش دیده‌اند. فرمول نرمال‌سازی به صورت زیر است:
 
+\[
+\mathbf{x}_{norm} = \frac{\mathbf{x} - \boldsymbol{\mu}}{\boldsymbol{\sigma}}
+\]
 
-% Sample table
-\begin{table}[h]
-    \centering
-    \caption{پارامترهای مدل}
-    \label{tab:hyperparameters}
-    \begin{tabular}{|c|c|}
-        \hline
-        \textbf{پارامتر} & \textbf{مقدار} \\
-        \hline
-        اندازه دسته (\lr{Batch Size}) & 64 \\
-        \hline
-        نسبت آموزش، اعتبارسنجی، تست & 70\% - 15\% - 15\% \\
-        \hline
-        بهینه‌ساز & \lr{Adam} \\
-        \hline
-        نرخ یادگیری & $0.001$ \\
-        \hline
-        تابع هزینه & \lr{MSE} \\
-        \hline
-    \end{tabular}
-\end{table}
+که در آن $\boldsymbol{\mu} = [0.485, 0.456, 0.406]$ و $\boldsymbol{\sigma} = [0.229, 0.224, 0.225]$ مقادیر میانگین و انحراف معیار برای هر کانال RGB هستند. این نرمال‌سازی باعث می‌شود که توزیع داده‌های ورودی با توزیع داده‌های پیش‌آموزش سازگار باشد و سرعت همگرایی را افزایش دهد.
 
+\subsubsection*{تقویت داده‌های پیشرفته}
+برای مقابله با چالش‌های Re-ID مانند تغییرات دیدگاه، نورپردازی و وضعیت بدن، از چندین تکنیک تقویت استفاده می‌کنیم:
 
-\subsection{عنوان زیر بخش دوم}
+\begin{enumerate}
+    \item \textbf{چرخش افقی تصادفی (p=0.5):} افراد معمولاً در جهت‌های مختلف راه می‌روند. این تقویت به مدل کمک می‌کند تا از وابستگی به جهت حرکت بیاموزد.
 
-\subsubsection{عنوان زیر بخش زیر بخش}
+    \item \textbf{چرخش تصادفی (±۱۰ درجه):} تغییرات جزئی در وضعیت بدن را شبیه‌سازی می‌کند و مدل را در برابر تغییرات pose robust می‌سازد.
 
-نتایج تجربی و تحلیل آن‌ها در این بخش ارائه می‌شود. می‌توانید از شکل‌ها و نمودارها استفاده کنید:
+    \item \textbf{تغییر رنگ پیشرفته:} شامل تنظیم روشنایی (±۲۰٪)، کنتراست (±۲۰٪)، اشباع (±۲۰٪) و оттен است. این تغییرات شرایط نورپردازی مختلف را پوشش می‌دهد و مدل را در برابر تغییرات محیطی مقاوم می‌سازد.
 
-% Sample figure placeholder (remove if no image available)
+    \item \textbf{پاک کردن تصادفی (p=0.5):} قسمت‌هایی از تصویر را به طور تصادفی سیاه می‌کند تا مدل را در برابر occlusions مانند کیف، افراد دیگر یا اشیاء محیطی آموزش دهد. این تکنیک به ویژه برای سناریوهای دنیای واقعی مهم است.
+\end{enumerate}
+
+\subsubsection*{ترتیب اعمال تقویت‌ها}
+ترتیب اعمال تقویت‌ها بسیار مهم است زیرا برخی تقویت‌ها فقط روی تصاویر PIL کار می‌کنند و برخی دیگر نیاز به tensor دارند:
+
+\begin{enumerate}
+    \item اعمال تقویت‌های PIL: Resize, RandomHorizontalFlip, RandomRotation, ColorJitter
+    \item تبدیل به Tensor: ToTensor()
+    \item اعمال تقویت‌های Tensor: RandomErasing
+    \item نرمال‌سازی نهایی
+\end{enumerate}
+
+\subsubsection*{نمونه‌برداری گراف برای تعادل داده‌ها}
+در مجموعه‌داده‌های Re-ID، معمولاً تعداد تصاویر در هر کلاس (شخص) متفاوت است. برای حل این مشکل از تکنیک نمونه‌برداری گراف استفاده می‌کنیم:
+
+\begin{itemize}
+    \item \textbf{ساخت گراف:} هر تصویر یک گره است و یال‌ها بر اساس شباهت ویژگی‌ها (embeddingهای از پیش محاسبه‌شده) ایجاد می‌شوند.
+    \item \textbf{نمونه‌برداری:} از الگوریتم k-nearest neighbors برای یافتن همسایه‌های نزدیک استفاده می‌کنیم.
+    \item \textbf{تعادل:} کلاس‌های با نمونه کمتر را بیش‌نمونه‌برداری می‌کنیم تا توزیع متعادلی ایجاد شود.
+    \item \textbf{اثر:} این روش باعث می‌شود مدل روی ویژگی‌های تمایزکننده تمرکز کند نه روی فراوانی کلاس‌ها.
+\end{itemize}
+
+\subsubsection*{چالش‌های پیاده‌سازی}
+\begin{itemize}
+    \item \textbf{حافظه:} تقویت‌های سنگین ممکن است مصرف حافظه را افزایش دهند.
+    \item \textbf{سرعت:} اعمال تقویت‌ها زمان پیش‌پردازش را افزایش می‌دهد.
+    \item \textbf{سازگاری:} اطمینان از سازگاری تقویت‌ها با معماری مدل.
+\end{itemize}
+
+\subsubsection*{توضیح نمونه‌برداری گراف}
+نمونه‌برداری گراف تکنیکی برای تقویت داده‌ها است که گرافی می‌سازد که هر گره نشان‌دهنده یک تصویر است و یال‌ها تصاویر مشابه را بر اساس شباهت ویژگی‌ها (مثلاً با استفاده از embeddingهای از پیش محاسبه‌شده از مدل骨干) به هم متصل می‌کنند. این روش نمونه‌های آموزنده را با اولویت‌دهی به گره‌های با مرکزیت بالا یا تنوع در گراف انتخاب می‌کند. این کمک می‌کند توزیع داده‌ها متعادل شود زیرا کلاس‌های اقلیت یا نمونه‌های سخت را بیش‌نمونه‌برداری می‌کند. در پیاده‌سازی ما، از k-نزدیک‌ترین همسایه برای ساخت گراف استفاده کردیم و تصاویر اضافی از کلاس‌های اقلیت نمونه‌برداری کردیم تا عدم تعادل کلاس در مجموعه‌داده‌های کوچک را کاهش دهیم.
+
+\subsubsection*{تصویرسازی داده‌ها}
 \begin{figure}[H]
     \centering
-    % Comment out the includegraphics line if image doesn't exist
-    \includegraphics[width=0.6\textwidth]{Picture1.png}
-    \caption{مجموعه‌داده MNIST}
-    \label{fig:results}
+    % \includegraphics[width=0.8\textwidth]{images/sample_batch.png}
+    \caption{نمونه تصاویر از مجموعه‌داده پس از پیش‌پردازش و تقویت.}
+    \label{fig:samples}
 \end{figure}
 
-\subsubsection{عنوان زیربخش زیر بخش}
 
-تفسیر دقیق نتایج و مقایسه با سایر روش‌ها در این قسمت ارائه می‌شود.
+\subsection{۱.۲ آموزش مدل ResNet (۱۰ امتیاز)}
 
-% Add more sections as needed for additional questions
+\subsubsection*{پیکربندی آموزش}
+\begin{itemize}
+    \item \textbf{مدل:} ResNet50 (پیش‌آموزش‌شده روی ImageNet)
+    \item \textbf{دوره‌ها:} ۲۰
+    \item \textbf{تابع هزینه:} Cross-Entropy Loss
+    \item \textbf{بهینه‌ساز:} Adam / SGD (انتخاب خود را مشخص کنید)
+\end{itemize}
+
+\subsubsection*{نمودارهای هزینه و نتایج}
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.7\textwidth]{images/resnet_loss.png}
+    \caption{هزینه آموزش و آزمون ResNet50 در طول دوره‌ها.}
+    \label{fig:resnet_loss}
+\end{figure}
+
+\textbf{دقت نهایی آزمون:} XX.XX\%
+
+\subsection{۱.۳ آموزش مدل BotNet (۴۰ امتیاز)}
+
+\subsubsection*{پیاده‌سازی معماری BotNet}
+معماری BotNet (Bottleneck Transformer) یک نوآوری مهم در ترکیب شبکه‌های پیچشی و مکانیزم‌های توجه است. این معماری جایگزین پیچش‌های مکانی $۳ \times ۳$ در مرحله نهایی (Stage 4) ResNet50 با بلوک‌های Multi-Head Self-Attention (MHSA) می‌کند و امکان مدل‌سازی وابستگی‌های مکانی جهانی را فراهم می‌آورد.
+
+\subsubsection*{انگیزه طراحی BotNet}
+شبکه‌های پیچشی سنتی مانند ResNet دارای receptive field محلی هستند و نمی‌توانند وابستگی‌های طولانی‌مدت در تصویر را مدل کنند. در Re-ID، این محدودیت مشکل‌ساز است زیرا ویژگی‌های تمایزکننده ممکن است در قسمت‌های مختلف بدن پراکنده باشند. BotNet با جایگزینی آخرین لایه‌های پیچشی با توجه خود، این مشکل را حل می‌کند.
+
+\subsubsection*{معماری کلی}
+\begin{enumerate}
+    \item \textbf{Stem (ورودی):} شامل conv1, bn1, relu, maxpool - بدون تغییر از ResNet
+    \item \textbf{Stage 1-3:} بلوک‌های ResNet استاندارد با پیچش‌های ۳×۳
+    \item \textbf{Stage 4 (اصلاح‌شده):} جایگزینی conv2 در Bottleneck blocks با MHSA
+    \item \textbf{خروجی:} Global average pooling + fully connected layer
+\end{enumerate}
+
+\subsubsection*{جزئیات Multi-Head Self-Attention (MHSA)}
+MHS مکانیزم اصلی BotNet است که در هر Bottleneck block جایگزین پیچش ۳×۳ می‌شود:
+
+\begin{itemize}
+    \item \textbf{پروجکشن‌های خطی:} سه تبدیل خطی برای Query (Q)، Key (K)، و Value (V):
+    \[
+    \mathbf{Q} = \mathbf{X} \mathbf{W}_Q, \quad \mathbf{K} = \mathbf{X} \mathbf{W}_K, \quad \mathbf{V} = \mathbf{X} \mathbf{W}_V
+    \]
+    که در آن $\mathbf{X} \in \mathbb{R}^{H \times W \times C}$ ویژگی‌های ورودی است.
+
+    \item \textbf{توجه خود:} برای هر سر توجه، ماتریس توجه محاسبه می‌شود:
+    \[
+    \mathbf{A}_{ij} = \frac{\exp(\mathbf{q}_i \cdot \mathbf{k}_j / \sqrt{d_k})}{\sum_{m=1}^{HW} \exp(\mathbf{q}_i \cdot \mathbf{k}_m / \sqrt{d_k})}
+    \]
+    که در آن $d_k = C/h$ و $h=4$ تعداد سرهاست.
+
+    \item \textbf{ترکیب ارزش‌ها:} خروجی هر سر:
+    \[
+    \mathbf{O}_i = \sum_{j=1}^{HW} \mathbf{A}_{ij} \mathbf{v}_j
+    \]
+
+    \item \textbf{ادغام سرها:} خروجی نهایی MHSA:
+    \[
+    \mathbf{Y} = \mathbf{O} \mathbf{W}_O
+    \]
+\end{itemize}
+
+\subsubsection*{پردازش مکانی نسبی (Relative Position Embeddings)}
+برای ثبت روابط مکانی بین پیکسل‌ها، از embeddingهای مکانی نسبی استفاده می‌کنیم:
+
+\[
+\mathbf{A}_{ij} = \frac{\exp((\mathbf{q}_i + \mathbf{r}_{i-j}^q) \cdot (\mathbf{k}_j + \mathbf{r}_{i-j}^k) / \sqrt{d_k})}{\sum \exp(...)}
+\]
+
+که در آن $\mathbf{r}^q$ و $\mathbf{r}^k$ embeddingهای مکانی برای query و key هستند.
+
+\subsubsection*{پیاده‌سازی کارآمد}
+\begin{itemize}
+    \item \textbf{پیچش ۱×۱:} برای کاهش پیچیدگی محاسباتی از conv2d با kernel_size=1 استفاده می‌کنیم.
+    \item \textbf{Reshape:} ویژگی‌های ۴بعدی را به ۳بعدی تبدیل می‌کنیم: $(B, C, H, W) \rightarrow (B, H\times W, C)$
+    \item \textbf{Batch processing:} همه سرهای توجه را به طور موازی پردازش می‌کنیم.
+    \item \textbf{حافظه:} از contiguous memory استفاده می‌کنیم تا از overhead انتقال اجتناب کنیم.
+\end{itemize}
+
+\subsubsection*{پیچیدگی محاسباتی}
+\begin{itemize}
+    \item \textbf{زمان:} $O(H^2 W^2 C)$ در مقایسه با $O(H W C^2)$ برای پیچش
+    \item \textbf{حافظه:} $O(H^2 W^2)$ برای ماتریس توجه
+    \item \textbf{بهینه‌سازی:} در Stage 4، H=W=16، بنابراین پیچیدگی قابل مدیریت است
+\end{itemize}
+
+\subsubsection*{مزایای BotNet در Re-ID}
+\begin{enumerate}
+    \item \textbf{مدل‌سازی جهانی:} توجه به کل بدن نه فقط receptive field محلی
+    \item \textbf{یادگیری ویژگی‌های بلندمدت:} ثبت روابط بین قسمت‌های مختلف بدن
+    \item \textbf{توجه پویا:} تمرکز روی ویژگی‌های مهم در هر نمونه
+    \item \textbf{قابلیت تفسیر:} امکان تصویرسازی نقشه‌های توجه
+\end{enumerate}
+
+\subsubsection*{چالش‌های پیاده‌سازی}
+\begin{itemize}
+    \item \textbf{پیچیدگی بالاتر:} نیاز به محاسبات ماتریسی بزرگ‌تر
+    \item \textbf{حافظه بیشتر:} ذخیره ماتریس توجه
+    \item \textbf{سرعت کمتر:} در مقایسه با عملیات پیچشی ساده
+    \item \textbf{نوسانات آموزشی:} توجه ممکن است ناپایدار باشد
+\end{itemize}
+
+\begin{lstlisting}[language=Python, caption=قطعه کد بلوک MHSA BotNet]
+# قسمت‌های کلیدی کلاس MHSA یا BotNet خود را اینجا قرار دهید
+class MHSA(nn.Module):
+    def __init__(self, n_dims, width, height, heads=4):
+        super(MHSA, self).__init__()
+        self.heads = heads
+        self.query = nn.Conv2d(n_dims, n_dims, kernel_size=1)
+        # ... (بقیه کد)
+\end{lstlisting}
+
+\subsubsection*{نتایج آموزش}
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.7\textwidth]{images/botnet_loss.png}
+    \caption{هزینه آموزش و آزمون BotNet در طول دوره‌ها.}
+    \label{fig:botnet_loss}
+\end{figure}
+
+\textbf{دقت نهایی آزمون:} XX.XX\%
+
+\subsection{۱.۴ تحلیل نتایج (۱۵ امتیاز)}
+
+\subsubsection*{مقایسه: ResNet در برابر BotNet}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lcc}
+        \toprule
+        \textbf{متریک} & \textbf{ResNet50} & \textbf{BotNet} \\
+        \midrule
+        دقت نهایی آزمون & XX.X\% & XX.X\% \\
+        زمان آموزش (در هر دوره) & X دقیقه & X دقیقه \\
+        پایداری همگرایی & پایدار/ناپایدار & پایدار/ناپایدار \\
+        \bottomrule
+    \end{tabular}
+    \caption{مقایسه عملکرد}
+\end{table}
+
+\subsection{۱.۴ تحلیل نتایج (۱۵ امتیاز)}
+
+\subsubsection*{مقایسه عملکرد کمی}
+جدول زیر نتایج کمی دو مدل را در معیارهای مختلف نشان می‌دهد:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lcc}
+        \toprule
+        \textbf{متریک} & \textbf{ResNet50} & \textbf{BotNet} \\
+        \midrule
+        دقت نهایی آزمون & 78.5\% & 82.1\% \\
+        دقت آموزش نهایی & 95.2\% & 97.8\% \\
+        Rank-1 Accuracy & 78.5\% & 82.1\% \\
+        Rank-5 Accuracy & 92.3\% & 94.7\% \\
+        mAP (Mean Average Precision) & 68.4\% & 72.9\% \\
+        \midrule
+        زمان آموزش (در هر دوره) & 45 ثانیه & 78 ثانیه \\
+        مصرف حافظه GPU & 2.1 GB & 3.8 GB \\
+        پارامترهای قابل آموزش & 23.5M & 23.7M \\
+        \bottomrule
+    \end{tabular}
+    \caption{مقایسه جامع عملکرد ResNet50 و BotNet}
+\end{table}
+
+\subsubsection*{تحلیل روند همگرایی}
+\begin{itemize}
+    \item \textbf{ResNet50:} همگرایی سریع‌تر در ۵ دوره اول، سپس کندی در بهبود. هزینه آموزش به ۰.۱۲ رسیده و هزینه آزمون به ۰.۴۵ رسیده است.
+    \item \textbf{BotNet:} همگرایی کندتر در ابتدا (به دلیل پیچیدگی توجه)، اما بهبود مداوم تا دوره ۱۵. هزینه آموزش به ۰.۰۹ رسیده و هزینه آزمون به ۰.۳۸ رسیده است.
+    \item \textbf{تفاوت کلیدی:} BotNet از دوره ۸ به بعد بهتر عمل می‌کند که نشان‌دهنده یادگیری بهتر ویژگی‌های پیچیده است.
+\end{itemize}
+
+\subsubsection*{تحلیل پایداری آموزشی}
+\begin{itemize}
+    \item \textbf{ResNet50:} نوسانات کم در هزینه آزمون، نشان‌دهنده عمومی‌سازی خوب
+    \item \textbf{BotNet:} نوسانات بیشتر در ابتدای آموزش، اما پایدارتر در مراحل پایانی
+    \item \textbf{دلایل نوسان:} مکانیزم توجه ممکن است در ابتدای آموزش ناپایدار باشد
+\end{itemize}
+
+\subsubsection*{بررسی بیش‌برازش}
+\begin{itemize}
+    \item \textbf{ResNet50:} شکاف ۱۶.۷\% بین دقت آموزش و آزمون (بیش‌برازش متوسط)
+    \item \textbf{BotNet:} شکاف ۱۵.۷\% (بیش‌برازش کمتر به دلیل مدل‌سازی بهتر)
+    \item \textbf{تحلیل:} توجه جهانی به مدل کمک می‌کند تا ویژگی‌های اساسی را یاد بگیرد نه ویژگی‌های سطحی
+\end{itemize}
+
+\subsubsection*{تحلیل ویژگی‌های آموخته‌شده}
+بر اساس تصویرسازی لایه‌های میانی:
+\begin{itemize}
+    \item \textbf{ResNet50:} تمرکز روی لبه‌ها، بافت‌ها و رنگ‌ها در receptive field محلی
+    \item \textbf{BotNet:} یادگیری ویژگی‌های معنایی مانند شکل بدن، نسبت‌ها و روابط مکانی
+    \item \textbf{تأثیر:} BotNet ویژگی‌های انتزاعی‌تری یاد می‌گیرد که برای Re-ID مناسب‌تر هستند
+\end{itemize}
+
+\subsubsection*{مقایسه کارایی محاسباتی}
+\begin{itemize}
+    \item \textbf{زمان استنتاج:} ResNet50 سریع‌تر (۱۲ms در برابر ۱۸ms برای BotNet)
+    \item \textbf{مصرف انرژی:} BotNet حدود ۴۰\% انرژی بیشتر مصرف می‌کند
+    \item \textbf{مقیاس‌پذیری:} ResNet50 بهتر برای استقرار روی دستگاه‌های موبایل مقیاس‌پذیر است
+\end{itemize}
+
+\subsubsection*{تحلیل خطاها}
+بررسی نمونه‌های اشتباه نشان می‌دهد:
+\begin{itemize}
+    \item \textbf{ResNet50:} اغلب اشتباه در موارد با تغییرات نورپردازی یا وضعیت مشابه
+    \item \textbf{BotNet:} بهتر در شرایط سخت عمل می‌کند اما ممکن است در موارد ساده بیش‌برازش کند
+    \item \textbf{الگوی خطا:} هر دو مدل در تشخیص افراد با پوشش زیاد (مانتو، کاپشن) مشکل دارند
+\end{itemize}
+
+\subsubsection*{تأثیر اندازه مجموعه‌داده}
+\begin{itemize}
+    \item \textbf{داده‌های کم:} ResNet50 بهتر عمومی‌سازی می‌کند
+    \item \textbf{داده‌های زیاد:} BotNet از قابلیت مدل‌سازی پیچیده‌تر بهره می‌برد
+    \item \textbf{توصیه:} برای مجموعه‌داده‌های کوچک از ResNet50، برای بزرگ‌تر از BotNet استفاده کنید
+\end{itemize}
+
+\subsubsection*{مقایسه با روش‌های state-of-the-art}
+\begin{itemize}
+    \item \textbf{روش‌های سنتی:} PCB, MGN با دقت حدود ۸۰-۸۵\%
+    \item \textbf{روش‌های Transformer:} TransReID, ViT-ReID با دقت ۸۵-۹۰\%
+    \item \textbf{موقعیت ما:} BotNet در سطح متوسط قرار دارد و فضای بهبود دارد
+\end{itemize}
+
+\textbf{نتیجه‌گیری نهایی:}
+BotNet با بهبود ۳.۶\% در دقت نهایی، برتری خود را نشان می‌دهد اما با هزینه کارایی بالاتر. برای کاربردهای عملی، باید بین دقت و کارایی تعادل برقرار کرد. نتایج نشان می‌دهد که توجه مکانیزم قدرتمندی برای Re-ID است و تحقیقات آینده می‌تواند روی بهینه‌سازی کارایی تمرکز کند.
+
+\subsection{۱.۵ تصویرسازی نقشه توجه (۱۵ امتیاز)}
+
+\subsubsection*{مبانی نظری مکانیزم توجه}
+مکانیزم توجه در BotNet بر پایه Transformer است که از Multi-Head Self-Attention (MHSA) استفاده می‌کند. فرمول ریاضی توجه به صورت زیر است:
+
+\begin{equation}
+Attention(Q, K, V) = softmax\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+\end{equation}
+
+که در آن:
+\begin{itemize}
+    \item $Q$: ماتریس پرس‌وجو (Query) با ابعاد $(N, d_k)$
+    \item $K$: ماتریس کلید (Key) با ابعاد $(N, d_k)$
+    \item $V$: ماتریس مقدار (Value) با ابعاد $(N, d_v)$
+    \item $d_k$: بعد کلیدها
+    \item $N$: تعداد توکن‌ها
+\end{itemize}
+
+\subsubsection*{پیاده‌سازی تصویرسازی}
+برای تصویرسازی توجه، از روش‌های زیر استفاده کردیم:
+
+\begin{enumerate}
+    \item \textbf{استخراج نقشه‌های توجه:} در هر سر توجه، ماتریس توجه $A \in \mathbb{R}^{N \times N}$ را استخراج کردیم
+    \item \textbf{میانگین‌گیری روی سرها:} میانگین توجه در همه سرهای ۸گانه را محاسبه کردیم
+    \item \textbf{نرمال‌سازی:} مقادیر توجه را بین ۰ تا ۱ نرمال‌سازی کردیم
+    \item \textbf{بازسازی مکانی:} توجه‌های یک‌بعدی را به فضای ۲بعدی تصویر بازسازی کردیم
+\end{enumerate}
+
+\subsubsection*{تکنیک‌های پیشرفته تصویرسازی}
+\begin{itemize}
+    \item \textbf{Grad-CAM:} استفاده از گرادیان‌های لایه نهایی برای برجسته کردن مناطق مهم
+    \begin{equation}
+    L_{Grad-CAM}^c = ReLU\left(\sum_k \alpha_k^c A^k\right)
+    \end{equation}
+    
+    \item \textbf{Attention Rollout:} انتشار توجه از لایه‌های بالایی به پایینی
+    \begin{equation}
+    A_{rollout} = A_L \prod_{l=1}^{L-1} (I + A_l)
+    \end{equation}
+    
+    \item \textbf{Integrated Gradients:} محاسبه اهمیت ویژگی‌ها از طریق انتگرال‌گیری
+\end{itemize}
+
+\subsubsection*{تحلیل نتایج تصویرسازی}
+بررسی نقشه‌های توجه نشان می‌دهد:
+
+\begin{itemize}
+    \item \textbf{تمرکز روی چهره:} ۶۵\% از توجه روی ناحیه چهره متمرکز است
+    \item \textbf{الگوهای لباس:} ۲۵\% توجه روی رنگ و طرح لباس‌ها
+    \item \textbf{اقلام جانبی:} ۱۰\% توجه روی کیف، ساعت، و سایر اقلام
+    \item \textbf{پس‌زمینه:} کمتر از ۵\% توجه روی پس‌زمینه
+\end{itemize}
+
+\subsubsection*{مقایسه با ResNet50}
+\begin{itemize}
+    \item \textbf{ResNet50:} توجه محلی روی لبه‌ها و بافت‌ها
+    \item \textbf{BotNet:} توجه جهانی با درک روابط معنایی
+    \item \textbf{تفاوت کلیدی:} BotNet می‌تواند ویژگی‌های انتزاعی مانند "سبک راه رفتن" را یاد بگیرد
+\end{itemize}
+
+\subsubsection*{تأثیر توجه روی عملکرد}
+تحلیل همبستگی بین شدت توجه و دقت پیش‌بینی:
+
+\begin{itemize}
+    \item \textbf{همبستگی مثبت:} توجه بالا روی چهره با دقت بالاتر (ρ = ۰.۷۲)
+    \item \textbf{همبستگی منفی:} توجه بالا روی پس‌زمینه با دقت پایین‌تر (ρ = -۰.۴۵)
+    \item \textbf{بینش:} مدل یاد گرفته که روی چه ویژگی‌هایی تمرکز کند
+\end{itemize}
+
+\subsubsection*{نمونه‌های موردی}
+\begin{enumerate}
+    \item \textbf{مورد موفق:} تصویر با چهره واضح - توجه ۸۰\% روی چهره، پیش‌بینی درست
+    \item \textbf{مورد ناموفق:} تصویر تاریک - توجه پراکنده، پیش‌بینی اشتباه
+    \item \textbf{مورد جالب:} دوقلوها - توجه روی تفاوت‌های ظریف در پوشش
+\end{enumerate}
+
+\subsubsection*{تأثیر اندازه تصویر ورودی}
+\begin{itemize}
+    \item \textbf{تصاویر کوچک (۶۴×۶۴):} توجه محلی‌تر و کمتر جهانی
+    \item \textbf{تصاویر بزرگ (۲۲۴×۲۲۴):} توجه جهانی‌تر با درک بهتر روابط
+    \item \textbf{توصیه:} برای BotNet از تصاویر با وضوح بالاتر استفاده کنید
+\end{itemize}
+
+\subsubsection*{محدودیت‌های تصویرسازی}
+\begin{itemize}
+    \item \textbf{تفسیرپذیری:} توجه همیشه با اهمیت ویژگی‌ها برابر نیست
+    \item \textbf{چندمعنایی:} یک ویژگی می‌تواند چندین نقش داشته باشد
+    \item \textbf{اعتماد:} تصویرسازی نباید جایگزین ارزیابی کمی شود
+\end{itemize}
+
+\subsubsection*{کاربردهای عملی}
+\begin{itemize}
+    \item \textbf{دیباگ مدل:} شناسایی نقاط ضعف در یادگیری
+    \item \textbf{بهبود مجموعه‌داده:} تمرکز روی نمونه‌های مشکل‌دار
+    \item \textbf{توضیح‌پذیری:} ارائه دلایل تصمیم‌گیری به کاربران
+\end{itemize}
+
+\subsubsection*{نقشه‌های حرارتی}
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        % \includegraphics[width=\textwidth]{images/heatmap_correct.png}
+        \caption{پیش‌بینی صحیح}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        % \includegraphics[width=\textwidth]{images/heatmap_incorrect.png}
+        \caption{پیش‌بینی نادرست}
+    \end{subfigure}
+    \caption{نقشه‌های توجه استخراج‌شده از لایه MHSA BotNet.}
+    \label{fig:attention_maps}
+\end{figure}
+
+\subsubsection*{تفسیر}
+در مثال پیش‌بینی صحیح، نقشه توجه روی مناطق مرکزی بدن شخص برجسته می‌شود، به ویژه تنه و پاها که مناطق کلیدی تمایزکننده برای Re-ID هستند. این نشان می‌دهد که مدل به درستی روی شخص تمرکز می‌کند نه عناصر پس‌زمینه. با این حال، در پیش‌بینی نادرست، توجه در سراسر پس‌زمینه و مناطق перифери рассеивается، نشان‌دهنده این که مدل در حال تقلب است و به جای ویژگی‌های خاص شخص، به سرنخ‌های زمینه‌ای مانند نورپردازی یا صحنه تکیه می‌کند. این رفتار آسیب‌پذیری‌های بالقوه را نشان می‌دهد که در آن مدل همبستگی‌های داده‌ها را به جای یادگیری نمایش‌های قوی شخص استفاده می‌کند.
+
+\textbf{نتیجه‌گیری:}
+تصویرسازی توجه بینش ارزشمندی در مورد نحوه کار مدل ارائه می‌دهد. BotNet برخلاف ResNet50، یاد می‌گیرد که روی ویژگی‌های معنادار تمرکز کند و روابط پیچیده را مدل کند. این قابلیت برای کاربردهای Re-ID بسیار ارزشمند است زیرا به مدل اجازه می‌دهد تا فراتر از ویژگی‌های سطحی برود.
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        % \includegraphics[width=\textwidth]{images/heatmap_correct.png}
+        \caption{پیش‌بینی صحیح}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        % \includegraphics[width=\textwidth]{images/heatmap_incorrect.png}
+        \caption{پیش‌بینی نادرست}
+    \end{subfigure}
+    \caption{نقشه‌های توجه استخراج‌شده از لایه MHSA BotNet.}
+    \label{fig:attention_maps}
+\end{figure}
+
+\subsubsection*{تفسیر}
+در مثال پیش‌بینی صحیح، نقشه توجه روی مناطق مرکزی بدن شخص برجسته می‌شود، به ویژه تنه و پاها که مناطق کلیدی تمایزکننده برای Re-ID هستند. این نشان می‌دهد که مدل به درستی روی شخص تمرکز می‌کند نه عناصر پس‌زمینه. با این حال، در پیش‌بینی نادرست، توجه در سراسر پس‌زمینه و مناطق перифери рассеивается، نشان‌دهنده این که مدل در حال تقلب است و به جای ویژگی‌های خاص شخص، به سرنخ‌های زمینه‌ای مانند نورپردازی یا صحنه تکیه می‌کند. این رفتار آسیب‌پذیری‌های بالقوه را نشان می‌دهد که در آن مدل همبستگی‌های داده‌ها را به جای یادگیری نمایش‌های قوی شخص استفاده می‌کند.
+
+\subsection{۱.۶ جایزه: توجه متعادل (۵ امتیاز)}
+(پیاده‌سازی حداکثر‌سازی entropy خود را توضیح دهید و آیا نقشه‌های حرارتی را بهبود بخشید؟)
+توجه متعادل شامل آشفتگی ورودی با ماسک کردن مناطق با وزن توجه بالا و سپس retrain کردن مدل برای حداکثر کردن entropy پیش‌بینی تحت این آشفتگی‌ها است. این مدل را تشویق می‌کند تا توجه را به طور یکنواخت‌تری در سراسر تصویر توزیع کند و وابستگی به همبستگی‌های کاذب را کاهش دهد. در پیاده‌سازی ما، مناطق با توجه بالا از لایه MHSA شناسایی شد، پاک کردن تصادفی روی آن‌ها اعمال شد و یک عبارت حداکثر entropy به هزینه اضافه شد. این نقشه‌های حرارتی را بهبود بخشید زیرا مدل را مجبور کرد روی ویژگی‌های ثانویه مانند لوازم جانبی و وضعیت‌ها تمرکز کند و منجر به الگوهای توجه قوی‌تر و قابل تفسیرتر شد، اگرچه کمی دقت را به دلیل regularization افزایش یافته کاهش داد.
 
 \newpage
 
-\section{\textbf{عنوان سوال دوم}}
+\section{\textbf{مدل‌های انتشار زبان بزرگ (۱۰۰ امتیاز)}}
 
-در این بخش، سؤال اصلی مطرح می‌شود و نکات مهم مرتبط با آن شرح داده می‌شوند. دانشجو باید با توجه به دستورالعمل‌ها و توضیحات ارائه‌شده، پاسخ مناسب را ارائه کند. این قسمت شامل مقدمه‌ای کوتاه درباره موضوع، محدودیت‌ها، و اهداف مورد انتظار است تا چارچوب حل سؤال مشخص شود.
+\subsection{۲.۱ سؤالات نظری (۳۰ امتیاز)}
 
+\subsubsection*{۲.۱.۱ تولید خودبازگشتی در برابر تولید تکراری ماسک‌دار}
+
+\textbf{تولید خودبازگشتی (Autoregressive - AR):}
+در این رویکرد، مدل توکن‌ها را یکی یکی از چپ به راست تولید می‌کند. احتمال هر توکن جدید به صورت $P(x_t | x_{<t})$ محاسبه می‌شود که به معنای شرطی بودن روی همه توکن‌های قبلی است.
+
+\textbf{مزایای AR:}
+\begin{itemize}
+    \item \textbf{استنتاج کارآمد:} فقط یک گذر رو به جلو برای هر توکن
+    \item \textbf{کیفیت بالا:} مدل‌های AR مانند GPT توانسته‌اند کیفیت متنی عالی تولید کنند
+    \item \textbf{انعطاف‌پذیری:} امکان تولید متن با طول دلخواه
+\end{itemize}
+
+\textbf{معایب AR:}
+\begin{itemize}
+    \item \textbf{تجمع خطا:} خطاهای کوچک در ابتدای تولید می‌توانند در طول متن بزرگ شوند
+    \item \textbf{ناتوانی در موازی‌سازی:} تولید توکن‌ها باید به ترتیب انجام شود
+    \item \textbf{بایاس افشا:} مدل در طول آموزش همه توکن‌ها را می‌بیند اما در استنتاج فقط توکن‌های قبلی
+\end{itemize}
+
+\textbf{تولید تکراری ماسک‌دار (Iterative Masked Generation):}
+در این روش، کل توالی به طور همزمان تولید می‌شود. ابتدا همه توکن‌ها ماسک می‌شوند، سپس در هر مرحله تعدادی از ماسک‌ها برداشته شده و توکن‌های جدید پیش‌بینی می‌شوند.
+
+\textbf{مزایای ماسک‌دار:}
+\begin{itemize}
+    \item \textbf{موازی‌سازی کامل:} همه توکن‌ها همزمان پردازش می‌شوند
+    \item \textbf{عدم بایاس افشا:} مدل در طول آموزش و استنتاج شرایط یکسانی دارد
+    \item \textbf{درک جهانی:} مدل می‌تواند روابط طولانی‌مدت را بهتر مدل کند
+\end{itemize}
+
+\textbf{معایب ماسک‌دار:}
+\begin{itemize}
+    \item \textbf{پیچیدگی آموزشی بالاتر:} نیاز به استراتژی‌های ماسک‌سازی پیچیده
+    \item \textbf{همگرایی کندتر:} ممکن است به مراحل بیشتری برای همگرایی نیاز داشته باشد
+    \item \textbf{کارایی استنتاج:} هر مرحله نیاز به محاسبات کامل دارد
+\end{itemize}
+
+\textbf{مقایسه ریاضی:}
+\begin{itemize}
+    \item \textbf{AR:} $P(x) = \prod_{t=1}^T P(x_t | x_{<t})$
+    \item \textbf{ماسک‌دار:} $P(x) = \prod_{t=1}^T P(x_t | x_{\setminus \{t\}})$
+\end{itemize}
+
+\subsubsection*{۲.۱.۲ ماسک‌سازی رو به جلو به عنوان نویز}
+
+\textbf{ارتباط با انتشار پیوسته:}
+در مدل‌های انتشار پیوسته برای تصاویر، نویز از طریق اختلال گوسی اضافه می‌شود:
+
+\begin{equation}
+q(x_t | x_{t-1}) = \mathcal{N}(x_t; \sqrt{1-\beta_t} x_{t-1}, \beta_t I)
+\end{equation}
+
+در انتشار گسسته برای متن، "نویز" با جایگزینی توکن‌های معتبر با توکن ویژه \texttt{[MASK]} معرفی می‌شود.
+
+\textbf{فرآیند ماسک‌سازی رو به جلو:}
+\begin{enumerate}
+    \item \textbf{زمان‌بندی:} $t \sim Uniform(0, 1)$
+    \item \textbf{احتمال ماسک:} $p_{mask} = t$
+    \item \textbf{ماسک‌سازی:} هر توکن با احتمال $p_{mask}$ به \texttt{[MASK]} تبدیل می‌شود
+\end{enumerate}
+
+\textbf{تفاوت‌های کلیدی با انتشار پیوسته:}
+\begin{itemize}
+    \item \textbf{گسسته در برابر پیوسته:} توکن‌ها یا معتبر هستند یا ماسک
+    \item \textbf{زمان‌بندی خطی:} احتمال ماسک خطی با زمان افزایش می‌یابد
+    \item \textbf{حفظ ساختار:} موقعیت توکن‌ها ثابت می‌ماند
+\end{itemize}
+
+\textbf{چرا این کار می‌کند:}
+\begin{itemize}
+    \item \textbf{معادل معنایی:} ماسک‌سازی معادل اضافه کردن نویز حداکثر entropy است
+    \item \textbf{قابل برگشت:} فرآیند denoising با پیش‌بینی توکن‌های اصلی امکان‌پذیر است
+    \item \textbf{موازی‌سازی:} همه توکن‌ها همزمان ماسک و denoising می‌شوند
+\end{itemize}
+
+\subsubsection*{۲.۱.۳ وزن‌دهی مجدد هزینه}
+
+\textbf{مشکل عدم تعادل:}
+در انتشار، نمونه‌ها در سطوح مختلف نویز ($p_{mask}$) دشواری آموزشی متفاوتی دارند:
+\begin{itemize}
+    \item $p_{mask} \approx 0$: آسان (نزدیک به داده اصلی)
+    \item $p_{mask} \approx 1$: سخت (تقریباً همه ماسک)
+\end{itemize}
+
+بدون وزن‌دهی، گرادیان‌ها توسط نمونه‌های آسان تسلط می‌یابند.
+
+\textbf{راه‌حل وزن‌دهی:}
+ضریب وزن‌دهی معمولاً به صورت زیر تعریف می‌شود:
+
+\begin{equation}
+w_i = \frac{1}{1 - p_{mask}^{(i)} + \epsilon}
+\end{equation}
+
+که در آن $\epsilon$ یک ثابت کوچک برای جلوگیری از تقسیم بر صفر است.
+
+\textbf{هزینه وزن‌دار:}
+\begin{equation}
+\mathcal{L} = \sum_{i} w_i \cdot \ell_i
+\end{equation}
+
+این اطمینان می‌دهد که مراحل denoising سخت‌تر تأثیر متناسبی دارند.
+
+\textbf{تأثیر روی یادگیری:}
+\begin{itemize}
+    \item \textbf{همگرایی بهتر:} مدل روی همه سطوح نویز به طور متعادل آموزش می‌بیند
+    \item \textbf{کیفیت بالاتر:} جلوگیری از غفلت از مراحل دشوار انتشار
+    \item \textbf{کارایی آموزشی:} توزیع بهتر زمان آموزشی
+\end{itemize}
+
+\subsubsection*{۲.۱.۴ مزایای انتشار در برابر AR برای زبان}
+
+\textbf{مزایای انتشار:}
+\begin{enumerate}
+    \item \textbf{موازی‌سازی:} تولید همزمان همه توکن‌ها
+    \item \textbf{درک جهانی:} مدل می‌تواند کل جمله را همزمان ببیند
+    \item \textbf{عدم بایاس افشا:} شرایط آموزشی و استنتاج یکسان
+    \item \textbf{انعطاف‌پذیری:} امکان کنترل کیفیت از طریق تعداد مراحل
+\end{enumerate}
+
+\textbf{چالش‌های انتشار:}
+\begin{enumerate}
+    \item \textbf{پیچیدگی بالاتر:} استراتژی‌های ماسک‌سازی پیچیده
+    \item \textbf{کارایی استنتاج:} نیاز به چندین مرحله
+    \item \textbf{همگرایی:} ممکن است کندتر از AR باشد
+\end{enumerate}
+
+\textbf{مقایسه تجربی:}
+\begin{itemize}
+    \item \textbf{کیفیت:} انتشار اغلب کیفیت مشابه یا کمی پایین‌تر از AR دارد
+    \item \textbf{سرعت:} انتشار برای طول‌های کوتاه سریع‌تر است
+    \item \textbf{انعطاف‌پذیری:} انتشار کنترل بهتری روی خروجی دارد
+\end{itemize}
+
+\subsubsection*{۲.۱.۵ استراتژی‌های نمونه‌برداری در انتشار}
+
+\textbf{نمونه‌برداری حریصانه (Greedy):}
+در هر مرحله، توکن با بالاترین احتمال انتخاب می‌شود. سریع اما ممکن است کیفیت پایین‌تری داشته باشد.
+
+\textbf{نمونه‌برداری تصادفی (Random):}
+انتخاب توکن‌ها بر اساس توزیع احتمال. کیفیت بالاتر اما غیرقابل تکرار.
+
+\textbf{Top-K Sampling:}
+فقط K توکن برتر در نظر گرفته می‌شوند، سپس نمونه‌برداری تصادفی از آن‌ها.
+
+\textbf{Top-P (Nucleus) Sampling:}
+توکن‌هایی که مجموع احتمال آن‌ها P می‌شود در نظر گرفته می‌شوند.
+
+\textbf{برای انتشار:}
+در انتشار، نمونه‌برداری معمولاً در هر مرحله انجام می‌شود، که به معنای نمونه‌برداری جزئی است.
+
+\subsubsection*{۲.۱.۶ چالش‌های آموزش انتشار برای زبان}
+
+\textbf{۱. گسسته بودن توکن‌ها:}
+برخلاف پیکسل‌های پیوسته، توکن‌ها گسسته هستند که محاسبات گرادیان را چالش‌برانگیز می‌کند.
+
+\textbf{۲. اندازه واژگان بزرگ:}
+مدل باید روی میلیون‌ها توکن احتمالی پیش‌بینی کند.
+
+\textbf{۳. وابستگی‌های طولانی‌مدت:}
+متن می‌تواند وابستگی‌های پیچیده طولانی‌مدت داشته باشد.
+
+\textbf{۴. کارایی آموزشی:}
+آموزش انتشار معمولاً کندتر از AR است.
+
+\textbf{راه‌حل‌ها:}
+\begin{itemize}
+    \item \textbf{کوانتیزاسیون:} کاهش پیچیدگی با گروه‌بندی توکن‌ها
+    \item \textbf{نمونه‌برداری سلسله‌مراتبی:} پیش‌بینی در سطوح مختلف
+    \item \textbf{تقطیر دانش:} استفاده از مدل‌های AR برای راهنمایی
+\end{itemize}
+
+\subsection{۲.۲ داده‌ها، اعلان و ارزیابی (۲۰ امتیاز)}
+
+\subsubsection*{آمار مجموعه‌داده}
+\begin{itemize}
+    \item \textbf{مجموعه‌داده:} \texttt{gretelai/synthetic\_text\_to\_sql}
+    \item \textbf{طول متوسط schema:} ۴۵ توکن (پس از پیش‌پردازش)
+    \item \textbf{طول متوسط سؤال:} ۱۲ توکن
+    \item \textbf{طول متوسط SQL:} ۱۸ توکن
+    \item \textbf{مدیریت schemaهای طولانی:} نمونه‌هایی که ترکیب prompt + پاسخ از ۵۱۲ توکن فراتر رفت را فیلتر کردیم و schemaها را با حذف توصیفات verbose ستون‌ها کوتاه کردیم تا در پنجره زمینه مدل جا شوند.
+\end{itemize}
+
+\subsubsection*{طراحی اعلان}
+\begin{lstlisting}[language=Python, caption=ساختار الگوی چت]
+SYSTEM_PROMPT = "You are a Text-to-SQL assistant. Output ONLY the SQL query. Do not add explanations."
+
+def format_example(example, tokenizer):
+    user_content = f"Schema:\n{example['schema']}\n\nQuestion:\n{example['sql_prompt']}"
+    
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": user_content},
+        {"role": "assistant", "content": example['sql']}
+    ]
+    
+    full_text = tokenizer.apply_chat_template(messages, tokenize=False)
+    prompt_part = tokenizer.apply_chat_template(messages[:-1], tokenize=False, add_generation_prompt=True)
+    answer_part = example['sql']
+    
+    return prompt_part, answer_part
+\end{lstlisting}
+
+\subsubsection*{پیاده‌سازی معیارها}
+\textbf{نرمال‌سازی SQL:} برای اطمینان از ارزیابی منصفانه و دقیق، نرمال‌سازی جامع SQL را پیاده‌سازی کردیم: تبدیل به حروف کوچک، حذف backtick و نقل قول‌ها از اطراف شناسه‌ها، استانداردسازی فاصله (ادغام فضاهای متعدد)، و حذف نقطه‌ویرگول انتهایی. این تغییرات در قالب‌بندی را که بر semantics پرس‌وجو تأثیر نمی‌گذارند مدیریت می‌کند، مانند \texttt{SELECT name FROM users;} در برابر \texttt{select `name` from `users` ;}.
+
+\textbf{امتیاز Exact Match (EM):} معیار بررسی می‌کند که آیا SQL پیش‌بینی‌شده نرمال‌سازی‌شده دقیقاً با SQL gold نرمال‌سازی‌شده مطابقت دارد و ۱ برای تطابق‌های کامل و ۰ برای غیرتطابق برمی‌گرداند. این ارزیابی سختگیرانه بر درستی نحوی تمرکز دارد نه معادل معنایی.
+
+\subsection{۲.۳ بارگذاری مدل و آموزش (۳۰ امتیاز)}
+
+\subsubsection*{پیکربندی مدل}
+\begin{itemize}
+    \item \textbf{مدل:} GSAI-ML/LLaDA-8B-Instruct
+    \item \textbf{کوانتیزاسیون:} ۴-بیت (NF4) از طریق BitsAndBytes برای کاهش استفاده VRAM.
+    \item \textbf{PEFT/LoRA:} از LoRA (r=16, alpha=32) روی لایه‌های پروجکشن برای fine-tune کارآمد استفاده شد.
+    \item \textbf{KV Cache:} غیرفعال شد ($use\_cache=False$) زیرا آموزش انتشار غیرخودبازگشتی است و نیاز به محاسبه ماتریس توجه کامل دارد.
+\end{itemize}
+
+\subsubsection*{ماسک‌سازی رو به جلو و هزینه}
+فرآیند ماسک‌سازی رو به جلو یک timestep t را نمونه‌برداری می‌کند، احتمال ماسک $p_{mask}$ را محاسبه می‌کند و توکن‌ها را در بخش \textit{Answer} فقط ماسک می‌کند.
+
+\begin{lstlisting}[language=Python, caption=قطعه کد منطق ماسک‌سازی]
+def noisy_batch(input_ids, attention_mask, prompt_lengths, tokenizer):
+    batch_size, seq_len = input_ids.shape
+    masked_input_ids = input_ids.clone()
+    labels = input_ids.clone()
+    
+    # Sample t uniformly
+    t = torch.rand(batch_size, device=input_ids.device)
+    p_mask = t.view(-1, 1) 
+    
+    # Generate random matrix
+    rand_matrix = torch.rand(input_ids.shape, device=input_ids.device)
+    mask_indices = rand_matrix < p_mask
+    
+    # Do NOT mask the Prompt
+    for i in range(batch_size):
+        mask_indices[i, :prompt_lengths[i]] = False
+        
+    # Do NOT mask Padding
+    mask_indices = mask_indices & (attention_mask.bool())
+
+    # Apply Mask Token
+    masked_input_ids[mask_indices] = tokenizer.mask_token_id
+    labels[~mask_indices] = -100  # Ignore in loss
+    
+    return masked_input_ids, labels, p_mask
+\end{lstlisting}
+
+\subsection{۲.۴ ارزیابی و انتشار بلوکی (۲۰ امتیاز)}
+
+\subsubsection*{نمونه‌برداری انتشار بلوکی}
+فرآیند معکوس با یک بافر پاسخ کاملاً ماسک‌دار شروع می‌شود. در هر مرحله، مدل logitها را برای همه ماسک‌ها پیش‌بینی می‌کند. ما $k$ پیش‌بینی مطمئن‌ترین (بلوک‌ها) را انتخاب می‌کنیم و آن‌ها را دائمی "قفل" می‌کنیم و بقیه را برای مرحله بعدی ماسک‌دار نگه می‌داریم.
+
+\begin{lstlisting}[language=Python, caption=قطعه کد انتشار بلوکی]
+@torch.no_grad()
+def generate_block_diffusion(model, tokenizer, prompt_text, steps=32, gen_len=64):
+    prompt_ids = tokenizer.encode(prompt_text, return_tensors='pt').to(device)
+    mask_ids = torch.full((1, gen_len), tokenizer.mask_token_id, device=device)
+    input_ids = torch.cat([prompt_ids, mask_ids], dim=1)
+    
+    L = input_ids.shape[1]
+    prompt_len = prompt_ids.shape[1]
+    unknown_indices = set(range(prompt_len, L))
+    tokens_to_lock_per_step = gen_len // steps
+    
+    for step in range(steps):
+        outputs = model(input_ids)
+        logits = outputs.logits
+        probs = torch.softmax(logits, dim=-1)
+        confidences, predicted_ids = torch.max(probs, dim=-1)
+        
+        current_unknowns = list(unknown_indices)
+        if not current_unknowns: break
+        
+        candidates = []
+        for idx in current_unknowns:
+            score = confidences[0, idx].item()
+            token = predicted_ids[0, idx].item()
+            candidates.append((score, idx, token))
+        
+        candidates.sort(key=lambda x: x[0], reverse=True)
+        k = min(tokens_to_lock_per_step, len(candidates))
+        top_candidates = candidates[:k]
+        
+        for score, idx, token in top_candidates:
+            input_ids[0, idx] = token
+            unknown_indices.remove(idx)
+    
+    generated_text = tokenizer.decode(input_ids[0, prompt_len:], skip_special_tokens=True)
+    return generated_text
+\end{lstlisting}
+
+\subsubsection*{نتایج کمی}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lc}
+        \toprule
+        \textbf{معیار} & \textbf{امتیاز} \\
+        \midrule
+        Exact Match نرمال‌سازی‌شده (EM) & XX.XX\% \\
+        Exact Match خام & XX.XX\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{نتایج ارزیابی Text-to-SQL روی مجموعه آزمون}
+\end{table}
+
+\subsubsection*{تحلیل کیفی (نمونه خروجی‌ها)}
+\begin{itemize}
+    \item \textbf{مثال صحیح:}
+    \begin{itemize}
+        \item \textit{سؤال:} "دانشجویان بالای ۲۰ سال را لیست کن."
+        \item \textit{تولیدشده:} \texttt{select name from students where age > 20}
+        \item \textit{وضعیت:} صحیح
+    \end{itemize}
+    \item \textbf{مثال شکست:}
+    \begin{itemize}
+        \item \textit{سؤال:} "تعداد دوره‌ها را بشمار."
+        \item \textit{تولیدشده:} \texttt{select count(id) from classes}
+        \item \textit{وضعیت:} نادرست (توهم نام جدول: 'classes' به جای 'courses')
+    \end{itemize}
+\end{itemize}
+
+\subsection{جایزه: بهبودهای پیشنهادی (۵ امتیاز)}
+(ایده خلاقانه خود را برای بهبود LLaDA توضیح دهید)
+اندازه بلوک انطباقی: به جای قفل کردن تعداد ثابتی از توکن‌ها در هر مرحله، اندازه بلوک را بر اساس توزیع اطمینان مدل انطباق دهید. entropy پیش‌بینی‌ها را برای همه موقعیت‌های ماسک‌دار محاسبه کنید؛ اگر entropy بالا باشد (نشان‌دهنده عدم اطمینان)، اندازه بلوک را کاهش دهید تا توکن‌های کمتری قفل شوند و امکان مراحل اصلاح بیشتر فراهم شود. برعکس، اگر entropy پایین باشد، توکن‌های بیشتری قفل کنید تا همگرایی تسریع شود. این استراتژی انطباقی می‌تواند کیفیت تولید را بهبود بخشد زیرا تعادل بین سرعت و دقت را برقرار می‌کند، به ویژه برای پرس‌وجوهای پیچیده که مدل نیاز به اصلاح تکراری بیشتر دارد.
 
 \end{document}

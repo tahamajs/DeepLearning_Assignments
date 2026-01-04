@@ -1,0 +1,10 @@
+torch>=2.2
+numpy
+pandas
+matplotlib
+seaborn
+statsmodels
+yfinance
+scikit-learn
+seqeval
+kagglehub

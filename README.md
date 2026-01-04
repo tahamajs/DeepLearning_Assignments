@@ -83,53 +83,25 @@ Deep_UT/
 ## 🎓 Assignment Overview
 
 ### CA1: Neural Networks Basics ⭐
-**Focus:** Fundamental concepts and manual implementations
-- **Topics:** Feed-forward networks, backpropagation, optimization algorithms
-- **Key Experiments:** Custom MLP from scratch, optimizer comparisons, activation function analysis
-- **Datasets:** Credit card fraud detection, concrete strength prediction
-- **Highlights:** Manual backpropagation implementation, hyperparameter studies
+This foundational assignment explores the core principles of neural networks through hands-on implementation and experimentation. Students build a complete multi-layer perceptron (MLP) from scratch, implementing forward propagation, backpropagation, and various optimization algorithms including SGD, Adam, and RMSprop. The project covers activation functions (ReLU, sigmoid, tanh), loss functions, and regularization techniques like dropout and L2 regularization. Using real-world datasets for credit card fraud detection and concrete strength prediction, the assignment demonstrates hyperparameter tuning, learning rate scheduling, and the impact of network architecture on performance. Key insights include understanding vanishing gradients, the importance of proper weight initialization, and the trade-offs between different optimization strategies, providing a solid foundation for advanced deep learning concepts.
 
 ### CA2: CNN Applications 🏥🚗
-**Focus:** Convolutional Neural Networks for real-world applications
-- **Covid Detection:** X-ray image analysis for COVID-19 diagnosis
-- **Vehicle Classification:** Multi-class vehicle type recognition
-- **Techniques:** Transfer learning, data augmentation, medical imaging preprocessing
-- **Metrics:** Classification accuracy, medical evaluation metrics
+Building upon neural network fundamentals, this assignment applies convolutional neural networks to practical real-world problems in healthcare and automotive domains. The COVID-19 detection project involves preprocessing and analyzing chest X-ray images using transfer learning with pre-trained models like ResNet and EfficientNet, implementing data augmentation techniques specific to medical imaging, and evaluating models using medical metrics like sensitivity, specificity, and AUC-ROC. The vehicle classification component tackles multi-class image recognition using custom CNN architectures and advanced techniques like batch normalization, global average pooling, and learning rate decay. Students learn about handling imbalanced datasets, implementing early stopping, and visualizing convolutional features through activation maps, while addressing challenges like overfitting in medical diagnosis and fine-grained classification in automotive applications.
 
 ### CA3: Object Detection 🎯
-**Focus:** Advanced computer vision with real-time constraints
-- **Fast SCNN:** Real-time semantic segmentation for mobile devices
-- **Oriented R-CNN:** Rotated object detection for aerial imagery
-- **Challenges:** Speed-accuracy trade-offs, orientation handling
-- **Applications:** Autonomous driving, aerial surveillance
+This assignment delves into advanced computer vision techniques focusing on real-time object detection and semantic segmentation with computational efficiency constraints. The Fast SCNN project implements a lightweight semantic segmentation network optimized for mobile and embedded devices, featuring a hierarchical architecture with shared feature extraction and auxiliary loss functions to balance speed and accuracy. The Oriented R-CNN component addresses the challenge of detecting arbitrarily oriented objects in aerial imagery, extending traditional object detection frameworks to handle rotated bounding boxes and implementing techniques like oriented region proposal networks and rotated non-maximum suppression. Students explore the speed-accuracy trade-offs in real-time vision systems, learn about multi-scale feature fusion, and implement evaluation metrics specific to oriented detection, gaining expertise in deploying computer vision models for autonomous driving and surveillance applications.
 
 ### CA4: Sequence Modeling 📈📝
-**Focus:** Recurrent networks and sequence-to-sequence learning
-- **Image Captioning:** CNN-RNN architectures for image description
-- **Time Series Prediction:** LSTM networks for financial forecasting
-- **Techniques:** Attention mechanisms, sequence preprocessing
-- **Evaluation:** BLEU scores, forecasting metrics
+Exploring temporal and sequential data processing, this assignment covers recurrent neural networks and attention mechanisms for two distinct applications. The image captioning project combines convolutional neural networks for visual feature extraction with LSTM networks for sequence generation, implementing teacher forcing, beam search decoding, and BLEU score evaluation. Students learn about attention mechanisms to focus on relevant image regions during caption generation and handle variable-length sequences through padding and masking. The time series prediction component applies LSTM and GRU networks to financial market data, implementing techniques like sliding window preprocessing, handling temporal dependencies, and evaluating forecasting performance with metrics like RMSE and MAPE. The assignment covers sequence-to-sequence architectures, gradient clipping to prevent exploding gradients, and the challenges of long-range dependency modeling in both natural language and time series domains.
 
 ### CA5: Vision Transformers 🤖
-**Focus:** Modern transformer architectures and adversarial analysis
-- **Person Re-identification:** ResNet vs BotNet comparison with attention visualization
-- **CLIP Adversarial Attacks:** Robustness analysis of vision-language models
-- **ViT Classification:** Vision Transformer implementation and analysis
-- **Techniques:** Self-attention, adversarial perturbations, interpretability
+This cutting-edge assignment introduces modern transformer architectures and their applications in computer vision, alongside adversarial robustness analysis. The person re-identification project compares traditional CNN approaches (ResNet) with attention-based architectures (BotNet), implementing triplet loss, hard negative mining, and attention visualization techniques to understand how transformers capture long-range dependencies in image matching tasks. The CLIP adversarial attack component explores the vulnerabilities of vision-language models, implementing various attack methodologies including Fast Gradient Sign Method (FGSM), Projected Gradient Descent (PGD), and attention-based attacks to understand the robustness of multimodal representations. The Vision Transformer classification project provides hands-on experience with self-attention mechanisms, patch embedding, positional encoding, and the transformer encoder architecture, while analyzing the computational trade-offs between CNNs and transformers for image classification tasks.
 
 ### CA6: Generative Models 🎨
-**Focus:** Unsupervised learning and generative architectures
-- **Domain Adaptation GAN:** CycleGAN for unsupervised domain adaptation
-- **VAE Implementation:** Variational autoencoders for anomaly detection
-- **Applications:** Image-to-image translation, generative modeling
-- **Evaluation:** FID scores, reconstruction quality
+Focusing on unsupervised learning and generative modeling, this assignment explores two powerful generative architectures for different applications. The unsupervised domain adaptation project implements CycleGAN for image-to-image translation between different domains without paired data, learning cycle-consistent mappings and adversarial training objectives to preserve semantic content while adapting visual styles. Students explore the mathematics of cycle consistency loss, implement training stability techniques like identity mapping and buffer mechanisms, and evaluate domain adaptation quality using metrics like Fréchet Inception Distance (FID). The Variational Autoencoder (VAE) component focuses on anomaly detection in industrial and medical applications, implementing the reparameterization trick, KL divergence regularization, and reconstruction-based anomaly scoring. The assignment covers generative adversarial training dynamics, latent space manipulation, and the evaluation of generative model quality through both quantitative metrics and qualitative visual assessment.
 
 ### CA7: Advanced Topics 🚀
-**Focus:** Cutting-edge techniques and cross-domain applications
-- **CNN vs ViT Attacks:** Comparative adversarial robustness analysis
-- **Persian Captioning:** Multilingual image description generation
-- **Techniques:** Cross-architecture analysis, multilingual NLP
-- **Innovation:** Novel attack methodologies, cultural adaptation
+This capstone assignment explores cutting-edge research directions and cross-domain applications, combining multiple advanced techniques. The CNN vs ViT adversarial attack analysis compares the robustness of convolutional and transformer architectures under adversarial perturbations, implementing sophisticated attack methods and defense strategies while analyzing the fundamental differences in how these architectures process and are vulnerable to adversarial examples. The Persian image captioning project extends sequence modeling to multilingual applications, implementing cross-lingual transfer learning, handling right-to-left text processing, and adapting attention mechanisms for Persian language generation. Students explore novel attack methodologies that exploit architectural differences between CNNs and ViTs, implement cultural adaptation techniques for NLP models, and investigate the intersection of computer vision, natural language processing, and adversarial machine learning, culminating in a comprehensive understanding of modern deep learning research challenges and methodologies.
 
 ---
 

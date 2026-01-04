@@ -8,13 +8,14 @@ from data import format_example, exact_match_score
 from utils import post_process_sql
 from generate import generate_block_diffusion
 
-def train_model(model, optimizer, train_loader, epochs=5):
+def train_model(model, optimizer, train_loader, epochs=5, device='cuda'):
+    model.to(device)
     model.train()
     criterion = nn.CrossEntropyLoss()
     for epoch in range(epochs):
         total_loss = 0
         for imgs, labels in train_loader:
-            imgs, labels = imgs.cuda(), labels.cuda()
+            imgs, labels = imgs.to(device), labels.to(device)
             optimizer.zero_grad()
             outputs = model(imgs)
             loss = criterion(outputs, labels)
@@ -22,6 +23,52 @@ def train_model(model, optimizer, train_loader, epochs=5):
             optimizer.step()
             total_loss += loss.item()
         print(f"Epoch {epoch+1}, Loss: {total_loss/len(train_loader):.4f}")
+
+
+def counterfactual_training_step(model, batch, optimizer, lambda_entropy=0.3, mask_pct=0.4, device='cuda'):
+    """A training helper that computes the counterfactual entropy-based loss and applies an optimizer step.
+
+    batch: tuple (imgs, labels)
+    """
+    model.train()
+    imgs, labels = batch
+    imgs = imgs.to(device)
+    labels = labels.to(device)
+
+    # Baseline forward
+    logits_orig = model(imgs)
+    ce = nn.CrossEntropyLoss()(logits_orig, labels)
+    H_orig = compute_entropy_from_logits(logits_orig)
+
+    # Extract features and attention
+    feat = model.extract_feature_map(imgs)
+    att = model.mhsa.last_attention_map
+    B, heads, TQ, TK = att.shape
+    att_key = att.mean(dim=1).mean(dim=2)  # (B, T)
+    C, Hf, Wf = feat.shape[1], feat.shape[2], feat.shape[3]
+    att_key_reshaped = att_key.view(B, Hf, Wf)
+
+    spatial_masks = torch.zeros((B, Hf, Wf), dtype=torch.bool, device=imgs.device)
+    for i in range(B):
+        flat = att_key_reshaped[i].view(-1)
+        k = max(1, int(flat.numel() * mask_pct))
+        vals, idxs = torch.topk(flat, k)
+        mask = torch.zeros_like(flat).bool()
+        mask[idxs] = True
+        spatial_masks[i] = mask.view(Hf, Wf)
+
+    # Forward with mask
+    logits_masked = model.forward_with_mask(imgs, spatial_masks)
+    H_masked = compute_entropy_from_logits(logits_masked)
+
+    loss = ce + lambda_entropy * (H_orig - H_masked)
+
+    optimizer.zero_grad()
+    loss.backward()
+    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+    optimizer.step()
+
+    return loss.item(), ce.item(), H_orig.item(), H_masked.item()
 
 def evaluate_model(model, test_loader):
     model.eval()

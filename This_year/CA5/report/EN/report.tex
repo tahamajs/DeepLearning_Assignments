@@ -1,0 +1,328 @@
+\documentclass[a4paper,12pt]{article}
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES
+%----------------------------------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath, amssymb}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+
+%----------------------------------------------------------------------------------------
+%	CONFIGURATION
+%----------------------------------------------------------------------------------------
+\geometry{
+	top=2.5cm,
+	bottom=2.5cm,
+	left=2.5cm,
+	right=2.5cm
+}
+
+% Colors for code blocks
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% Listings style
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textbf{Assignment 5: Deep Learning}}
+\rhead{\textbf{University of Tehran}}
+\lfoot{Your Name / Student ID}
+\rfoot{Page \thepage}
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+\title{
+    \vspace{1cm}
+    \textbf{University of Tehran} \\
+    Faculty of Electrical and Computer Engineering \\
+    \vspace{1cm}
+    \textbf{Assignment 5: Neural Networks and Deep Learning} \\
+    \large Image Re-identification \& Large Language Diffusion Models
+    \vspace{1cm}
+}
+\author{
+    \textbf{Name:} [Your Name] \\
+    \textbf{Student ID:} [Your Student ID] \\
+    \vspace{0.5cm} \\
+    \textit{Instructors: Dr. Mohammad Gorji, Aryan Firouzi}
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	QUESTION 1
+%----------------------------------------------------------------------------------------
+\section{Image Re-identification using Transformers (100 Points)}
+
+\subsection{1.1 Data Preparation (10 Points)}
+
+\subsubsection*{Preprocessing & Augmentation}
+% Explain the preprocessing steps (resizing, normalization) you used.
+% Detail the augmentation techniques (RandomHorizontalFlip, ColorJitter, RandomErasing, etc.) and why they are necessary for small datasets.
+\begin{itemize}
+    \item \textbf{Resizing:} The images were resized to $256 \times 128$ to maintain the standard aspect ratio for person Re-ID.
+    \item \textbf{Augmentation Strategy:} Due to the small dataset size (<5 images/class), we utilized aggressive augmentation including:
+    \begin{itemize}
+        \item Random Horizontal Flip
+        \item Random Erasing (to simulate occlusion)
+        \item Color Jitter (to handle lighting variations)
+    \end{itemize}
+\end{itemize}
+
+\subsubsection*{Graph Sampling Explanation}
+% Explain how the "Graph Sampling" method affects the data distribution as requested.
+(Explain the concept of Graph Sampling here based on the paper provided in the assignment description. Focus on how it selects informative samples or balances the distribution.)
+
+\subsubsection*{Data Visualization}
+% Insert sample images here
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{images/sample_batch.png}
+    \caption{Sample images from the dataset after preprocessing and augmentation.}
+    \label{fig:samples}
+\end{figure}
+
+\subsection{1.2 ResNet Model Training (10 Points)}
+
+\subsubsection*{Training Configuration}
+\begin{itemize}
+    \item \textbf{Model:} ResNet50 (Pretrained on ImageNet)
+    \item \textbf{Epochs:} 20
+    \item \textbf{Loss Function:} Cross-Entropy Loss
+    \item \textbf{Optimizer:} Adam / SGD (Specify your choice)
+\end{itemize}
+
+\subsubsection*{Loss Curves & Results}
+% Insert Training vs Test Loss plot
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.7\textwidth]{images/resnet_loss.png}
+    \caption{ResNet50 Training and Test Loss over epochs.}
+    \label{fig:resnet_loss}
+\end{figure}
+
+\textbf{Final Test Accuracy:} XX.XX\%
+
+\subsection{1.3 BotNet Model Training (40 Points)}
+
+\subsubsection*{BotNet Architecture Implementation}
+% Briefly explain how you implemented the Multi-Head Self-Attention (MHSA) and where you inserted it (e.g., replacing the last ResNet stage).
+The BotNet architecture was constructed by replacing the $3 \times 3$ spatial convolutions in the final stage (Stage 4) of ResNet50 with Multi-Head Self-Attention (MHSA) blocks. This allows the model to capture global dependencies while preserving feature map dimensions.
+
+\begin{lstlisting}[language=Python, caption=BotNet MHSA Block Snippet]
+# Paste key parts of your MHSA or BotNet class here
+class MHSA(nn.Module):
+    def __init__(self, n_dims, width, height, heads=4):
+        super(MHSA, self).__init__()
+        self.heads = heads
+        self.query = nn.Conv2d(n_dims, n_dims, kernel_size=1)
+        # ... (rest of code)
+\end{lstlisting}
+
+\subsubsection*{Training Results}
+% Insert BotNet Loss plot
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.7\textwidth]{images/botnet_loss.png}
+    \caption{BotNet Training and Test Loss over epochs.}
+    \label{fig:botnet_loss}
+\end{figure}
+
+\textbf{Final Test Accuracy:} XX.XX\%
+
+\subsection{1.4 Results Analysis (15 Points)}
+
+\subsubsection*{Comparison: ResNet vs. BotNet}
+% Compare accuracies. Which one is better?
+% Discuss convergence speed (did BotNet converge faster or slower?).
+% Discuss stability (did loss fluctuate more?).
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lcc}
+        \toprule
+        \textbf{Metric} & \textbf{ResNet50} & \textbf{BotNet} \\
+        \midrule
+        Final Test Accuracy & XX.X\% & XX.X\% \\
+        Training Time (per epoch) & X min & X min \\
+        Convergence Stability & Stable/Unstable & Stable/Unstable \\
+        \bottomrule
+    \end{tabular}
+    \caption{Performance Comparison}
+\end{table}
+
+\textbf{Analysis:}
+(Discuss why BotNet performed better/worse. Does global attention help with the fine-grained details needed for Re-ID? Did the model overfit?)
+
+\subsection{1.5 Attention Map Visualization (15 Points)}
+
+\subsubsection*{Heatmaps}
+% Insert heatmap images (Original Image vs Heatmap Overlay)
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        % \includegraphics[width=\textwidth]{images/heatmap_correct.png}
+        \caption{Correct Prediction Attention}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        % \includegraphics[width=\textwidth]{images/heatmap_incorrect.png}
+        \caption{Incorrect Prediction Attention}
+    \end{subfigure}
+    \caption{Attention Maps extracted from the BotNet MHSA layer.}
+    \label{fig:attention_maps}
+\end{figure}
+
+\subsubsection*{Interpretation}
+% Does the model focus on the person/object or the background?
+% Is it "cheating" by looking at irrelevant features?
+(Analyze the images above. For example: "In the correct prediction, the model focuses on the unique pattern on the shirt. In the incorrect prediction, it focuses on the background wall.")
+
+\subsection{1.6 Bonus: Counterfactual Attention (5 Points)}
+% Explain your implementation of entropy maximization and if it improved the heatmaps.
+(Briefly explain the method: Masking high-attention features -> Maximizing entropy -> Retraining. Did this force the model to look at other features?)
+
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	QUESTION 2
+%----------------------------------------------------------------------------------------
+\section{Large Language Diffusion Models (100 Points)}
+
+\subsection{2.1 Theoretical Questions (30 Points)}
+
+\subsubsection*{2.1.1 Autoregressive vs. Masked Iterative Generation}
+\textbf{Autoregressive (AR):} Generates text one token at a time, strictly from left to right ($P(x_t | x_{<t})$). \\
+\textbf{Masked Iterative Generation:} Generates the entire sequence at once (parallel) starting from all masks, and iteratively refines/fills in the tokens over multiple steps.
+
+\subsubsection*{2.1.2 Forward Masking as Noise}
+% Explain how masking tokens is analogous to adding noise in diffusion.
+In continuous diffusion (images), noise is added by perturbing pixel values (Gaussian noise). In discrete text diffusion (LLaDA), "noise" is added by replacing a valid token with a special \texttt{[MASK]} token. As $t$ increases (forward process), the probability of a token being masked increases, destroying information.
+
+\subsubsection*{2.1.3 Reweighting Loss}
+% Why do we reweight the loss based on p_mask?
+We reweight the loss because the difficulty of the task varies with the noise level. When $p_{mask}$ is low (few masks), the task is easy. When $p_{mask}$ is high (mostly masks), the task is hard and the signal is sparse. Reweighting ensures that all noise levels contribute effectively to the gradient updates without one dominating the other.
+
+\subsection{2.2 Data, Prompt, and Evaluation (20 Points)}
+
+\subsubsection*{Dataset Statistics}
+\begin{itemize}
+    \item \textbf{Dataset:} \texttt{gretelai/synthetic\_text\_to\_sql}
+    \item \textbf{Avg Schema Length:} ... tokens
+    \item \textbf{Avg Question Length:} ... tokens
+    \item \textbf{Handling Long Schemas:} We used truncation/filtering by... (e.g., removing column descriptions or filtering samples > 512 tokens).
+\end{itemize}
+
+\subsubsection*{Prompt Design}
+\begin{lstlisting}[language=Python, caption=Chat Template Structure]
+SYSTEM_PROMPT = "You are a Text-to-SQL assistant. Output ONLY the SQL query."
+# Code showing how you format the message list
+\end{lstlisting}
+
+\subsubsection*{Metrics Implementation}
+\textbf{SQL Normalization:} Implemented logic to lower-case SQL, remove backticks, standardize whitespace, and strip trailing semicolons to ensure fair comparison.
+
+\subsection{2.3 Model Loading and Training (30 Points)}
+
+\subsubsection*{Model Configuration}
+\begin{itemize}
+    \item \textbf{Model:} GSAI-ML/LLaDA-8B-Instruct
+    \item \textbf{Quantization:} 4-bit (NF4) via BitsAndBytes to reduce VRAM usage.
+    \item \textbf{PEFT/LoRA:} Used LoRA (r=16, alpha=32) on projection layers to fine-tune efficiently.
+    \item \textbf{KV Cache:} Disabled ($use\_cache=False$) because diffusion training is not autoregressive and requires full attention matrix computation.
+\end{itemize}
+
+\subsubsection*{Forward Masking \& Loss}
+The forward masking process samples a time step $t$, calculates mask probability $p_{mask}$, and masks tokens in the \textit{Answer} segment only.
+
+\begin{lstlisting}[language=Python, caption=Masking Logic Snippet]
+def noisy_batch(input_ids, attention_mask, prompt_lens, tokenizer):
+    # Logic to generate random mask based on t
+    # Ensuring Prompt is NOT masked
+    return masked_input_ids, labels, p_mask
+\end{lstlisting}
+
+\subsection{2.4 Evaluation and Block Diffusion (20 Points)}
+
+\subsubsection*{Block Diffusion Sampling}
+The generation process starts with a fully masked answer buffer. In each step, the model predicts logits for all masks. We select the top-$k$ most confident predictions (blocks) and "lock" them in, leaving the rest masked for the next iteration.
+
+\begin{lstlisting}[language=Python, caption=Block Diffusion Generation Snippet]
+# Snippet of generation function showing the locking mechanism
+\end{lstlisting}
+
+\subsubsection*{Quantitative Results}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lc}
+        \toprule
+        \textbf{Metric} & \textbf{Score} \\
+        \midrule
+        Normalized Exact Match (EM) & XX.XX\% \\
+        Raw Exact Match & XX.XX\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{Text-to-SQL Evaluation Results on Test Set}
+\end{table}
+
+\subsubsection*{Qualitative Analysis (Sample Outputs)}
+\begin{itemize}
+    \item \textbf{Correct Example:}
+    \begin{itemize}
+        \item \textit{Question:} "List students older than 20."
+        \item \textit{Generated:} \texttt{select name from students where age > 20}
+        \item \textit{Status:} Correct
+    \end{itemize}
+    \item \textbf{Failure Example:}
+    \begin{itemize}
+        \item \textit{Question:} "Count the number of courses."
+        \item \textit{Generated:} \texttt{select count(id) from classes}
+        \item \textit{Status:} Incorrect (Table name hallucination: 'classes' instead of 'courses')
+    \end{itemize}
+\end{itemize}
+
+\subsection{Bonus: Proposed Improvements (5 Points)}
+% Your creative idea for LLaDA improvement
+(Example idea: "Dynamic Block Size: Instead of a fixed block size, we can dynamically determine how many tokens to commit based on an entropy threshold. If the model is uncertain about the whole sequence, it commits fewer tokens in that step.")
+
+\end{document}

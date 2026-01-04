@@ -1,0 +1,31 @@
+% ابتدای درج صفحات مختلف
+\coverPage
+% بررسی حالت پیش‌نویس
+\ifoptiondraft{}{% 
+    \besmPage
+    \titlePage
+    \davaranPage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \esalatPage
+    \mojavezPage
+% چنانچه مایل به چاپ صفحات «تقدیم»، «نیایش» و «سپاس‌گزاری» در خروجی نیستید، خط‌های زیر را با گذاشتن ٪  در ابتدای آنها غیرفعال کنید.
+    \taghdimPage
+    \ghadrdaniPage
+} % end ifoptiondraft
+\abstractPage
+% شروع درج فهرست‌ها
+\newpage\cleardoublepage
+\pagenumbering{harfi} % آ، ب، ...
+\tableofcontents \clearpage
+% بررسی حالت پیش‌نویس برای بقیه فهرست‌ها
+\ifoptiondraft{
+    \listoftodos
+}{%
+    \listoffigures \clearpage
+    \listoftables  \clearpage
+    \addcontentsline{toc}{chapter}{\listalgorithmname}
+    \listofalgorithms \clearpage
+    \addcontentsline{toc}{chapter}{\lstlistlistingname}
+    \lstlistoflistings \clearpage
+    \printacronyms
+} % end ifoptiondraft

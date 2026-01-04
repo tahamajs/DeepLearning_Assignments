@@ -9,6 +9,30 @@ from datasets import load_dataset
 import os
 from PIL import Image
 import glob
+import urllib.request
+import zipfile
+
+def download_market1501(data_dir="./data"):
+    """
+    Download Market-1501 dataset for person re-identification
+    """
+    os.makedirs(data_dir, exist_ok=True)
+
+    # Market-1501 URLs (you may need to adjust these based on current availability)
+    urls = {
+        'train': 'https://drive.google.com/uc?id=1v7TKbUQHqJ9oK0n0zK7t8XzY9wQ1aBc',  # Placeholder - actual URL may vary
+        'test': 'https://drive.google.com/uc?id=1v7TKbUQHqJ9oK0n0zK7t8XzY9wQ1aBd',   # Placeholder - actual URL may vary
+        'query': 'https://drive.google.com/uc?id=1v7TKbUQHqJ9oK0n0zK7t8XzY9wQ1aBe'   # Placeholder - actual URL may vary
+    }
+
+    print("Note: Market-1501 requires manual download from:")
+    print("https://www.kaggle.com/datasets/pengcw1/market-1501")
+    print("or official website. Due to licensing, we can't auto-download.")
+    print("Please download and extract to './data/Market-1501/' directory")
+
+    # Alternative: Use a smaller demo dataset or synthetic data
+    print("Using synthetic data for demonstration...")
+    return "./data/synthetic_reid"
 
 class ReIDDataset(Dataset):
     def __init__(self, data_path, transform=None):

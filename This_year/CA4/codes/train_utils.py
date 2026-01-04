@@ -242,7 +242,9 @@ def eval_seq2seq(model, dataloader, device,
             slot_preds.append(slot_logits.argmax(dim=-1).cpu())
             slot_labels.append(tgt_slot_ids.cpu())
     
-    return total_loss / len(dataloader), intent_preds, intent_labels, slot_preds, slot_labels
+    return (total_loss / len(dataloader), 
+            torch.cat(intent_preds), torch.cat(intent_labels),
+            slot_preds, slot_labels)
 
 
 __all__ = [

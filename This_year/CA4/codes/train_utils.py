@@ -142,21 +142,29 @@ def eval_joint(model, dataloader, device,
 
 
 def format_for_seqeval(preds, labels, id2label, padding_id=0):
-    """Convert predictions/labels to format expected by seqeval."""
+    """Convert predictions/labels to format expected by seqeval.
+    
+    Args:
+        preds: List of tensors, each of shape (batch_size, seq_len)
+        labels: List of tensors, each of shape (batch_size, seq_len)
+    """
     pred_labels = []
     true_labels = []
     
-    for pred_seq, label_seq in zip(preds, labels):
-        pred_list = []
-        label_list = []
-        for p, l in zip(pred_seq, label_seq):
-            if l.item() == padding_id:
-                break
-            pred_list.append(id2label.get(p.item(), "O"))
-            label_list.append(id2label.get(l.item(), "O"))
-        if pred_list:  # Only add non-empty sequences
-            pred_labels.append(pred_list)
-            true_labels.append(label_list)
+    for pred_batch, label_batch in zip(preds, labels):
+        # pred_batch: (batch_size, seq_len), label_batch: (batch_size, seq_len)
+        for pred_seq, label_seq in zip(pred_batch, label_batch):
+            # pred_seq: (seq_len,), label_seq: (seq_len,)
+            pred_list = []
+            label_list = []
+            for p, l in zip(pred_seq, label_seq):
+                if l.item() == padding_id:
+                    break
+                pred_list.append(id2label.get(p.item(), "O"))
+                label_list.append(id2label.get(l.item(), "O"))
+            if pred_list:  # Only add non-empty sequences
+                pred_labels.append(pred_list)
+                true_labels.append(label_list)
     
     return pred_labels, true_labels
 

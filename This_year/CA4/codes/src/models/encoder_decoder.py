@@ -55,8 +55,8 @@ class Seq2SeqJoint(nn.Module):
         device = src_ids.device
         outputs = []
 
-        # start with BOS (assumed id 1) or zeros
-        cur_input = torch.full((B, 1), 1, dtype=torch.long, device=device)
+        # start with BOS (id 2) 
+        cur_input = torch.full((B, 1), 2, dtype=torch.long, device=device)
         hidden = (hn, cn)
         for t in range(max_len):
             logits, hidden = self.decoder(cur_input, hidden)

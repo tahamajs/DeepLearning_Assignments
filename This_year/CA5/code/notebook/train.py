@@ -77,74 +77,74 @@ def prepare_batch(examples, tokenizer):
 
     return batch_input_ids, batch_attention_mask, batch_prompt_lengths
 
-def noisy_batch(input_ids, attention_mask, prompt_lengths, tokenizer):
-    """
-    Applies forward diffusion masking to the ANSWER part of the batch.
-    """
+def noisy_batch(input_ids, attention_mask, prompt_lengths, tokenizer, schedule='linear'):
     batch_size, seq_len = input_ids.shape
-    masked_input_ids = input_ids.clone()
-    labels = input_ids.clone()
+    device = input_ids.device
 
-    # 1. Sample t uniformly
-    t = torch.rand(batch_size, device=input_ids.device)
+    t = torch.rand(batch_size, device=device)
+    if schedule == 'linear':
+        p_mask = t.view(-1,1)
+    else:
+        p_mask = t.view(-1,1)
 
-    # 2. Compute Mask Probability (e.g., Linear or Cosine schedule)
-    # Simple linear schedule: p_mask = t
-    p_mask = t.view(-1, 1)
+    p_mask_exp = p_mask.expand(-1, seq_len)
+    rand_matrix = torch.rand(input_ids.shape, device=device)
+    mask_indices = rand_matrix < p_mask_exp
 
-    # 3. Create Mask
-    # Generate random matrix
-    rand_matrix = torch.rand(input_ids.shape, device=input_ids.device)
-
-    # Create a boolean mask where we *should* mask tokens
-    # Condition 1: Probability check
-    mask_indices = rand_matrix < p_mask
-
-    # Condition 2: Do NOT mask the Prompt (indices < prompt_length)
     for i in range(batch_size):
         mask_indices[i, :prompt_lengths[i]] = False
 
-    # Condition 3: Do NOT mask Padding
     mask_indices = mask_indices & (attention_mask.bool())
 
-    # Apply Mask Token
+    special_ids = set(
+        x for x in [getattr(tokenizer, 'eos_token_id', None), getattr(tokenizer, 'pad_token_id', None)] if x is not None
+    )
+    if len(special_ids) > 0:
+        for sid in special_ids:
+            mask_indices = mask_indices & (input_ids != sid)
+
+    masked_input_ids = input_ids.clone()
+    labels = torch.full_like(input_ids, -100)
+
     masked_input_ids[mask_indices] = tokenizer.mask_token_id
+    labels[mask_indices] = input_ids[mask_indices]
 
-    # Labels: We only compute loss on tokens that WERE masked
-    labels[~mask_indices] = -100 # PyTorch ignores -100 in CrossEntropy
+    # Ensure at least one masked token per sample if possible
+    for i in range(batch_size):
+        if mask_indices[i].sum() == 0:
+            start = int(prompt_lengths[i].item())
+            if start < seq_len:
+                idx = torch.randint(start, seq_len, (1,), device=device).item()
+                mask_indices[i, idx] = True
+                masked_input_ids[i, idx] = tokenizer.mask_token_id
+                labels[i, idx] = input_ids[i, idx]
 
-    return masked_input_ids, labels, p_mask
+    return masked_input_ids, labels, mask_indices, p_mask.view(-1,1)
 
 def train_step(batch, model, optimizer, tokenizer):
     input_ids, att_mask, prompt_lens = prepare_batch(batch, tokenizer)
     input_ids, att_mask, prompt_lens = input_ids.cuda(), att_mask.cuda(), prompt_lens.cuda()
 
-    # Apply Noise
-    masked_ids, labels, p_mask = noisy_batch(input_ids, att_mask, prompt_lens, tokenizer)
+    masked_ids, labels, mask_indices, p_mask = noisy_batch(input_ids, att_mask, prompt_lens, tokenizer)
 
-    # Forward Pass
     outputs = model(input_ids=masked_ids, attention_mask=att_mask)
     logits = outputs.logits
 
-    # Loss Calculation
     loss_fct = nn.CrossEntropyLoss(reduction='none')
-    # Reshape for loss: (B*L, Vocab)
     loss = loss_fct(logits.view(-1, logits.size(-1)), labels.view(-1))
 
-    # Reweighting
-    # Reshape loss back to (B, L)
     batch_size = input_ids.shape[0]
     loss = loss.view(batch_size, -1)
 
-    # Calculate mask ratio per sample for reweighting
-    # Theory: High masking = easy to predict macro structure, needs less weight?
-    # Or inverse: Low masking = hard to predict exact token?
-    # LLaDA paper suggests specific reweighting. Simple implementation: 1 / (1 - p_mask) or similar stability term.
-    weights = 1.0 / (1.0 - p_mask + 1e-6)
+    num_masked = mask_indices.sum(dim=1).float()
+    safe_num = num_masked.clone()
+    safe_num[safe_num == 0] = 1.0
 
-    # Apply weights only to masked tokens (where labels != -100)
-    mask_bool = labels != -100
-    weighted_loss = (loss * mask_bool).sum(dim=1) * weights.squeeze()
+    loss_per_seq = loss.sum(dim=1)
+    loss_per_mask = loss_per_seq / safe_num
+
+    weights = 1.0 / (p_mask.squeeze() + 1e-6)
+    weighted_loss = loss_per_mask * weights * (num_masked > 0).float()
 
     final_loss = weighted_loss.mean()
 

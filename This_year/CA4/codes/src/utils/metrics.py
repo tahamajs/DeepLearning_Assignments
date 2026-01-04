@@ -6,11 +6,11 @@ from sklearn.metrics import accuracy_score
 
 
 def slot_f1(true_labels: List[List[str]], pred_labels: List[List[str]]) -> float:
-    return f1_score(true_labels, pred_labels)
+    return f1_score(true_labels, pred_labels, zero_division=0)
 
 
 def slot_classification_report(true_labels: List[List[str]], pred_labels: List[List[str]]) -> str:
-    return classification_report(true_labels, pred_labels)
+    return classification_report(true_labels, pred_labels, zero_division=0)
 
 
 def intent_accuracy(true: List[int], pred: List[int]) -> float:

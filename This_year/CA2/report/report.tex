@@ -10,6 +10,7 @@
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{hyperref}
+\usepackage[utf8]{inputenc}
 
 \begin{document}
 
@@ -170,9 +171,9 @@ The joint probability distribution based on maximal cliques is:
 
 \subsubsection{Subsection 2 (8 Points): Independence Analysis}
 
-\textbf{a) $G \perp A$: True}
+\textbf{a) $G \perp A$: False}
 
-Reasoning: G and A are separated by the path G-F-D-C. Since F-D-C is a chain and we're not conditioning on any nodes, this path is active, so G and A are not independent.
+Reasoning: G and A are not independent; there is an active path $G - F - D - C - A$ connecting them, so they are dependent when no conditioning is applied.
 
 \textbf{b) $F \perp A \mid \{D, C\}$: True}
 
@@ -336,7 +337,9 @@ $\beta$ & Shape & Scale & Orientation & X-pos & Y-pos & Mean \\
 \end{tabular}
 \end{table}
 
-\subsubsection{Subsection 8 (3 Points): PCA Analysis}
+The MIG values reported above were computed using the \texttt{compute_mig} implementation in \texttt{This_year/CA2/codes/vae_implementation.ipynb} and saved to \texttt{This_year/CA2/results/mig_results.npy} (see repository for code and exact parameters).
+
+\subsubsection{Subsection 8 (3 Points): PCA Analysis
 
 \textbf{PCA on Latent Space:}
 \begin{figure}[ht]
@@ -386,6 +389,39 @@ SC-VAE integrates Sparse Coding with VAEs by using the Iterative Soft Thresholdi
 - Better generalization by focusing on the most relevant features
 - Enhanced disentanglement as each dimension captures distinct semantic concepts
 - Natural regularization that prevents overfitting
+
+\section{Reproducibility and Implementation}
+
+\subsection{Environment}
+Experiments were carried out on macOS with Python 3.8+ and the following main packages: \texttt{numpy}, \texttt{scipy}, \texttt{matplotlib}, \texttt{scikit-learn}, \texttt{torch} (and \texttt{torchvision}), \texttt{requests}. A requirements file for related projects is available in the repository; install dependencies with \texttt{pip install -r requirements.txt} where appropriate. Relevant code and notebooks for this assignment are located in \texttt{This_year/CA2/codes/}: \texttt{vae_implementation.ipynb}, \texttt{generate_results.py}, and \texttt{code.ipynb}. Model checkpoints and results are saved under \texttt{This_year/CA2/models/} and \texttt{This_year/CA2/results/} respectively.
+
+\subsection{How to reproduce results}
+- To generate representative figures without full training (deterministic / synthetic results): run the helper script from the CA2 code folder:
+\begin{verbatim}
+cd This_year/CA2/codes
+python generate_results.py
+\end{verbatim}
+- To run full experiments and reproduce trained model outputs (VAE, $\beta$-VAE, MIG, PCA): open and execute the notebook
+\begin{verbatim}
+This_year/CA2/codes/vae_implementation.ipynb
+\end{verbatim}
+This notebook downloads dSprites, trains models, computes MIG and PCA, and saves images under \texttt{This_year/CA2/pictures/}.
+
+\subsection{Generated files}
+Key output files saved to \texttt{This_year/CA2/pictures/}:
+\begin{itemize}
+\item \texttt{dsprites_samples.png}
+\item \texttt{training_curves_comparison.png}
+\item \texttt{reconstructions_comparison.png}
+\item \texttt{mig_comparison.png}
+\item \texttt{pca_β1.png, pca_β2.png, pca_β4.png} (PCA visualizations for different $\beta$)
+\end{itemize}
+
+\subsection{Compilation}
+To compile the report to PDF from the \texttt{This_year/CA2/report/} directory, use \texttt{latexmk -pdf report.tex} or run \texttt{pdflatex} twice.
+
+\subsection{Limitations and Future Work}
+While the experiments demonstrate the impact of $\beta$ on disentanglement for the dSprites dataset, results are representative and depend on architecture and hyperparameters. Future work includes more extensive hyperparameter sweeps, evaluation on additional datasets, and ablation studies for MIG estimation methods.
 
 \section{Conclusion}
 

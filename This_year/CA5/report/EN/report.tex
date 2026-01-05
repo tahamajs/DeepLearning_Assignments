@@ -1779,6 +1779,32 @@ def generate_block_diffusion(model, tokenizer, prompt_text, steps=32, gen_len=64
     return generated_text, generation_stats
 \end{lstlisting}
 
+\subsubsection*{Code Analysis: Alignment with Block Diffusion Requirements}
+
+The implementation demonstrates precise alignment with the block diffusion generation requirements:
+
+\textbf{1. Block-wise Processing (Dividing Generation into Blocks):}
+
+The algorithm systematically divides the generation process into discrete blocks. The outer loop iterates through \texttt{num\_blocks}, with variables \texttt{abs\_start} and \texttt{abs\_end} defining the boundaries of each current block. This ensures the model focuses computational resources on manageable segments of the sequence rather than attempting to generate the entire output simultaneously.
+
+\textbf{2. Freezing Previous Blocks (Progressive Commitment):}
+
+A key innovation is the freezing mechanism for previously committed blocks. When processing \texttt{block\_idx = 1}, tokens from \texttt{block\_idx = 0} remain committed in \texttt{input\_ids} from the previous iteration. These committed tokens provide essential context for generating subsequent blocks, enabling coherent sequence construction without requiring simultaneous generation of the entire response.
+
+\textbf{3. Confidence-based Commitment (Selective Token Locking):}
+
+The implementation employs sophisticated confidence-based selection:
+
+\begin{itemize}
+    \item \textbf{Probability Computation:} \texttt{torch.softmax(...)} calculates prediction probabilities serving as confidence scores
+    \item \textbf{Focused Selection:} \texttt{current\_unknowns} restricts attention to masked tokens within the current block only
+    \item \textbf{Ranking Strategy:} \texttt{candidates.sort(key=lambda x: x[0], reverse=True)} ranks candidates by confidence in descending order
+    \item \textbf{Limited Commitment:} \texttt{top\_k = min(tokens\_to\_lock\_per\_step, len(candidates))} selects only high-confidence predictions
+    \item \textbf{Token Locking:} \texttt{input\_ids[0, idx] = token} commits selected tokens, while unselected positions remain masked for future refinement in subsequent inner loop iterations
+\end{itemize}
+
+This approach ensures robust, incremental generation where only reliable predictions are committed, maintaining generation quality while allowing iterative refinement of uncertain positions.
+
 \subsubsection*{Comprehensive Evaluation Metrics}
 The evaluation framework employs multiple complementary metrics to provide a holistic assessment of Text-to-SQL generation quality:
 

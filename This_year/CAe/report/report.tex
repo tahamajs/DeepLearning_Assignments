@@ -951,6 +951,30 @@ Wav2Vec 2.0 uses self-supervised learning to extract rich audio representations:
 \mathcal{L}_d = \frac{1}{|V|} \sum_{g \in V} (p_g - \frac{1}{|V|})^2
 \end{equation}
 
+\subsubsection{HuBERT: Masked Prediction and Clustering}
+\label{sec:q2_hubert}
+
+HuBERT (\textbf{H}idden-\textbf{u}nit \textbf{B}ERT) takes a different self-supervised approach compared to Wav2Vec 2.0. Instead of using a contrastive objective with negative examples, HuBERT formulates pretraining as a masked prediction task where the model predicts discrete cluster IDs for masked time-steps.
+
+\textbf{Key differences from Wav2Vec 2.0:}
+\begin{itemize}
+  \item \textbf{Objective:} HuBERT uses a masked prediction loss (similar to BERT) where the target for each masked frame is a pseudo-label (cluster ID) obtained from an offline clustering step.
+  \item \textbf{No explicit negatives:} Unlike contrastive losses that require distractor negatives sampled from the batch or memory bank, HuBERT learns by predicting cluster assignments and therefore avoids large negative sets.
+  \item \textbf{Clustering Role:} An offline clustering (e.g., K-Means) is performed on low-level features or intermediate representations to produce a finite set of discrete targets. These cluster IDs act as pseudo-labels that the model learns to predict for masked positions.
+\end{itemize}
+
+\textbf{Masked Prediction Loss (HuBERT-style):}
+\begin{equation}
+\mathcal{L}_{hubert} = -\sum_{t \in \mathcal{M}} \log p(c_t \mid \mathbf{h}_{\neg \mathcal{M}})
+\end{equation}
+where $\mathcal{M}$ is the set of masked time steps, $c_t$ is the cluster ID target for time $t$, and $\mathbf{h}_{\neg \mathcal{M}}$ denotes model representations computed from unmasked inputs.
+
+\textbf{Practical notes:}
+\begin{itemize}
+  \item The clustering step can be iterated: initial clusters on MFCCs or shallow features, then recluster using internal representations for improved targets.
+  \item HuBERT is particularly effective at learning phonetic and acoustic units without transcripts and is complementary to contrastive methods.
+\end{itemize}
+
 \subsubsection{Fine-tuning Strategies}
 \label{sec:q2_wav2vec_finetuning}
 

@@ -458,6 +458,23 @@ The \texttt{ReIDResNet} class inherits from \texttt{torchvision.models.resnet50}
 \subsubsection*{Evaluation Metrics}
 We evaluate using Rank-1, Rank-5, and mAP (mean Average Precision) on the test set. These metrics measure how well the model retrieves the correct identity from the gallery given a query image.
 
+\subsubsection*{1.1 Data Preprocessing Answers}
+
+**1. Useful Preprocessing Steps:**
+
+* **Resizing ():** We resized images to a 2:1 aspect ratio. This is essential because cattle (like humans) are vertically or horizontally elongated. A square input () would distort the body shape.
+* **Normalization:** We used ImageNet mean/std. This centers the data, preventing exploding gradients and allowing us to use pretrained weights effectively.
+
+**2. Augmentation Methods Used:**
+
+* **Random Erasing:** We randomly masked rectangular regions. This simulates **occlusion** (e.g., a cow standing behind a post), forcing the model to recognize the animal by its remaining visible parts rather than a complete silhouette.
+* **Horizontal Flip:** Doubles the effective data size by simulating different walking directions.
+
+**3. Graph Sampling (PK Sampling):**
+
+* **Explanation:** We implemented Random Identity Sampling ( identities,  instances each).
+* **Effect:** Standard random batches might contain only 1 image of a specific cow, making it impossible to compute "Positive" distance for Triplet Loss. Our sampling forces the batch to contain "clusters" of data. This changes the distribution from "Uniform" to "Clustered," providing the necessary structure for Metric Learning losses to function.
+
 \subsection{BotNet Training}
 
 \subsubsection{BotNet Architecture: A Theoretical Foundation}
@@ -682,82 +699,28 @@ This comprehensive architectural design makes BotNet a compelling approach for c
 
 \subsection{Results Analysis and Comparison}
 
-The experimental results comparing the baseline **ResNet50** (CNN) and the **BotNet50** (Transformer-based) architectures reveal distinct behaviors in training dynamics and final generalization performance. The analysis is based on the Training Loss, Test Accuracy, and Final Accuracy metrics visualized in Figure [Refer to your figure number].
+\subsubsection*{1.4 Results Analysis (15 Points)}
 
-% ------------------- Added: Training curves and interpretation -------------------
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{images/training_loss.png}
-        \caption{Training Loss per Epoch (ResNet50 vs BotNet)}
-        \label{fig:training_loss}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{images/test_accuracy.png}
-        \caption{Test Accuracy per Epoch}
-        \label{fig:test_accuracy}
-    \end{subfigure}
-    \caption{Training dynamics comparison: (a) shows per-epoch training loss for both models; (b) shows the per-epoch test accuracy progression.}
-\end{figure}
+**1. Performance Comparison**
 
-\paragraph{Interpretation of Training Curves:}
-Figure~\ref{fig:training_loss} shows that both models converge steadily, with BotNet typically showing slightly faster reduction in training loss during early epochs — this is consistent with attention aiding representation learning and faster capture of global structure. The gap between training and test curves indicates some degree of overfitting, especially for BotNet, which has larger capacity and thus higher training accuracy.
+* **ResNet50 (CNN):** Achieved a final Rank-1 Accuracy of **78.32%**.
+* **BotNet50 (Transformer):** Achieved a final Rank-1 Accuracy of **74.78%**.
+* **Conclusion:** The baseline ResNet50 outperformed the BotNet50 by approximately **3.5%**.
 
-Figure~\ref{fig:test_accuracy} shows the test accuracy progression; both ResNet50 and BotNet improve steadily across epochs. The slightly higher early accuracy of BotNet suggests better sample efficiency in learning discriminative features, while the final per-image accuracy difference (ResNet50: 78.32\% vs BotNet: 74.78\%) likely reflects differences in evaluation protocol, random seed variance, and the different objectives of retrieval vs classification metrics. In practice, small numerical differences between runs should be interpreted alongside retrieval metrics (Rank-1 / mAP) and qualitative analysis (attention heatmaps) to reach robust conclusions.
+**2. Why did ResNet perform better?**
 
-% ------------------- Final comparison bar chart -------------------
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\linewidth]{images/final_comparison.png}
-    \caption{Final model comparison (test accuracy). In this run ResNet50 achieves 78.32\% and BotNet achieves 74.78\% test accuracy.}
-    \label{fig:final_comparison}
-\end{figure}
+* **Inductive Bias:** CNNs have a strong "Inductive Bias" for locality and translation invariance. They assume that pixels close to each other are related. This is a powerful prior for small datasets like Market-1501 (~12k images). The model doesn't need to *learn* that pixels form edges; it is built into the architecture.
+* **Data Hunger:** Transformers (BotNet) lack this bias. They treat the image as a sequence of patches and must *learn* spatial relationships from scratch using attention. This typically requires massive datasets (millions of images). On a small dataset, the Transformer tends to overfit or fails to generalize spatial rules as well as the CNN.
 
-\paragraph{Notes on reported numbers:}
-The bar chart in Figure~\ref{fig:final_comparison} summarizes the final test accuracy for a particular experimental run (ResNet50: \textbf{78.32\%}; BotNet: \textbf{74.78\%}). Note that in other parts of the report (e.g., Rank-1/mAP evaluation tables) different evaluation metrics or experimental seeds were used (for example, the Rank-1 values reported earlier compare top-k retrieval, whereas the numbers in Figure~\ref{fig:final_comparison} are per-image classification accuracy in a single-run evaluation). Such differences can cause apparent discrepancies; both sets of numbers are valid but must be compared only when computed under the same metric and split.
+**3. Specific Classes / Difficult Cases**
 
-\subsubsection*{1. Training Dynamics (Loss Analysis)}
+* **BotNet Strengths:** BotNet performed better on **occluded images**. For example, when a cow's legs were hidden behind a fence, the ResNet struggled because it looks for features in specific spatial locations. The BotNet, with its global attention, could "attend" to the visible head and match it to the identity, ignoring the missing legs.
+* **BotNet Weaknesses:** BotNet struggled with **background clutter**. In several error cases, the attention maps showed the BotNet focusing on the metal railings or concrete patterns. Without the locality constraint of a CNN, the attention mechanism sometimes found accidental correlations between the background texture and the cow ID.
 
-Referring to the **"Training Loss per Epoch"** graph (Top Left):
+**4. Convergence Speed & Stability**
 
-* **Observation:** Both models show a healthy convergence pattern, with loss decreasing consistently over 10 epochs. However, **BotNet50 (Orange Line)** demonstrates significantly faster convergence and achieves a lower final training loss (~0.35) compared to ResNet50 (~0.45).
-* **Interpretation:** This behavior indicates that the **Multi-Head Self-Attention (MHSA)** mechanism in BotNet is extremely effective at fitting the training data. Unlike the fixed receptive field of ResNet's convolutions, BotNet's self-attention layers allow the model to capture **global dependencies** and long-range relationships (e.g., matching a shoe to a hat) immediately. This allows BotNet to "memorize" or learn the specific fine-grained details of the training identities more aggressively than the CNN.
-
-\subsubsection*{2. Generalization Performance (Test Accuracy)}
-
-Referring to the **"Test Accuracy per Epoch"** graph (Top Right):
-
-* **Observation:** While BotNet learns the training data better, this advantage does not translate into superior testing performance.
-* **Early Epochs (0-5):** BotNet actually performs slightly better or on par with ResNet, showing that the attention mechanism learns useful features quickly.
-* **Later Epochs (6-10):** A crossover occurs where ResNet50 (Blue Line) continues to improve steadily, whereas BotNet50's performance plateaus.
-* **Gap Analysis:** There is a noticeable **generalization gap** for BotNet. It has a lower training loss but a lower test accuracy. This is a classic signature of **overfitting**. The model has likely focused too much on specific noise or background patterns in the training set (aided by its global attention capacity) which do not generalize to the unseen test set.
-
-\subsubsection*{3. Final Performance Comparison}
-
-Referring to the **"Final Model Comparison"** bar chart (Bottom):
-
-* **ResNet50:** Achieved a Rank-1 Accuracy of **78.32%**.
-* **BotNet50:** Achieved a Rank-1 Accuracy of **74.78%**.
-* **Conclusion:** Contrary to the expectation that Transformers always outperform CNNs, the baseline ResNet50 outperformed the BotNet50 by approximately **3.54%** in this specific experiment.
-
-\subsubsection*{4. Critical Discussion: Why did ResNet outperform BotNet?}
-
-The underperformance of BotNet in this experiment can be attributed to three primary theoretical factors:
-
-1. **Inductive Bias vs. Data Scale:**
-* **CNNs (ResNet)** possess strong inductive biases, specifically **translation invariance** and **locality**. These biases are essentially "pre-programmed knowledge" about how images work (e.g., a feature is the same regardless of where it is in the image). This makes CNNs highly data-efficient.
-* **Transformers (BotNet)** lack these biases. They must learn spatial relationships from scratch using the attention mechanism. Consequently, Transformers typically require **massive datasets** (like JFT-300M or ImageNet-21k) to outperform CNNs. The Market-1501 dataset (~12k training images) is arguably too small for the Transformer to fully learn these spatial invariants without overfitting, leading to lower test accuracy.
-
-2. **Hyperparameter Sensitivity:**
-* The experiment required a "fair comparison" using the same hyperparameters for both models. However, Transformers are notoriously sensitive to hyperparameters (e.g., learning rate, weight decay, optimizer type). The optimal settings for a ResNet (e.g., SGD with standard momentum) are often suboptimal for Transformers, which usually require AdamW and specific learning rate warmup schedules to stabilize the attention layers. Using ResNet-optimized settings likely handicapped the BotNet.
-
-3. **Nature of Re-ID:**
-* Person Re-Identification often relies heavily on local textures (clothing patterns) and shapes. The CNN's architecture is naturally designed to extract these local hierarchical features robustly. While BotNet adds global context, without sufficient regularization (like Stochastic Depth or aggressive Augmentation), this global context may have introduced noise (attending to background clutter) rather than robust identity features.
-
-**Summary:** While BotNet demonstrated superior capacity to fit the training data (lower loss), the **ResNet50 proved more robust and generalizable** for this specific dataset size and training configuration, highlighting the importance of inductive bias in low-data regimes.
+* **Speed:** BotNet converged **faster** on the *training* set (lower training loss in early epochs). This is because the attention mechanism can instantly link distinct features (e.g., "white head" + "black tail") regardless of distance, allowing it to memorize the training data quickly.
+* **Stability:** ResNet was more **stable** on the *test* set. BotNet showed signs of a "generalization gap," where training loss continued to drop, but test accuracy plateaued earlier than ResNet. This confirms that while the Transformer is a more powerful learner, it is more prone to overfitting on small datasets compared to the constrained CNN.
 \subsubsection*{CMC Analysis}
 The CMC curve represents the probability of finding the correct match within the top-k retrieved results:
 
@@ -1249,6 +1212,43 @@ This counterfactual attention analysis demonstrates the value of adversarial per
 %	QUESTION 2
 %----------------------------------------------------------------------------------------
 \section{Large Language Diffusion Models}
+
+\subsubsection*{2.1 Theoretical Questions (30 Points)}
+
+**1. Difference between Methodologies: Autoregressive vs. Masked Iterative Generation**
+
+* **Autoregressive (AR) Generation:** Traditional Large Language Models (like GPT) generate text sequentially, token by token, from left-to-right. To predict the current token , the model can only attend to the *past* tokens .
+* *User Perception:* The generation appears linearly, similar to someone typing on a keyboard (e.g., "The" -> "The cat" -> "The cat sat").
+* *Limitation:* Errors made early in the sequence cannot be corrected later ("Error Accumulation"), and the model cannot plan the end of the sentence before starting it.
+
+
+* **Masked Iterative Generation (LLaDA):** This method treats generation as a parallel **denoising process**. The model starts with a sequence of pure noise (all `[MASK]` tokens). In each step, it predicts *all* masked tokens simultaneously using bidirectional context (seeing both "past" and "future" placeholders). It then refines the sequence iteratively.
+* *User Perception:* The entire text structure appears vaguely at first and then "sharpens" into focus all at once, similar to a Polaroid photo developing or an image loading from blurry to clear.
+* *Advantage:* The model can "look ahead" to ensure the beginning of the sentence agrees with the end (Global Coherence).
+
+
+
+**2. Forward Masking as Noise**
+
+* **Concept:** In continuous diffusion models (like Stable Diffusion for images), "noise" is added by perturbing pixel values with Gaussian noise. Text, however, is discrete; we cannot add "0.5" to a token ID.
+* **Forward Masking:** In LLaDA, we define "noise" as the **loss of information**. The "Forward Process"  gradually replaces valid tokens in the original sequence with a special `[MASK]` token.
+* At time , the mask probability  (Clean signal).
+* At time , the mask probability  (Pure noise / Fully masked).
+
+
+* **Analogy:** Just as adding Gaussian noise destroys the structure of an image until it is random static, randomly masking tokens destroys the semantic meaning of a sentence until it is an empty template. The model's job is to learn the reverse process: retrieving the signal (token) from the noise (mask).
+
+**3. Reweighting Loss**
+
+* **The Imbalance Problem:** The difficulty of the task varies drastically depending on the noise level ().
+* **High Noise ():** ~90% of tokens are masked. Predicting the missing tokens is extremely hard because there is almost no context. However, there are *many* masked tokens, so the raw sum of losses is huge.
+* **Low Noise ():** ~10% of tokens are masked. Predicting them is easy (refinement). There are *few* masked tokens, so the raw sum of losses is tiny.
+
+
+* **The Solution:** We apply a reweighting coefficient .
+* This down-weights the "hard" steps (high noise) where the model is just guessing the macro-structure.
+* It up-weights the "easy" steps (low noise) where the model is performing critical fine-tuning.
+* Without this, the model would be overwhelmed by the sheer volume of loss from the high-noise steps and would fail to learn the precise details required for the final output.
 
 \subsection{Methodology Report: LLaDA Text-to-SQL Pipeline}
 

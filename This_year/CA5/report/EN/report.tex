@@ -462,18 +462,26 @@ We evaluate using Rank-1, Rank-5, and mAP (mean Average Precision) on the test s
 
 **1. Useful Preprocessing Steps:**
 
-* **Resizing ():** We resized images to a 2:1 aspect ratio. This is essential because cattle (like humans) are vertically or horizontally elongated. A square input () would distort the body shape.
-* **Normalization:** We used ImageNet mean/std. This centers the data, preventing exploding gradients and allowing us to use pretrained weights effectively.
+* **Normalization (T.Normalize):** Standard ImageNet means [0.485, 0.456, 0.406] and standard deviations [0.229, 0.224, 0.225] were applied. This is necessary because the ResNet50 model being fine-tuned was pretrained on ImageNet, so input data must match that distribution.
+
+* **Resizing (T.Resize):** Images are resized to (256, 128). The 2:1 aspect ratio is more appropriate for the elongated body shapes of the subjects (cows) compared to a square 224x224 format.
 
 **2. Augmentation Methods Used:**
 
-* **Random Erasing:** We randomly masked rectangular regions. This simulates **occlusion** (e.g., a cow standing behind a post), forcing the model to recognize the animal by its remaining visible parts rather than a complete silhouette.
+* **Aggressive Augmentation (Training Only):**
+  * **RandomErasing:** Randomly blacks out rectangular regions of the image. This forces the model to recognize the subject based on remaining visible parts rather than relying on a single distinctive feature that might be occluded.
+  * **ColorJitter:** Introduces variations in brightness, contrast, saturation, and hue to help the model become invariant to lighting conditions.
+  * **Pad + RandomCrop:** Shifts the subject slightly within the frame, improving robustness against imperfect bounding boxes.
 * **Horizontal Flip:** Doubles the effective data size by simulating different walking directions.
 
 **3. Graph Sampling (PK Sampling):**
 
 * **Explanation:** We implemented Random Identity Sampling ( identities,  instances each).
 * **Effect:** Standard random batches might contain only 1 image of a specific cow, making it impossible to compute "Positive" distance for Triplet Loss. Our sampling forces the batch to contain "clusters" of data. This changes the distribution from "Uniform" to "Clustered," providing the necessary structure for Metric Learning losses to function.
+
+**4. Label Mapping:**
+
+* **The ReIDDataset class remaps folder IDs (e.g., 1, 10, 11...) to a continuous range (0, 1, 2...). This ensures compatibility with CrossEntropyLoss, which requires labels in the range [0, N-1].**
 
 \subsection{BotNet Training}
 
@@ -1570,6 +1578,44 @@ def noisy_batch(input_ids, attention_mask, prompt_lengths, tokenizer):
     
     return masked_input_ids, labels, p_mask
 \end{lstlisting}
+
+\subsubsection*{Critical Edge Case: Zero Masked Tokens}
+A critical edge case in diffusion model training occurs when no tokens are masked, which can happen in two scenarios:
+
+\textbf{1. Low Noise Regime ($t \approx 0$):}
+When the diffusion timestep $t$ is close to zero (near the end of the denoising process), the mask probability $p_{mask} = t$ becomes very small. For short sequences or low masking probabilities, this can result in zero tokens being selected for masking.
+
+\textbf{2. Short Sequences:}
+For very short answer sequences (e.g., 2-3 tokens), even moderate masking probabilities may round down to zero masked tokens. For example, with a 2-token sequence and 10\% masking probability, the expected number of masked tokens is $2 \times 0.1 = 0.2$, which rounds to zero.
+
+\textbf{Why Return 0.0 Loss?}
+The code must handle this edge case by returning 0.0 loss to prevent critical failures:
+
+\begin{itemize}
+    \item \textbf{Division by Zero:} The final loss calculation involves division by the number of masked tokens. A zero denominator would cause infinite or NaN losses.
+    \item \textbf{Empty Tensor Operations:} Selecting masked logits with \texttt{logits[mask\_indices]} on an empty mask would create empty tensors, causing CrossEntropy loss to fail.
+    \item \textbf{Training Logic:} When no tokens are masked, the model sees clean input and has no denoising task to perform. Zero loss prevents unnecessary parameter updates.
+\end{itemize}
+
+\textbf{Method Comparison: Skip vs. Force Minimum Mask}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lcc}
+        \toprule
+        \textbf{Aspect} & \textbf{Skip Method (Current)} & \textbf{Force Method (Alternative)} \\
+        \midrule
+        \textbf{Implementation} & Return 0.0 when no masks & Force minimum 1 mask token \\
+        \textbf{Safety} & Prevents NaN/inf errors & Always ensures training signal \\
+        \textbf{Efficiency} & May skip batches (short sequences) & Uses all batches for training \\
+        \textbf{Data Utilization} & Suboptimal for short sequences & Maximizes dataset usage \\
+        \textbf{Training Stability} & Very stable, no edge cases & Slightly more complex logic \\
+        \bottomrule
+    \end{tabular}
+    \caption{Comparison of Zero-Mask Handling Strategies}
+\end{table}
+
+The skip method (returning 0.0) is safer and prevents training crashes, while the force method ensures maximum data utilization. For production systems, the skip method is preferred for its robustness, though the force method may provide better sample efficiency for datasets with many short sequences.
 
 \subsection{Evaluation and Block Diffusion}
 

@@ -2205,6 +2205,160 @@ PGD training pseudocode (single batch):
 \State Update $\theta$ with loss $\mathcal{L}(\theta, x_{adv}, y)$
 \end{algorithmic}
 \end{algorithm}
+%
+\subsection{Appendix: Metrics and Statistical Reporting}\label{appendix:metrics}
+For reproducibility we state the exact formulas used for all automatic metrics reported in the main text.
+
+\textbf{BLEU-4} (sentence-level brevity-penalty form used, corpus BLEU computed via geometric mean of n-gram precisions):
+\begin{align}
+P_n &= \frac{\sum_{s\in S} \text{clip\_count}_n(s)}{\sum_{s\in S} \text{count}_n(s)} \\
+BP &= \begin{cases} 1 & \text{if } c>r \\ e^{1-r/c} & \text{if } c \le r \end{cases} \\
+\text{BLEU-4} &= BP \cdot \exp\left( \sum_{n=1}^4 w_n \log P_n \right)
+\end{align}
+with weights \(w_n = 1/4\).
+
+\textbf{CIDEr} (consensus-based image description evaluation) summary:
+\begin{equation}
+\text{CIDEr} = \frac{1}{|S|} \sum_{s \in S} \frac{1}{M} \sum_{n=1}^{M} w_n \cdot \frac{\mathbf{g}_n(s)\cdot \mathbf{r}_n}{\|\mathbf{g}_n(s)\| \|\mathbf{r}_n\|}
+\end{equation}
+where \( \mathbf{g}_n \) and \( \mathbf{r}_n \) are TF-IDF weighted n-gram vectors for generated and reference captions and \(M=4\) by default. Full implementation follows \cite{vedantam2015cider}.
+
+\textbf{METEOR}: We follow the standard F-mean combining unigram precision/recall with alignment fragmentation penalty \cite{banerjee2005meteor}.
+
+\textbf{Macro-F1 (classification tasks):}
+\begin{equation}
+\text{Macro-F1} = \frac{1}{C} \sum_{c=1}^{C} \frac{2 \cdot \text{Precision}_c \cdot \text{Recall}_c}{\text{Precision}_c + \text{Recall}_c}
+\end{equation}
+All reported metrics are computed over 3 random seeds (seed=42, 123, 2024) and we report mean ± standard deviation. When comparing models we use paired t-tests at significance level \(\alpha=0.05\).
+
+\subsection{Appendix: CLIP / Contrastive Learning Details}\label{appendix:clipdetails}
+We expand the InfoNCE loss used for CLIP and describe how the temperature is parameterized and learned. For a batch of \(N\) matched image-text pairs, with L2-normalized embeddings \(z_{img,i}\) and \(z_{txt,j}\), we compute logits:
+\begin{equation}
+s_{ij} = \frac{z_{img,i}^\top z_{txt,j}}{\tau}
+\end{equation}
+The symmetric InfoNCE loss used is:
+\begin{align}
+\mathcal{L}_{img\to txt} &= -\frac{1}{N}\sum_{i=1}^N \log\frac{\exp(s_{ii})}{\sum_{j=1}^N \exp(s_{ij})} \\
+\mathcal{L}_{txt\to img} &= -\frac{1}{N}\sum_{i=1}^N \log\frac{\exp(s_{ii})}{\sum_{j=1}^N \exp(s_{ji})} \\
+\mathcal{L}_{CLIP} &= \frac{1}{2}(\mathcal{L}_{img\to txt} + \mathcal{L}_{txt\to img})
+\end{align}
+
+To ensure numerical stability and positivity, the temperature is implemented as a log-parameter:
+\begin{equation}
+\tau = \exp(\log\tau_\theta),\qquad \log\tau_\theta \in \mathbb{R}\ \text{is learned.}
+\end{equation}
+Gradients flow to \(\log\tau_\theta\) during optimization. In practice we initialize \(\log\tau_\theta=\log(0.07)\).
+
+\textbf{Hard-negative mining (implementation note):} when enabled we compute in-batch similarities and select top-k highest-similarity mismatched pairs per anchor as additional negatives for an auxiliary margin loss. See `codes/q1_clip/train.py` (function `mine_hard_negatives`) for the implementation used in experiments.
+
+\textbf{Prompt templates used for zero-shot classification:}
+\begin{itemize}
+  \item "A photo of a {label}."
+  \item "An image of {label}."
+  \item "A photo showing a {label}."
+\end{itemize}
+We average text embeddings across multiple templates for each class (ensembled prompts) as described in the experiments.
+
+\subsection{Appendix: Beam Search and Decoding}\label{appendix:decoding}
+We include beam search pseudocode and clarify hyperparameters used in captioning evaluations.
+\begin{algorithm}
+\caption{Beam search decoding (beam width \(B\))}
+\begin{algorithmic}[1]
+\State Initialize beam with \(\langle\text{<start>}\rangle\) and score 0
+\For{time step \(t=1\) to \(T_{max}\)}
+  \State For each hypothesis in beam, compute next-token log-probabilities
+  \State Expand each hypothesis with top-K next tokens producing \(B\times K\) candidates
+  \State Keep top \(B\) hypotheses by cumulative log-probability (length normalization applied)
+  \State If all hypotheses ended with \(\langle\text{<end>}\rangle\), break
+\EndFor
+\State Return highest-scoring hypothesis (after removing special tokens)
+\end{algorithmic}
+\end{algorithm}
+We use beam size \(B\in\{1,3,5\}\) in ablations and length normalization with exponent \(\alpha=0.7\).
+
+\subsection{Appendix: LoRA implementation details}\label{appendix:lora}
+We reiterate the LoRA parameterization used and provide an implementation note. For a pretrained matrix \(W_0\in\mathbb{R}^{d\times k}\), LoRA injects low-rank matrices \(A\in\mathbb{R}^{r\times k}\) and \(B\in\mathbb{R}^{d\times r}\) and applies:
+\begin{equation}
+W = W_0 + \frac{\alpha}{r} BA
+\end{equation}
+where \(\alpha\) is a scalar scaling factor. During fine-tuning \(W_0\) remains frozen and only \(A,B\) (and optional layernorm and bias terms) are trained.
+
+Minimal pseudocode for a LoRA-injected linear layer:
+\begin{lstlisting}
+class LoRALinear(nn.Module):
+    def __init__(self, in_dim, out_dim, r=8, alpha=32):
+        self.W0 = nn.Linear(in_dim, out_dim, bias=False)  # pretrained, frozen
+        self.A = nn.Parameter(torch.zeros(r, in_dim))
+        self.B = nn.Parameter(torch.zeros(out_dim, r))
+        self.scaling = alpha / r
+    def forward(self, x):
+        return self.W0(x) + self.scaling * (x @ self.A.T @ self.B.T)
+\end{lstlisting}
+Reference implementation used: `codes/q3_lora/lora_layer.py`.
+
+\subsection{Appendix: Adversarial Attacks — Algorithms and Evaluation Protocol}\label{appendix:adv}
+We provide exact algorithmic steps used for FGSM and PGD evaluations.
+
+\textbf{FGSM (single-step):}
+\begin{align}
+\eta &= \epsilon \cdot \text{sign}(\nabla_x \mathcal{L}(\theta, x, y)) \\
+x_{adv} &= \text{clip}(x + \eta, x_{min}, x_{max})
+\end{align}
+
+\textbf{PGD (iterative projected gradient descent):}
+\begin{algorithmic}[1]
+\State Initialize \(x_0 = x + \mathcal{U}(-\epsilon,\epsilon)\) (random start optional)
+\For{t = 0 to T-1}
+  \State \(g_t \leftarrow \nabla_x \mathcal{L}(\theta, x_t, y)\)
+  \State \(x_{t+1} \leftarrow \text{clip}_{\mathcal{B}_\epsilon(x)}(x_t + \alpha \cdot \text{sign}(g_t))\)
+\EndFor
+\State Return \(x_T\)
+\end{algorithmic}
+
+Evaluation protocol:
+\begin{itemize}
+  \item Report clean accuracy and robust accuracy at multiple \(\epsilon\) levels (e.g., {2/255, 4/255, 8/255}).
+  \item Use PGD with \(T\in\{10,20\}\) steps and 5 random restarts for strong evaluation.
+  \item When possible, include AutoAttack as a final sanity check.
+\end{itemize}
+
+\subsection{Appendix: Wav2Vec / HuBERT training hyperparameters}\label{appendix:audiohp}
+Masking and clustering details:
+\begin{itemize}
+  \item Wav2Vec mask probability: 0.065, average mask length: 10 frames (as in \cite{baevski2020wav2vec}).
+  \item Contrastive temperature \(\kappa\) used in Wav2Vec InfoNCE is implemented as a learned scalar (we denote it \(\kappa\) to distinguish from CLIP's \(\tau\)); initialized to 0.1.
+  \item HuBERT clustering: K-means with \(K\in\{100,500\}\) explored; initial clustering on MFCCs, iterated clustering on intermediate representations for later stages.
+  \item SpecAugment parameters (for mel-spectrogram pipelines): frequency masks = 2, max frequency width = 15; time masks = 2, max time width = 40 frames.
+\end{itemize}
+
+\subsection{Appendix: Data augmentations and transforms}\label{appendix:aug}
+Exact augmentation settings used in experiments:
+\begin{itemize}
+  \item Image (captioning/CLIP): RandomResizedCrop(scale=(0.08,1.0), ratio=(3/4,4/3)), RandomHorizontalFlip(p=0.5), ColorJitter(brightness=0.4,contrast=0.4,saturation=0.4,hue=0.1).
+  \item Audio: Resample to 16kHz, random gain in [-6dB, +6dB], time-shift up to 0.5s, additive background noise SNR uniform in [5,20]dB.
+\end{itemize}
+
+\subsection{Appendix: Code map (file references)}\label{appendix:coding}
+Key code files implementing algorithms described in this report (examples — line ranges may change; see files for latest):
+\begin{itemize}
+  \item Image captioning model, tokenizer, and training: `codes/q1_image_captioning/train.py`, `codes/q1_image_captioning/model.py`, `codes/q1_image_captioning/tokenizer.py`
+  \item CLIP-style training and retrieval: `codes/q1_clip/train.py`, `codes/q1_clip/model.py`
+  \item Wav2Vec experiments and wrappers: `codes/q2_urban_sound/wav2vec_finetune.py`
+  \item LoRA adapters and injection utilities: `codes/q3_lora/lora_layer.py`, `codes/q3_lora/train_lora.py`
+  \item Adversarial attacks and training: `codes/q4_adversarial/attacks.py` (FGSM, PGD), `codes/q4_adversarial/train_adv.py`
+  \item Notebook demos: `codes/notebooks/q1_captioning_demo.ipynb`, `codes/notebooks/q1_clip_demo.ipynb`
+\end{itemize}
+
+\subsection{Appendix: Notation and conventions}\label{appendix:notation}
+We summarize notation used throughout the report:
+\begin{itemize}
+  \item \(I\): input image; \(S=(w_1,\dots,w_T)\): generated caption sequence.
+  \item \(a_i\): spatial feature vector from CNN encoder; \(L\): number of spatial locations.
+  \item \(\tau\): temperature used for CLIP / InfoNCE in image-text contrastive learning.
+  \item \(\kappa\): temperature used for Wav2Vec contrastive loss (kept distinct to avoid confusion).
+  \item \(\epsilon\): maximum perturbation norm for adversarial attacks (pixel space).
+\end{itemize}
+
 
 % Bibliography
 \bibliographystyle{IEEEtran}

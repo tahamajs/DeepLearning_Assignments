@@ -1,0 +1,37 @@
+% =========================
+% report/appendix.tex
+% =========================
+
+\subsection{Recommended Metrics File Formats}
+\paragraph{Dataset summary.}
+Export \texttt{../results/metrics/summary.csv} with columns such as:
+\begin{itemize}
+  \item \texttt{metric}, \texttt{value}
+\end{itemize}
+or a wide format such as:
+\begin{itemize}
+  \item \texttt{N}, \texttt{MRE\_mean}, \texttt{MRE\_median}, \texttt{success\_rate\_5px}, \texttt{runtime\_median\_ms}, \texttt{runtime\_p95\_ms}
+\end{itemize}
+
+\subsection{Annotation Schema (Point Correspondences)}
+A typical JSON schema for ground-truth point correspondences is:
+\begin{verbatim}
+{
+  "image_id": "photo_001.jpg",
+  "template_id": "template_A.png",
+  "points_template": [[x1,y1],[x2,y2],[x3,y3],[x4,y4]],
+  "points_photo":    [[u1,v1],[u2,v2],[u3,v3],[u4,v4]]
+}
+\end{verbatim}
+For stable homography estimation, use at least four non-collinear point pairs; more points improve robustness of evaluation.
+
+\subsection{Parameter Logging}
+For scientific reproducibility, each run should export a configuration JSON (e.g., \texttt{../results/metrics/config.json}) containing:
+\begin{itemize}
+  \item image resize policy,
+  \item ORB parameters,
+  \item matching rules,
+  \item RANSAC threshold and max iterations,
+  \item alpha blending value.
+\end{itemize}
+

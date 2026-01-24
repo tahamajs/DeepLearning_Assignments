@@ -1,0 +1,5 @@
+% =========================
+% report/related_work.tex
+% =========================
+
+Feature-based image registration is a canonical approach for aligning images under viewpoint and illumination changes. Keypoint methods such as SIFT and ORB produce local descriptors designed for repeatable matching across images \cite{Lowe2004SIFT,Rublee2011ORB}. Robust geometric estimation is commonly performed using RANSAC to mitigate outlier correspondences \cite{FischlerBolles1981}. For planar scenes or approximately planar part faces, the mapping between two views is accurately described by a homography, with full derivations and practical guidance provided in standard multi-view geometry references \cite{HartleyZisserman2004}. The present implementation follows these established principles, emphasizing reproducibility and explicit evaluation outputs.

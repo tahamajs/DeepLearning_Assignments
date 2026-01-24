@@ -1,0 +1,18 @@
+% =========================
+% report/introduction.tex
+% =========================
+
+\subsection{Problem Statement}
+Given a reference template image $\mathcal{I}_T$ representing a part map (drawing, CAD-derived view, or annotated layout) and a query photograph $\mathcal{I}_Q$ containing the physical part, the objective is to compute a geometric mapping that projects the template into the photograph coordinate frame. The final output is an overlay image enabling visual inspection and/or downstream measurement tasks.
+
+\subsection{Motivation}
+Accurate template-to-photo alignment is a standard requirement in industrial inspection, assembly verification, and documentation workflows. A practical solution must (i) tolerate moderate viewpoint changes, illumination variation, and background clutter, (ii) provide measurable quality indicators, and (iii) operate under constrained compute resources.
+
+\subsection{Contributions}
+This work provides:
+\begin{itemize}
+  \item a complete, modular implementation with stage-wise outputs;
+  \item a robust alignment method based on feature matching and homography estimation;
+  \item an evaluation protocol with quantitative and qualitative analyses;
+  \item reproducibility artifacts (metrics CSVs and generated figures) directly referenced in the report.
+\end{itemize}

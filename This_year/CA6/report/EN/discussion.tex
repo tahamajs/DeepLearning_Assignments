@@ -1,0 +1,26 @@
+% =========================
+% report/discussion.tex
+% =========================
+
+\subsection{Assumptions and Validity Domain}
+The method assumes that the relevant template surface is planar (or sufficiently close for the required tolerance). When this assumption is violated (e.g., curved surfaces, significant depth variation), a single homography cannot model the mapping accurately, and residual errors will persist even with correct matching.
+
+\subsection{Limitations}
+Key limitations include:
+\begin{itemize}
+  \item Sensitivity to glare, low texture, and repetitive patterns.
+  \item Degradation under large perspective changes or partial occlusions.
+  \item Dependence on template quality (line thickness, contrast, and scale standardization).
+\end{itemize}
+
+\subsection{Mitigation Strategies (Evidence-Driven)}
+Mitigations should be adopted only if they reduce tail failures and improve success rate under the chosen tolerance:
+\begin{itemize}
+  \item ROI gating to suppress background correspondences.
+  \item Parameter selection guided by ablation stability regions.
+  \item Template enhancement (contrast normalization; multi-variant templates when scale varies).
+\end{itemize}
+
+\subsection{Threats to Validity}
+Threats include annotation noise (for reprojection metrics), dataset bias (limited variety of lighting/viewpoints), and over-tuning parameters on a small dataset. These are mitigated by reporting distributions, including failure cases, and separating tuning from final evaluation.
+

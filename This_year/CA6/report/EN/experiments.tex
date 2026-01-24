@@ -1,0 +1,43 @@
+% =========================
+% report/experiments.tex
+% =========================
+
+\subsection{Datasets and Inputs}
+The experimental dataset consists of:
+\begin{itemize}
+  \item Templates: standardized drawings under \texttt{../data/templates/}.
+  \item Photographs: query images under \texttt{../data/photos/}.
+  \item (Optional) Annotations: ground-truth point correspondences or masks under \texttt{../data/annotations/}.
+\end{itemize}
+
+\subsection{Evaluation Metrics}
+The evaluation scripts compute:
+
+\paragraph{Mean/Median Reprojection Error (pixels).}
+Given $K$ ground-truth correspondences $\{(\mathbf{p}_k^T,\mathbf{p}_k^Q)\}$:
+\[
+\text{MRE} = \frac{1}{K}\sum_{k=1}^{K}\left\|\mathbf{p}_k^Q - \pi(\mathbf{H}\tilde{\mathbf{p}}_k^T)\right\|_2,\quad
+\text{MedRE} = \operatorname{median}_{k}(e_k).
+\]
+
+\paragraph{Success Rate.}
+Define a threshold $\delta$:
+\[
+\text{Success}(\delta)=\mathbb{I}(\text{MRE}<\delta).
+\]
+The success rate is averaged over the dataset.
+
+\paragraph{Optional IoU.}
+When masks are available, IoU is computed between the warped template mask and the photo mask.
+
+\paragraph{Runtime.}
+Per-image latency and stage-wise breakdown are measured under fixed resolution and fixed parameter settings.
+
+\subsection{Parameter Settings (Recorded for Reproducibility)}
+All runs should report:
+\begin{itemize}
+  \item max image dimension used for matching;
+  \item ORB parameters (e.g., \texttt{nfeatures}, pyramid levels);
+  \item RANSAC threshold $\tau$ and maximum iterations;
+  \item match filtering method (cross-check on/off; distance percentile).
+\end{itemize}

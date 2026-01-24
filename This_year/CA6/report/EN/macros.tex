@@ -1,0 +1,63 @@
+% =========================
+% report/macros.tex
+% =========================
+
+% Safe include graphic: does not fail compilation if missing
+\newcommand{\ResultGraphic}[3]{%
+  \begin{figure}[t]
+    \centering
+    \IfFileExists{#1}{%
+      \includegraphics[width=#2]{#1}%
+    }{%
+      \fbox{\parbox{0.9\linewidth}{\textbf{Missing figure:} \texttt{#1}\\
+      Place the file at this path or update the filename in the .tex file.}}%
+    }%
+    \caption{#3}
+    \label{fig:#1}
+  \end{figure}
+}
+
+\newcommand{\ResultGraphicTwo}[6]{%
+  \begin{figure}[t]
+    \centering
+    \begin{subfigure}{0.48\linewidth}
+      \centering
+      \IfFileExists{#1}{\includegraphics[width=\linewidth]{#1}}{\fbox{\parbox{0.9\linewidth}{Missing: \texttt{#1}}}}
+      \caption{#3}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.48\linewidth}
+      \centering
+      \IfFileExists{#2}{\includegraphics[width=\linewidth]{#2}}{\fbox{\parbox{0.9\linewidth}{Missing: \texttt{#2}}}}
+      \caption{#4}
+    \end{subfigure}
+    \caption{#5}
+    \label{fig:#6}
+  \end{figure}
+}
+
+% Safe include CSV table (pgfplotstable). Expects header row.
+% Example:
+% \SafeCSVTable{../results/metrics/summary.csv}{Summary metrics}{tab:summary}
+\newcommand{\SafeCSVTable}[3]{%
+  \begin{table}[t]
+    \centering
+    \IfFileExists{#1}{%
+      \pgfplotstabletypeset[
+        col sep=comma,
+        string type,
+        header=true,
+        columns/.style={column type=l},
+        every head row/.style={before row=\toprule, after row=\midrule},
+        every last row/.style={after row=\bottomrule}
+      ]{#1}%
+    }{%
+      \fbox{\parbox{0.9\linewidth}{\textbf{Missing CSV:} \texttt{#1}\\
+      Export your metrics to this path or update the filename in the .tex file.}}%
+    }%
+    \caption{#2}
+    \label{#3}
+  \end{table}
+}
+
+% Helper macro for placeholder numeric reporting (replace later)
+\newcommand{\Placeholder}[1]{\textbf{[REPLACE: #1]}}

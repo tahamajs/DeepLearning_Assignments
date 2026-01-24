@@ -1,0 +1,95 @@
+% =========================
+% report/main.tex
+% =========================
+% Compile from /report:
+%   pdflatex main.tex
+%   bibtex main
+%   pdflatex main.tex
+%   pdflatex main.tex
+%
+% Expected repo (relative to /report):
+%   ../results/figures/...
+%   ../results/metrics/...
+%   src/ scripts in ../src/ (optional to include via listings)
+
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{pgfplotstable}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\graphicspath{{../results/}{../results/figures/}{../results/overlays/}}
+
+% Listings style for Python
+\lstdefinestyle{py}{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue!70!black},
+  commentstyle=\color{green!40!black},
+  stringstyle=\color{red!60!black},
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{black!20},
+  tabsize=2
+}
+\lstset{style=py}
+
+\input{macros}
+
+\title{Feature-Based Template-to-Photo Alignment and Overlay System}
+\author{(Author Name) \\ (Affiliation) \\ (Email)}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+\input{introduction}
+
+\section{Related Work}
+\input{related_work}
+
+\section{Methodology}
+\input{methodology}
+
+\section{Implementation}
+\input{implementation}
+
+\section{Experimental Setup}
+\input{experiments}
+
+\section{Results and Analysis}
+\input{results}
+
+\section{Discussion}
+\input{discussion}
+
+\section{Conclusion}
+\input{conclusion}
+
+\appendix
+\section{Appendix}
+\input{appendix}
+
+\bibliographystyle{ieeetr}
+\bibliography{references}
+
+\end{document}

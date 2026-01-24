@@ -1,0 +1,4 @@
+% =========================
+% report/abstract.tex
+% =========================
+This report presents a reproducible computer-vision pipeline for aligning a 2D reference template (e.g., blueprint or part map) to a photograph of a physical part and producing a geometrically consistent overlay. The method uses local feature detection and description (ORB by default), robust correspondence estimation, and homography fitting via RANSAC to model planar projective geometry. The implementation exports overlays, quantitative alignment metrics (reprojection error, success rate; optionally IoU), and runtime profiles for deployment feasibility. A full experimental protocol is provided, including ablation studies and failure-case diagnostics, enabling scientific evaluation of robustness under illumination variation, clutter, and perspective changes.

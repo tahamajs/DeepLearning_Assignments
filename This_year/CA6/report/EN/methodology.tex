@@ -1,0 +1,26 @@
+% =========================
+% report/methodology.tex
+% =========================
+
+\subsection{Geometric Model}
+Assuming the relevant part surface is planar (or close enough for the target tolerance), the template-to-photo mapping is modeled by a homography $\mathbf{H}\in\mathbb{R}^{3\times3}$:
+\[
+\tilde{\mathbf{x}}^{Q} \sim \mathbf{H}\tilde{\mathbf{x}}^{T},
+\]
+where $\tilde{\mathbf{x}}=[x,y,1]^T$ is the homogeneous coordinate representation and $\sim$ denotes equality up to scale \cite{HartleyZisserman2004}.
+
+\subsection{Feature Extraction and Matching}
+ORB is used as the default feature extractor and descriptor \cite{Rublee2011ORB}. Descriptor correspondences are computed using Hamming distance with mutual cross-check filtering to reduce ambiguous matches. Additional distance-based filtering is applied to remove weak correspondences prior to geometric fitting.
+
+\subsection{Robust Estimation}
+Because correspondence sets include outliers, RANSAC is used to robustly estimate $\mathbf{H}$ by maximizing an inlier set under a reprojection threshold $\tau$ \cite{FischlerBolles1981}. Reprojection error is computed as:
+\[
+e = \left\|\mathbf{x}^{Q} - \pi(\mathbf{H}\tilde{\mathbf{x}}^{T})\right\|_2,\quad
+\pi([u,v,w]^T) = [u/w, v/w]^T.
+\]
+
+\subsection{Warping and Overlay}
+The estimated homography warps the template into the photograph coordinate frame. The overlay output is produced by alpha blending:
+\[
+\mathcal{I}_{\text{out}} = \alpha \mathcal{I}_{\text{warp}} + (1-\alpha)\mathcal{I}_{Q}, \quad \alpha\in[0,1].
+\]

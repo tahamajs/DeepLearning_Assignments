@@ -1,0 +1,22 @@
+% =========================
+% report/preprocessing.tex
+% =========================
+
+\subsection{Preprocessing Goals}
+Preprocessing aims to reduce nuisance variability and stabilize feature repeatability:
+\begin{itemize}
+  \item normalize image scale (bounded max dimension),
+  \item convert to grayscale for feature extraction,
+  \item optionally increase local contrast to mitigate low-texture regions.
+\end{itemize}
+
+\subsection{Standard Steps}
+Let $\mathcal{I}$ be either template or photo:
+\begin{enumerate}
+  \item Resize such that $\max(\text{width},\text{height}) \le M$ pixels (to control runtime).
+  \item Convert to grayscale.
+  \item Optional: apply CLAHE (Contrast Limited Adaptive Histogram Equalization) when glare/low contrast dominates failures.
+\end{enumerate}
+
+\subsection{Scientific Rationale}
+Local feature detectors depend on gradient structure. Excessive resizing can destroy high-frequency structure and reduce keypoint density; insufficient resizing can increase latency without improving matching. The resizing policy should therefore be treated as an explicit experimental parameter and included in the configuration log.

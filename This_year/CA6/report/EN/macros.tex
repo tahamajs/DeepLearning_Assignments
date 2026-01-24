@@ -2,7 +2,6 @@
 % report/macros.tex
 % =========================
 
-% Safe include graphic: does not fail compilation if missing
 \newcommand{\ResultGraphic}[3]{%
   \begin{figure}[t]
     \centering
@@ -35,9 +34,6 @@
   \end{figure}
 }
 
-% Safe include CSV table (pgfplotstable). Expects header row.
-% Example:
-% \SafeCSVTable{../results/metrics/summary.csv}{Summary metrics}{tab:summary}
 \newcommand{\SafeCSVTable}[3]{%
   \begin{table}[t]
     \centering
@@ -59,5 +55,21 @@
   \end{table}
 }
 
-% Helper macro for placeholder numeric reporting (replace later)
+% Safe code listing include (does not fail compilation if file missing).
+% Usage:
+% \SafeListing{../src/alignment.py}{Key alignment module}{lst:alignment}
+\newcommand{\SafeListing}[3]{%
+  \begin{figure}[t]
+  \centering
+  \IfFileExists{#1}{%
+    \lstinputlisting{#1}%
+  }{%
+    \fbox{\parbox{0.9\linewidth}{\textbf{Missing code file:} \texttt{#1}\\
+    Ensure this file exists or update the path.}}%
+  }%
+  \caption{#2}
+  \label{#3}
+  \end{figure}
+}
+
 \newcommand{\Placeholder}[1]{\textbf{[REPLACE: #1]}}

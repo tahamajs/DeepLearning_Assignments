@@ -1,0 +1,26 @@
+% =========================
+% report/notation.tex
+% =========================
+
+This section defines symbols and terminology used throughout the report.
+
+\subsection{Symbols}
+\begin{itemize}
+  \item $\mathcal{I}_T$: template image (reference map/drawing).
+  \item $\mathcal{I}_Q$: query photograph containing the physical part.
+  \item $\tilde{\mathbf{x}}=[x,y,1]^T$: homogeneous coordinate of a 2D point.
+  \item $\mathbf{H}\in\mathbb{R}^{3\times3}$: homography mapping template coordinates to photo coordinates.
+  \item $\pi([u,v,w]^T)=[u/w,\, v/w]^T$: homogeneous-to-Cartesian projection.
+  \item $\tau$: RANSAC reprojection threshold (pixels).
+  \item $\alpha$: overlay blending parameter ($0\le \alpha \le 1$).
+\end{itemize}
+
+\subsection{Abbreviations}
+\begin{itemize}
+  \item ORB: Oriented FAST and Rotated BRIEF \cite{Rublee2011ORB}.
+  \item RANSAC: Random Sample Consensus \cite{FischlerBolles1981}.
+  \item IoU: Intersection over Union (overlap metric for masks).
+\end{itemize}
+
+\subsection{Key Assumption}
+The primary geometric assumption is that the relevant part surface in the image is approximately planar, so a single homography $\mathbf{H}$ is a valid model \cite{HartleyZisserman2004}.

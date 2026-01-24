@@ -1,0 +1,53 @@
+% =========================
+% report/evaluation.tex
+% =========================
+
+\subsection{Evaluation Objectives}
+Evaluation answers three scientific questions:
+\begin{enumerate}
+  \item \textbf{Geometric correctness:} Does the estimated $\mathbf{H}$ align template structures to photo structures?
+  \item \textbf{Robustness:} How stable is performance under viewpoint/illumination/clutter variation?
+  \item \textbf{Feasibility:} Is runtime acceptable, and what stage dominates latency?
+\end{enumerate}
+
+\subsection{Primary Quantitative Metrics}
+\paragraph{Reprojection error (pixels).}
+For ground-truth correspondence pairs $(\mathbf{p}_k^T,\mathbf{p}_k^Q)$:
+\[
+e_k = \left\|\mathbf{p}_k^Q - \pi(\mathbf{H}\tilde{\mathbf{p}}_k^T)\right\|_2.
+\]
+Aggregate as mean, median, and optionally percentiles.
+
+\paragraph{Inlier ratio.}
+If $N_m$ is the number of matches and $N_i$ is the number of inliers under RANSAC:
+\[
+\text{InlierRatio} = \frac{N_i}{N_m}.
+\]
+This is a proxy for geometric consistency of correspondences.
+
+\paragraph{Success rate.}
+For tolerance $\delta$:
+\[
+\text{Success}(\delta) = \mathbb{I}(\text{MRE}<\delta).
+\]
+Report the dataset-average success rate; select $\delta$ from application tolerance.
+
+\subsection{Report Figures: Required Exports}
+The evaluator should export the following figures, which are referenced in \texttt{results.tex}:
+\begin{itemize}
+  \item \texttt{overlay\_grid.png}: qualitative overlay inspection.
+  \item \texttt{reproj\_error\_hist.png}: distribution of per-image MRE (detects heavy tails and multimodality).
+  \item \texttt{runtime\_breakdown.png}: stage-wise profiling (identifies bottlenecks).
+  \item \texttt{ablation\_plot.png}: sensitivity vs.\ parameters (identifies stable operating regime).
+  \item \texttt{failure\_case\_1.png}, \texttt{failure\_case\_2.png}: worst cases or representative failures (boundary of validity).
+\end{itemize}
+
+\subsection{Ablations (Minimum Scientific Set)}
+Ablations should isolate causal effects:
+\begin{itemize}
+  \item ORB \texttt{nfeatures} $\in \{500, 1000, 2000, 4000\}$,
+  \item RANSAC threshold $\tau \in \{2,3,5,8\}$ pixels,
+  \item cross-check on/off,
+  \item optional CLAHE on/off.
+\end{itemize}
+A scientifically strong conclusion emphasizes regions where performance is stable rather than single-point maxima.

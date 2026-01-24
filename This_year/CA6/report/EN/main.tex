@@ -6,11 +6,6 @@
 %   bibtex main
 %   pdflatex main.tex
 %   pdflatex main.tex
-%
-% Expected repo (relative to /report):
-%   ../results/figures/...
-%   ../results/metrics/...
-%   src/ scripts in ../src/ (optional to include via listings)
 
 \documentclass[11pt]{article}
 
@@ -28,7 +23,7 @@
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 
-\graphicspath{{../results/}{../results/figures/}{../results/overlays/}}
+\graphicspath{{../results/}{../results/figures/}{../results/overlays/}{../results/matches/}}
 
 % Listings style for Python
 \lstdefinestyle{py}{
@@ -64,17 +59,28 @@
 \section{Introduction}
 \input{introduction}
 
+\section{Notation and Definitions}
+\input{notation}
+
+\section{System Overview}
+\input{system_overview}
+
 \section{Related Work}
 \input{related_work}
 
 \section{Methodology}
 \input{methodology}
 
+\section{Data and Experimental Protocol}
+\input{dataset}
+\input{preprocessing}
+\input{experiments}
+
 \section{Implementation}
 \input{implementation}
 
-\section{Experimental Setup}
-\input{experiments}
+\section{Evaluation and Metrics}
+\input{evaluation}
 
 \section{Results and Analysis}
 \input{results}
@@ -82,8 +88,17 @@
 \section{Discussion}
 \input{discussion}
 
+\section{Reproducibility}
+\input{reproducibility}
+
+\section{Ethics, Privacy, and Safety}
+\input{ethics}
+
 \section{Conclusion}
 \input{conclusion}
+
+\section*{Acknowledgements}
+\input{acknowledgements}
 
 \appendix
 \section{Appendix}

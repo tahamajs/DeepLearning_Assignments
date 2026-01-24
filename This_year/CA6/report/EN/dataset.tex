@@ -1,0 +1,30 @@
+% =========================
+% report/dataset.tex
+% =========================
+
+\subsection{Data Description}
+The experimental data consists of pairs $(\mathcal{I}_T, \mathcal{I}_Q)$, where $\mathcal{I}_T$ is a template drawing or part map and $\mathcal{I}_Q$ is a photograph of the corresponding physical part.
+
+\subsection{Data Acquisition Considerations}
+To support scientifically valid conclusions, the dataset should span:
+\begin{itemize}
+  \item viewpoint variation (tilt, rotation, perspective),
+  \item illumination variation (indoor/outdoor, shadows, specular reflections),
+  \item background clutter (workbench, tools),
+  \item partial occlusion and truncation cases.
+\end{itemize}
+
+\subsection{Train/Tune/Test Split (If You Tune Parameters)}
+Although this is not a learned model, parameter tuning can still cause overfitting. For defensible reporting:
+\begin{itemize}
+  \item use a \textbf{tuning subset} to select ORB/RANSAC parameters,
+  \item report final performance on a \textbf{held-out test subset}.
+\end{itemize}
+
+\subsection{Ground Truth for Quantitative Metrics}
+Quantitative alignment metrics require reference geometry:
+\begin{itemize}
+  \item \textbf{Point correspondences:} manually annotated landmark pairs between template and photo.
+  \item \textbf{Masks:} binary silhouette or region-of-interest masks for IoU-based evaluation (optional).
+\end{itemize}
+If no ground truth is available, the evaluation must be framed as qualitative plus proxy metrics (e.g., inlier ratio, match count), which should be explicitly stated as limitations.

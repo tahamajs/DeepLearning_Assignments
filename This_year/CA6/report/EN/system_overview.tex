@@ -1,0 +1,37 @@
+% =========================
+% report/system_overview.tex
+% =========================
+
+\subsection{Pipeline Summary}
+The system aligns a template to a photograph using a standard feature-based registration pipeline:
+\begin{enumerate}
+  \item Preprocess $\mathcal{I}_T$ and $\mathcal{I}_Q$ (grayscale conversion; optional contrast normalization).
+  \item Detect and describe keypoints with ORB \cite{Rublee2011ORB}.
+  \item Match descriptors (Hamming distance) and filter matches (cross-check and distance thresholding).
+  \item Estimate homography $\mathbf{H}$ using RANSAC to suppress outliers \cite{FischlerBolles1981}.
+  \item Warp template into photo frame via $\mathbf{H}$ and render overlay for inspection.
+  \item Export metrics, plots, and worst-case examples for scientific evaluation.
+\end{enumerate}
+
+\subsection{Repository Layout (Expected)}
+The report assumes the following folder layout (paths are relative to project root):
+\begin{verbatim}
+report/
+  main.tex
+  *.tex
+  references.bib
+src/
+  (your python modules)
+data/
+  templates/
+  photos/
+  annotations/   (optional)
+results/
+  overlays/
+  figures/
+  metrics/
+  matches/       (optional debug outputs)
+\end{verbatim}
+
+\subsection{Why Feature-Based Registration}
+Feature-based registration is computationally efficient and works without training data. Under moderate viewpoint changes and sufficient texture/structure, ORB+RANSAC yields robust alignment at low latency \cite{Rublee2011ORB,FischlerBolles1981}.

@@ -1,0 +1,118 @@
+% =========================
+% report/main.tex
+% =========================
+% روش کامپایل (در پوشه report):
+%   xelatex main.tex
+%   bibtex main
+%   xelatex main.tex
+%   xelatex main.tex
+
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{pgfplotstable}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% ---------- فارسی ----------
+\usepackage{xepersian}
+% اگر فونت فارسی ندارید، این خطوط را تغییر دهید یا موقتاً کامنت کنید.
+% نمونه‌های رایج: XB Niloofar, XB Zar, IRNazanin, Vazirmatn
+\settextfont{XB Niloofar}
+\setlatintextfont{Times New Roman}
+
+\usepackage{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+\graphicspath{{../results/}{../results/figures/}{../results/overlays/}{../results/matches/}}
+
+% Listings style for Python
+\lstdefinestyle{py}{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue!70!black},
+  commentstyle=\color{green!40!black},
+  stringstyle=\color{red!60!black},
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{black!20},
+  tabsize=2
+}
+\lstset{style=py}
+
+\input{macros}
+
+\title{سامانه هم‌ترازی و هم‌پوشانی «نقشهٔ قطعه» بر روی تصویر واقعی}
+\author{(نام نویسنده) \\ (وابستگی سازمانی/دانشگاه) \\ (ایمیل)}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{مقدمه}
+\input{introduction}
+
+\section{نمادگذاری و تعاریف}
+\input{notation}
+
+\section{نمای کلی سامانه}
+\input{system_overview}
+
+\section{کارهای مرتبط}
+\input{related_work}
+
+\section{روش‌شناسی}
+\input{methodology}
+
+\section{داده‌ها و پروتکل آزمایش}
+\input{dataset}
+\input{preprocessing}
+\input{experiments}
+
+\section{پیاده‌سازی}
+\input{implementation}
+
+\section{ارزیابی و معیارها}
+\input{evaluation}
+
+\section{نتایج و تحلیل}
+\input{results}
+
+\section{بحث}
+\input{discussion}
+
+\section{بازتولیدپذیری}
+\input{reproducibility}
+
+\section{اخلاق، حریم خصوصی و ایمنی}
+\input{ethics}
+
+\section{نتیجه‌گیری}
+\input{conclusion}
+
+\section*{قدردانی}
+\input{acknowledgements}
+
+\appendix
+\section{پیوست}
+\input{appendix}
+
+\bibliographystyle{ieeetr}
+\bibliography{references}
+
+\end{document}

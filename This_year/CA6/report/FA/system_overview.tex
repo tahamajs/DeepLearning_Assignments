@@ -1,0 +1,37 @@
+% =========================
+% report/system_overview.tex
+% =========================
+
+\subsection{خلاصهٔ خط لوله}
+سامانه با یک خط لولهٔ استاندارد ثبت تصویر مبتنی بر ویژگی کار می‌کند:
+\begin{enumerate}
+  \item \textbf{پیش‌پردازش} $\mathcal{I}_T$ و $\mathcal{I}_Q$ (خاکستری‌سازی، کنترل اندازه، و در صورت نیاز افزایش کنتراست).
+  \item \textbf{استخراج ویژگی} (نقاط کلیدی و توصیف‌گر) با ORB \cite{Rublee2011ORB}.
+  \item \textbf{تطبیق توصیف‌گرها} با فاصلهٔ همینگ و پالایش تطبیق‌ها (Cross-check و/یا فیلتر فاصله).
+  \item \textbf{تخمین هموگرافی} $\mathbf{H}$ به کمک RANSAC برای حذف پرت‌ها \cite{FischlerBolles1981}.
+  \item \textbf{وارپ} کردن الگو به چارچوب عکس با $\mathbf{H}$ و تولید خروجی هم‌پوشانی.
+  \item \textbf{خروجی‌گیری} از معیارهای کمی و تصاویر دیباگ برای ارزیابی علمی.
+\end{enumerate}
+
+\subsection{ساختار پوشه‌ها (پیشنهادی)}
+گزارش فرض می‌کند پروژه ساختار زیر را دارد:
+\begin{verbatim}
+report/
+  main.tex
+  *.tex
+  references.bib
+src/
+  (ماژول‌های پایتون)
+data/
+  templates/
+  photos/
+  annotations/   (اختیاری)
+results/
+  overlays/
+  figures/
+  metrics/
+  matches/       (اختیاری)
+\end{verbatim}
+
+\subsection{چرایی انتخاب روش مبتنی بر ویژگی}
+این رویکرد \textbf{بدون آموزش} و با هزینهٔ محاسباتی پایین اجرا می‌شود و اگر تصویر حاوی ساختار/بافت کافی باشد، ORB+RANSAC می‌تواند هم‌ترازی قابل قبولی ارائه کند \cite{Rublee2011ORB,FischlerBolles1981}.

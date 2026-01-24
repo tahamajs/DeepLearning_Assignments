@@ -1,0 +1,19 @@
+% =========================
+% report/appendix.tex
+% =========================
+
+\subsection{فرمان‌های پیشنهادی اجرا (نمونه)}
+این بخش را مطابق نام فایل‌های اجرایی خودتان تکمیل کنید. نمونه:
+\begin{itemize}
+  \item اجرای تولید هم‌پوشانی‌ها:
+\begin{verbatim}
+python -m src.run_alignment --config configs/default.json --data data/ --out results/
+\end{verbatim}
+  \item اجرای ارزیابی و تولید شکل‌ها:
+\begin{verbatim}
+python -m src.run_eval --config configs/default.json --data data/ --results results/
+\end{verbatim}
+\end{itemize}
+
+\subsection{توضیح انتخاب آستانه‌ها}
+اگر $\tau$ (آستانه RANSAC) بزرگ انتخاب شود، ممکن است تطبیق‌های غلط به‌عنوان درون‌نهشتی پذیرفته شوند و هموگرافی منحرف شود. اگر خیلی کوچک باشد، تعداد درون‌نهشتی کم می‌شود و RANSAC ناپایدار می‌گردد. بنابراین انتخاب $\tau$ باید با ابلیشن و با توجه به رزولوشن تصاویر انجام شود.

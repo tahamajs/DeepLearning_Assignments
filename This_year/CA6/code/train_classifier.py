@@ -1,8 +1,9 @@
+# train_classifier.py
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
-from typing import Tuple
+import os
+from typing import Optional, Tuple
 
 import torch
 import torch.nn.functional as F
@@ -10,104 +11,120 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
-from deepgen.data import DataConfig, get_mnist_loaders_for_gan
-from deepgen.models import ConditionalGenerator, LeNet5
-from deepgen.utils import AverageMeter, set_seed
+from deepgen.data import get_mnist_loaders
+from deepgen.models.classifier import LeNet5
+from deepgen.models.gan import Generator
+from deepgen.utils import (
+    get_device,
+    load_checkpoint,
+    restore_rng_state,
+    save_checkpoint,
+    set_seed,
+)
 
-
-def parse_args():
-    p = argparse.ArgumentParser(description="Train LeNet-5 on MNIST with optional GAN augmentation.")
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser()
     p.add_argument("--data_root", type=str, default="./data")
-    p.add_argument("--outdir", type=str, default="./runs/classifier")
+    p.add_argument("--out_dir", type=str, default="./runs/classifier")
     p.add_argument("--batch_size", type=int, default=128)
     p.add_argument("--epochs", type=int, default=10)
     p.add_argument("--lr", type=float, default=1e-3)
     p.add_argument("--seed", type=int, default=42)
-    p.add_argument("--real_n", type=int, default=1000, help="real training samples (balanced).")
-    p.add_argument("--gan_ckpt", type=str, default=None, help="path to GAN checkpoint containing key 'G'.")
-    p.add_argument("--aug_n", type=int, default=0, help="generated samples to add (balanced).")
-    p.add_argument("--z_dim", type=int, default=128, help="must match GAN z_dim if using augmentation.")
-    p.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
+    p.add_argument("--device", type=str, default="auto")
+
+    # Real-data control
+    p.add_argument("--real_n", type=int, default=1000, help="Number of real training samples (use 60000 for full MNIST train).")
+
+    # Augmentation from GAN
+    p.add_argument("--aug_source", type=str, choices=["none", "gan"], default="none")
+    p.add_argument("--aug_n", type=int, default=0, help="Number of GAN-generated samples to add.")
+    p.add_argument("--gan_ckpt", type=str, default=None)
+    p.add_argument("--gan_z_dim", type=int, default=128)
+    p.add_argument("--save_every", type=int, default=5)
+    p.add_argument("--resume", type=str, default=None)
     return p.parse_args()
 
-
 @torch.no_grad()
-def generate_balanced_gan_samples(
-    G: ConditionalGenerator,
+def make_gan_aug_dataset(
+    gan_ckpt: str,
     n: int,
     z_dim: int,
     device: torch.device,
-    num_classes: int = 10,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
-    per_class = max(1, n // num_classes)
-    ys = torch.arange(0, num_classes, device=device).repeat_interleave(per_class)[:n]
-    z = torch.randn(ys.size(0), z_dim, device=device)
-    xs = G(z, ys)
-    return xs.cpu(), ys.cpu()
+    ckpt = load_checkpoint(gan_ckpt, map_location=device)
+    G = Generator(z_dim=z_dim, n_classes=10).to(device)
+    G.load_state_dict(ckpt["model"]["G"])
+    G.eval()
 
+    y = torch.randint(0, 10, (n,), device=device)
+    z = torch.randn(n, z_dim, device=device)
+    x = G(z, y)  # [-1,1]
+    return x.cpu(), y.cpu()
 
-@torch.no_grad()
-def evaluate(model: torch.nn.Module, loader: DataLoader, device: torch.device) -> float:
-    model.eval()
-    correct = 0
-    total = 0
-    for x, y in loader:
-        x = x.to(device)
-        y = y.to(device)
-        logits = model(x)
-        pred = logits.argmax(dim=1)
-        correct += (pred == y).sum().item()
-        total += y.size(0)
-    return correct / max(1, total)
-
-
-def main():
+def main() -> None:
     args = parse_args()
+    os.makedirs(args.out_dir, exist_ok=True)
     set_seed(args.seed)
-    device = torch.device(args.device)
-    outdir = Path(args.outdir)
-    outdir.mkdir(parents=True, exist_ok=True)
+    device = get_device(args.device)
 
-    cfg = DataConfig(root=args.data_root, batch_size=args.batch_size)
-    _, test_loader = get_mnist_loaders_for_gan(cfg, train_subset=None)
+    train_loader, test_loader = get_mnist_loaders(
+        root=args.data_root, batch_size=args.batch_size, train_subset=args.real_n, scale_to_minus1_1=True
+    )
 
-    real_train_loader, _ = get_mnist_loaders_for_gan(cfg, train_subset=args.real_n, subset_seed=args.seed)
+    # Collect real subset tensors for potential concatenation
+    real_x_list, real_y_list = [], []
+    for x, y in train_loader:
+        real_x_list.append(x)
+        real_y_list.append(y)
+    real_x = torch.cat(real_x_list, dim=0)
+    real_y = torch.cat(real_y_list, dim=0)
 
-    real_xs, real_ys = [], []
-    for x, y in real_train_loader:
-        real_xs.append(x)
-        real_ys.append(y)
-    real_x = torch.cat(real_xs, dim=0)
-    real_y = torch.cat(real_ys, dim=0)
-
-    if args.gan_ckpt is not None and args.aug_n > 0:
-        ckpt = torch.load(args.gan_ckpt, map_location=device)
-        if "G" not in ckpt:
-            raise ValueError("GAN checkpoint must contain key 'G' with generator state_dict.")
-
-        G = ConditionalGenerator(z_dim=args.z_dim).to(device)
-        G.load_state_dict(ckpt["G"])
-        G.eval()
-
-        aug_x, aug_y = generate_balanced_gan_samples(G, n=args.aug_n, z_dim=args.z_dim, device=device)
-        x_train = torch.cat([real_x, aug_x], dim=0)
-        y_train = torch.cat([real_y, aug_y], dim=0)
+    if args.aug_source == "gan":
+        if args.aug_n <= 0:
+            raise ValueError("--aug_n must be > 0 when --aug_source=gan")
+        if args.gan_ckpt is None:
+            raise ValueError("--gan_ckpt is required when --aug_source=gan")
+        aug_x, aug_y = make_gan_aug_dataset(args.gan_ckpt, args.aug_n, args.gan_z_dim, device)
+        x_all = torch.cat([real_x, aug_x], dim=0)
+        y_all = torch.cat([real_y, aug_y], dim=0)
     else:
-        x_train, y_train = real_x, real_y
+        x_all, y_all = real_x, real_y
 
-    train_ds = TensorDataset(x_train, y_train)
-    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, drop_last=False)
+    train_ds = TensorDataset(x_all, y_all)
+    train_dl = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, drop_last=True)
 
-    model = LeNet5().to(device)
+    model = LeNet5(n_classes=10).to(device)
     opt = Adam(model.parameters(), lr=args.lr)
 
-    for epoch in range(1, args.epochs + 1):
-        model.train()
-        loss_m = AverageMeter("loss")
+    start_epoch = 0
+    if args.resume is not None:
+        ckpt = load_checkpoint(args.resume, map_location=device)
+        model.load_state_dict(ckpt["model"])
+        if ckpt.get("optim") is not None:
+            opt.load_state_dict(ckpt["optim"])
+        extra = ckpt.get("extra", {})
+        start_epoch = int(extra.get("epoch", 0))
+        if "rng" in ckpt:
+            restore_rng_state(ckpt["rng"])
+        print(f"[CLS] Resumed from {args.resume} at epoch={start_epoch}")
 
-        for x, y in tqdm(train_loader, desc=f"Epoch {epoch}/{args.epochs}", leave=False):
-            x = x.to(device)
-            y = y.to(device)
+    def eval_acc() -> float:
+        model.eval()
+        correct, total = 0, 0
+        with torch.no_grad():
+            for x, y in test_loader:
+                x, y = x.to(device), y.to(device)
+                logits = model(x)
+                pred = logits.argmax(dim=1)
+                correct += (pred == y).sum().item()
+                total += y.numel()
+        model.train()
+        return correct / max(1, total)
+
+    for epoch in range(start_epoch, args.epochs):
+        model.train()
+        for x, y in tqdm(train_dl, desc=f"CLS Epoch {epoch+1}/{args.epochs}"):
+            x, y = x.to(device), y.to(device)
             logits = model(x)
             loss = F.cross_entropy(logits, y)
 
@@ -115,15 +132,19 @@ def main():
             loss.backward()
             opt.step()
 
-            loss_m.update(loss.item(), x.size(0))
+        acc = eval_acc()
+        print(f"[CLS] epoch={epoch+1} test_acc={acc*100:.2f}%")
 
-        acc = evaluate(model, test_loader, device=device)
-        print(f"Epoch {epoch:02d} | {loss_m} | test_acc: {acc:.4f}")
-        torch.save({"model": model.state_dict(), "args": vars(args), "epoch": epoch, "test_acc": acc}, outdir / "last.pt")
-
-    final_acc = evaluate(model, test_loader, device=device)
-    print(f"Final test accuracy: {final_acc:.4f}")
-
+        if (epoch + 1) % args.save_every == 0 or (epoch + 1) == args.epochs:
+            tag = f"real{args.real_n}_aug{args.aug_source}{args.aug_n}"
+            ckpt_path = os.path.join(args.out_dir, f"lenet_{tag}_epoch{epoch+1:03d}.pt")
+            save_checkpoint(
+                ckpt_path,
+                model_state=model.state_dict(),
+                optim_state=opt.state_dict(),
+                extra={"epoch": epoch + 1, "args": vars(args), "test_acc": acc},
+            )
+            print(f"[CLS] Saved checkpoint: {ckpt_path}")
 
 if __name__ == "__main__":
     main()

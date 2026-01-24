@@ -1,55 +1,46 @@
+# generate_samples.py
 from __future__ import annotations
 
 import argparse
+import os
 
 import torch
+from torchvision.utils import save_image
 
-from deepgen.models import ConditionalGenerator, VampPriorVAE
-from deepgen.utils import save_image_grid
+from deepgen.models.gan import Generator
+from deepgen.utils import get_device, load_checkpoint, set_seed
 
 
-def parse_args():
-    p = argparse.ArgumentParser(description="Generate samples from trained VAE or GAN.")
-    p.add_argument("--ckpt", type=str, required=True, help="checkpoint path")
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser()
+    p.add_argument("--ckpt", type=str, required=True)
     p.add_argument("--out", type=str, default="./samples.png")
-    p.add_argument("--model", type=str, choices=["vae", "gan"], required=True)
-    p.add_argument("--n", type=int, default=100)
-    p.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
-    p.add_argument("--z_dim", type=int, default=128, help="GAN z_dim (if model=gan)")
+    p.add_argument("--z_dim", type=int, default=128)
+    p.add_argument("--n_per_class", type=int, default=8)
+    p.add_argument("--seed", type=int, default=42)
+    p.add_argument("--device", type=str, default="auto")
     return p.parse_args()
 
 
-@torch.no_grad()
-def main():
+def main() -> None:
     args = parse_args()
-    device = torch.device(args.device)
-    ckpt = torch.load(args.ckpt, map_location=device)
+    set_seed(args.seed)
+    device = get_device(args.device)
 
-    if args.model == "vae":
-        margs = ckpt.get("args", {})
-        model = VampPriorVAE(
-            z_dim=int(margs.get("z_dim", 16)),
-            h_dim=int(margs.get("h_dim", 400)),
-            vamp_k=int(margs.get("vamp_k", 0)),
-            beta=float(margs.get("beta", 1.0)),
-        ).to(device)
-        model.load_state_dict(ckpt["model"])
-        model.eval()
+    ckpt = load_checkpoint(args.ckpt, map_location=device)
+    G = Generator(z_dim=args.z_dim, n_classes=10).to(device)
+    G.load_state_dict(ckpt["model"]["G"])
+    G.eval()
 
-        samples = model.sample(args.n, device=device)
-        save_image_grid(samples, args.out, nrow=10, normalize=True, value_range=(0, 1))
+    y = torch.arange(0, 10, device=device).repeat_interleave(args.n_per_class)
+    z = torch.randn(y.size(0), args.z_dim, device=device)
+    with torch.no_grad():
+        x = G(z, y)
+        x01 = (x + 1.0) / 2.0
 
-    else:
-        if "G" not in ckpt:
-            raise ValueError("GAN checkpoint must contain key 'G'.")
-        model = ConditionalGenerator(z_dim=args.z_dim).to(device)
-        model.load_state_dict(ckpt["G"])
-        model.eval()
-
-        y = torch.arange(0, 10, device=device).repeat_interleave(args.n // 10 + 1)[: args.n]
-        z = torch.randn(args.n, args.z_dim, device=device)
-        samples = model(z, y)
-        save_image_grid(samples, args.out, nrow=10, normalize=True, value_range=(-1, 1))
+    os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
+    save_image(x01, args.out, nrow=10)
+    print(f"Saved: {args.out}")
 
 
 if __name__ == "__main__":

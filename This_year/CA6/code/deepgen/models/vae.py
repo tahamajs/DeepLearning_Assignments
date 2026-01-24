@@ -1,150 +1,124 @@
+# deepgen/models/vae.py
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Tuple
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
-@dataclass
-class VAEOutput:
-    elbo: torch.Tensor
-    recon_loss: torch.Tensor
-    kl: torch.Tensor
-    mu: torch.Tensor
-    logvar: torch.Tensor
-    z: torch.Tensor
-    x_logits: torch.Tensor
+from .blocks import ResidualBlock
 
 
 class Encoder(nn.Module):
-    def __init__(self, x_dim: int = 784, h_dim: int = 400, z_dim: int = 16):
+    def __init__(self, z_dim: int = 32):
         super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(x_dim, h_dim),
-            nn.ReLU(inplace=True),
-            nn.Linear(h_dim, h_dim),
-            nn.ReLU(inplace=True),
-        )
-        self.mu = nn.Linear(h_dim, z_dim)
-        self.logvar = nn.Linear(h_dim, z_dim)
+        self.stem = nn.Conv2d(1, 32, 3, padding=1)
+        self.rb1 = ResidualBlock(32, 64, downsample=True, use_se=True)   # 28 -> 14
+        self.rb2 = ResidualBlock(64, 128, downsample=True, use_se=True)  # 14 -> 7
+        self.rb3 = ResidualBlock(128, 128, downsample=False, use_se=True)
+        self.fc = nn.Linear(128 * 7 * 7, 256)
+        self.mu = nn.Linear(256, z_dim)
+        self.logvar = nn.Linear(256, z_dim)
 
     def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-        h = self.net(x)
+        h = F.relu(self.stem(x), inplace=True)
+        h = self.rb1(h)
+        h = self.rb2(h)
+        h = self.rb3(h)
+        h = h.view(h.size(0), -1)
+        h = F.relu(self.fc(h), inplace=True)
         return self.mu(h), self.logvar(h)
 
 
 class Decoder(nn.Module):
-    def __init__(self, z_dim: int = 16, h_dim: int = 400, x_dim: int = 784):
+    def __init__(self, z_dim: int = 32):
         super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(z_dim, h_dim),
-            nn.ReLU(inplace=True),
-            nn.Linear(h_dim, h_dim),
-            nn.ReLU(inplace=True),
-            nn.Linear(h_dim, x_dim),  # logits for Bernoulli
-        )
+        self.fc1 = nn.Linear(z_dim, 256)
+        self.fc2 = nn.Linear(256, 128 * 7 * 7)
+        self.rb1 = ResidualBlock(128, 128, downsample=False, use_se=True)
+        self.up1 = nn.ConvTranspose2d(128, 64, 4, stride=2, padding=1)   # 7 -> 14
+        self.up2 = nn.ConvTranspose2d(64, 32, 4, stride=2, padding=1)    # 14 -> 28
+        self.out = nn.Conv2d(32, 1, 3, padding=1)
 
     def forward(self, z: torch.Tensor) -> torch.Tensor:
-        return self.net(z)
+        h = F.relu(self.fc1(z), inplace=True)
+        h = F.relu(self.fc2(h), inplace=True)
+        h = h.view(z.size(0), 128, 7, 7)
+        h = self.rb1(h)
+        h = F.relu(self.up1(h), inplace=True)
+        h = F.relu(self.up2(h), inplace=True)
+        x = torch.sigmoid(self.out(h))  # [0,1]
+        return x
 
 
-class VampPriorVAE(nn.Module):
-    """MLP VAE with optional VampPrior (mixture of variational posteriors over pseudo-inputs)."""
-
-    def __init__(
-        self,
-        z_dim: int = 16,
-        x_dim: int = 784,
-        h_dim: int = 400,
-        vamp_k: int = 0,
-        beta: float = 1.0,
-    ):
+class VAEVampPrior(nn.Module):
+    """
+    VAE with VampPrior: p(z) = (1/K) sum_k q(z | u_k), where u_k are learnable pseudo-inputs.
+    """
+    def __init__(self, z_dim: int = 32, n_pseudos: int = 500):
         super().__init__()
         self.z_dim = z_dim
-        self.x_dim = x_dim
-        self.beta = beta
-        self.vamp_k = int(vamp_k)
+        self.n_pseudos = n_pseudos
 
-        self.encoder = Encoder(x_dim=x_dim, h_dim=h_dim, z_dim=z_dim)
-        self.decoder = Decoder(z_dim=z_dim, h_dim=h_dim, x_dim=x_dim)
+        self.encoder = Encoder(z_dim=z_dim)
+        self.decoder = Decoder(z_dim=z_dim)
 
-        if self.vamp_k > 0:
-            self.pseudo_logits = nn.Parameter(torch.randn(self.vamp_k, x_dim))  # sigmoid -> (0,1)
+        # Pseudo-inputs are images in [-1,1] space to match training x
+        self.pseudos = nn.Parameter(torch.randn(n_pseudos, 1, 28, 28) * 0.05)
 
-    @staticmethod
-    def reparameterize(mu: torch.Tensor, logvar: torch.Tensor) -> torch.Tensor:
+    def encode(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        return self.encoder(x)
+
+    def reparameterize(self, mu: torch.Tensor, logvar: torch.Tensor) -> torch.Tensor:
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         return mu + eps * std
 
-    def _log_normal_diag(self, z: torch.Tensor, mu: torch.Tensor, logvar: torch.Tensor) -> torch.Tensor:
-        const = torch.log(torch.tensor(2.0 * torch.pi, device=z.device)) * z.size(-1)
-        return -0.5 * (const + logvar.sum(dim=-1) + ((z - mu) ** 2 / torch.exp(logvar)).sum(dim=-1))
+    def decode(self, z: torch.Tensor) -> torch.Tensor:
+        return self.decoder(z)
 
-    def log_q_z_x(self, z: torch.Tensor, mu: torch.Tensor, logvar: torch.Tensor) -> torch.Tensor:
-        return self._log_normal_diag(z, mu, logvar)
-
-    def log_p_z(self, z: torch.Tensor) -> torch.Tensor:
-        if self.vamp_k <= 0:
-            mu = torch.zeros_like(z)
-            logvar = torch.zeros_like(z)
-            return self._log_normal_diag(z, mu, logvar)
-
-        u = torch.sigmoid(self.pseudo_logits)  # (K, x_dim) in (0,1)
-        mu_k, logvar_k = self.encoder(u)       # (K, z_dim)
-
-        z_bk = z.unsqueeze(1)                  # (B,1,z)
-        mu_bk = mu_k.unsqueeze(0)              # (1,K,z)
-        logvar_bk = logvar_k.unsqueeze(0)      # (1,K,z)
-
-        log_comp = -0.5 * (
-            torch.log(torch.tensor(2.0 * torch.pi, device=z.device)) * self.z_dim
-            + logvar_bk.sum(dim=-1)
-            + ((z_bk - mu_bk) ** 2 / torch.exp(logvar_bk)).sum(dim=-1)
-        )  # (B,K)
-
-        log_p = torch.logsumexp(
-            log_comp - torch.log(torch.tensor(float(self.vamp_k), device=z.device)),
-            dim=1
-        )  # (B,)
-        return log_p
-
-    def forward(self, x: torch.Tensor) -> VAEOutput:
-        mu, logvar = self.encoder(x)
+    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        mu, logvar = self.encode(x)
         z = self.reparameterize(mu, logvar)
-        x_logits = self.decoder(z)
-
-        recon_loss = F.binary_cross_entropy_with_logits(x_logits, x, reduction="sum")
-        log_q = self.log_q_z_x(z, mu, logvar).sum()
-        log_p = self.log_p_z(z).sum()
-        kl = log_q - log_p
-
-        elbo = -recon_loss - self.beta * kl
-        return VAEOutput(
-            elbo=elbo,
-            recon_loss=recon_loss,
-            kl=kl,
-            mu=mu,
-            logvar=logvar,
-            z=z,
-            x_logits=x_logits,
-        )
+        x_rec = self.decode(z)
+        return x_rec, mu, logvar
 
     @torch.no_grad()
     def sample(self, n: int, device: torch.device) -> torch.Tensor:
-        if self.vamp_k <= 0:
-            z = torch.randn(n, self.z_dim, device=device)
-        else:
-            u = torch.sigmoid(self.pseudo_logits).to(device)
-            mu_k, logvar_k = self.encoder(u)
-            k = torch.randint(0, self.vamp_k, (n,), device=device)
-            mu = mu_k[k]
-            logvar = logvar_k[k]
-            z = self.reparameterize(mu, logvar)
+        # Sample from VampPrior by selecting a pseudo input u_k and sampling from q(z|u_k)
+        idx = torch.randint(0, self.n_pseudos, (n,), device=device)
+        u = torch.tanh(self.pseudos[idx].to(device))  # enforce roughly [-1,1]
+        mu, logvar = self.encode(u)
+        z = self.reparameterize(mu, logvar)
+        x = self.decode(z)  # [0,1]
+        return x
 
-        x_logits = self.decoder(z)
-        x = torch.sigmoid(x_logits)
-        return x.view(n, 1, 28, 28)
+    def _log_normal(self, z: torch.Tensor, mu: torch.Tensor, logvar: torch.Tensor) -> torch.Tensor:
+        # log N(z; mu, diag(exp(logvar))) per sample
+        return -0.5 * (logvar + (z - mu) ** 2 / torch.exp(logvar) + torch.log(torch.tensor(2.0 * 3.1415926535, device=z.device))).sum(dim=-1)
+
+    def log_pz_vampprior(self, z: torch.Tensor) -> torch.Tensor:
+        # log p(z) = log mean_k q(z|u_k)
+        # Compute mu_k, logvar_k for all pseudos (chunked if needed)
+        u = torch.tanh(self.pseudos)  # (K,1,28,28)
+        mu_k, logvar_k = self.encode(u)  # (K, z)
+        # z: (B, z) -> (B, K, z)
+        z_bk = z.unsqueeze(1)  # (B,1,z)
+        mu = mu_k.unsqueeze(0)  # (1,K,z)
+        lv = logvar_k.unsqueeze(0)  # (1,K,z)
+        log_q = self._log_normal(z_bk.expand(-1, self.n_pseudos, -1), mu, lv)  # (B,K)
+        log_p = torch.logsumexp(log_q - torch.log(torch.tensor(float(self.n_pseudos), device=z.device)), dim=1)
+        return log_p
+
+    def elbo_loss(self, x: torch.Tensor, x_rec: torch.Tensor, mu: torch.Tensor, logvar: torch.Tensor, beta: float = 1.0) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        # Reconstruction term: BCE on [0,1] vs decoded x_rec
+        # x is in [-1,1], convert to [0,1] target
+        x01 = (x + 1.0) / 2.0
+        recon = F.binary_cross_entropy(x_rec, x01, reduction="none").flatten(1).sum(dim=1)  # (B,)
+        z = self.reparameterize(mu, logvar)
+        log_qzx = self._log_normal(z, mu, logvar)
+        log_pz = self.log_pz_vampprior(z)
+        kl = (log_qzx - log_pz)  # (B,)
+        loss = (recon + beta * kl).mean()
+        return loss, recon.mean(), kl.mean()

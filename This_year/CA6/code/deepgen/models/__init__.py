@@ -1,13 +1,6 @@
-from .attention import ChannelAttention, SelfAttention2d
-from .vae import VampPriorVAE
-from .gan import ConditionalGenerator, ProjectionDiscriminator
+# deepgen/models/__init__.py
+from .vae import VAEVampPrior
+from .gan import Generator, ProjectionDiscriminator
 from .classifier import LeNet5
 
-__all__ = [
-    "ChannelAttention",
-    "SelfAttention2d",
-    "VampPriorVAE",
-    "ConditionalGenerator",
-    "ProjectionDiscriminator",
-    "LeNet5",
-]
+__all__ = ["VAEVampPrior", "Generator", "ProjectionDiscriminator", "LeNet5"]

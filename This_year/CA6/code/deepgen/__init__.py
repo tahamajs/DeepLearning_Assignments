@@ -1,1 +1,2 @@
-__all__ = ["data", "utils", "models"]
+# deepgen/__init__.py
+__all__ = ["data", "utils", "metrics", "models"]

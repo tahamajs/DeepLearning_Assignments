@@ -77,4 +77,177 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.8}Preprocessing for FashionMNIST (GAN augmentation)}{16}{subsection.6.8}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {6.8.1}Normalization and numeric range}{16}{subsubsection.6.8.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {6.8.2}Label handling}{16}{subsubsection.6.8.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.8.3}Ensuring fairness in augmentation evaluation}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.8.3}Ensuring fairness in augmentation evaluation}{16}{subsubsection.6.8.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.9}Scientific Rationale and Controlled Variables}{16}{subsection.6.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.10}Datasets and Inputs}{16}{subsection.6.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.11}Evaluation Metrics}{17}{subsection.6.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Mean/Median Reprojection Error (pixels).}{17}{section*.24}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Success Rate.}{17}{section*.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Optional IoU.}{17}{section*.26}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Runtime.}{17}{section*.27}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.12}Parameter Settings (Recorded for Reproducibility)}{18}{subsection.6.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Implementation}{18}{section.7}\protected@file@percent }
+\newlabel{sec:implementation}{{7}{18}{Implementation}{section.7}{}}
+\newlabel{sec:implementation@cref}{{[section][7][]7}{[1][18][]18}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Objective and Scope}{18}{subsection.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Repository Layout and Script Responsibilities}{18}{subsection.7.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Software Stack and Determinism Controls}{19}{subsection.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Core dependencies.}{19}{section*.28}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Reproducibility controls.}{19}{section*.29}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}Part I: VAE Implementations (Dynamic MNIST)}{19}{subsection.7.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.1}Dynamic MNIST data pipeline}{19}{subsubsection.7.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.2}Baseline VAE}{19}{subsubsection.7.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Model parameterization.}{19}{section*.30}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Objective and logging.}{20}{section*.31}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.3}Proposed VAE: enhanced-capacity objective and hierarchical structure}{20}{subsubsection.7.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Enhanced-capacity objective (learned mixture prior).}{20}{section*.32}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Hierarchical latent implementation.}{20}{section*.33}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.4}Latent diagnostics and posterior collapse analysis}{20}{subsubsection.7.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.5}Part II: Conditional WGAN-GP for Augmentation (FashionMNIST)}{20}{subsection.7.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.5.1}Non-overlapping data splits}{20}{subsubsection.7.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.5.2}Architectural modules: SN, Self-Attention, Channel Attention}{20}{subsubsection.7.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Spectral Normalization (SN).}{20}{section*.34}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Self-Attention (SA).}{20}{section*.35}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Channel Attention (CA).}{20}{section*.36}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.5.3}Conditional generator and projection discriminator}{21}{subsubsection.7.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Conditional generator.}{21}{section*.37}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Projection discriminator.}{21}{section*.38}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.5.4}WGAN-GP losses and training loop}{21}{subsubsection.7.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Loss terms.}{21}{section*.39}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Optimization protocol.}{21}{section*.40}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.5.5}Augmentation and classifier evaluation}{21}{subsubsection.7.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.6}Datasets}{21}{subsection.7.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Dynamic MNIST.}{21}{section*.41}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{FashionMNIST (limited-data regime).}{21}{section*.42}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.7}Train/Validation/Test Protocol}{21}{subsection.7.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{VAE.}{21}{section*.43}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{GAN augmentation.}{22}{section*.44}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.8}Experimental Settings}{22}{subsection.7.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{VAE experiments.}{22}{section*.45}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{GAN experiments.}{22}{section*.46}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.9}Artifacts and Output Contract}{22}{subsection.7.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Evaluation and Metrics}{22}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Evaluation Objectives}{22}{subsection.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}VAE Metrics and Diagnostics}{23}{subsection.8.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(V1) Loss decomposition.}{23}{section*.47}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(V2) Latent activity / active units.}{23}{section*.48}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(V3) Posterior vs prior match.}{23}{section*.49}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(V4) Likelihood estimation (importance sampling).}{23}{section*.50}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(V5) Qualitative samples and traversals.}{23}{section*.51}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(V6) Pseudo-input visualization.}{23}{section*.52}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3}GAN Training Metrics}{23}{subsection.8.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(G1) Critic and generator losses.}{23}{section*.53}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(G2) Regularization terms.}{23}{section*.54}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(G3) Fixed-noise sample grids.}{23}{section*.55}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.4}Augmentation Evaluation (Classifier-Based)}{23}{subsection.8.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(A1) Baseline vs augmented training.}{23}{section*.56}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Summary metrics exported by the evaluation script (example filename: \texttt  {summary.csv}).}}{24}{table.caption.58}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:summary_metrics}{{1}{24}{Summary metrics exported by the evaluation script (example filename: \texttt {summary.csv})}{table.caption.58}{}}
+\newlabel{tab:summary_metrics@cref}{{[table][1][]1}{[1][24][]24}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{(A2) Performance reporting.}{24}{section*.57}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Results and Analysis}{24}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.1}Overview of Exported Artifacts}{24}{subsection.9.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.2}Quantitative Summary}{24}{subsection.9.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{How to interpret the summary table scientifically.}{25}{section*.59}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.3}Qualitative Results: Overlay Inspection}{25}{subsection.9.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Representative overlays: the warped template projected onto query photographs. Generated by the evaluation script.}}{25}{figure.caption.60}\protected@file@percent }
+\newlabel{fig:overlay_grid}{{1}{25}{Representative overlays: the warped template projected onto query photographs. Generated by the evaluation script}{figure.caption.60}{}}
+\newlabel{fig:overlay_grid@cref}{{[figure][1][]1}{[1][25][]25}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{What this figure demonstrates.}{25}{section*.61}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Operational conclusion from overlays.}{25}{section*.62}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.4}Alignment Error Distribution}{26}{subsection.9.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Distribution of per-image mean reprojection error (pixels).}}{26}{figure.caption.63}\protected@file@percent }
+\newlabel{fig:reproj_error_hist}{{2}{26}{Distribution of per-image mean reprojection error (pixels)}{figure.caption.63}{}}
+\newlabel{fig:reproj_error_hist@cref}{{[figure][2][]2}{[1][25][]26}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{What the error histogram demonstrates.}{26}{section*.64}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Scientific interpretation of MRE vs.\ MedRE.}{26}{section*.65}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.5}Runtime and Stage-Wise Profiling}{26}{subsection.9.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Runtime breakdown across pipeline stages (feature extraction, matching, RANSAC, warp).}}{26}{figure.caption.66}\protected@file@percent }
+\newlabel{fig:runtime_breakdown}{{3}{26}{Runtime breakdown across pipeline stages (feature extraction, matching, RANSAC, warp)}{figure.caption.66}{}}
+\newlabel{fig:runtime_breakdown@cref}{{[figure][3][]3}{[1][26][]26}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{What runtime breakdown demonstrates.}{26}{section*.67}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Deployment feasibility statement.}{27}{section*.68}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.6}Ablation Study: Parameter Sensitivity}{27}{subsection.9.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Ablation: alignment quality and success rate vs.\ key parameters (e.g., ORB \texttt  {nfeatures}, RANSAC threshold $\tau $, match filtering).}}{27}{figure.caption.69}\protected@file@percent }
+\newlabel{fig:ablation_plot}{{4}{27}{Ablation: alignment quality and success rate vs.\ key parameters (e.g., ORB \texttt {nfeatures}, RANSAC threshold $\tau $, match filtering)}{figure.caption.69}{}}
+\newlabel{fig:ablation_plot@cref}{{[figure][4][]4}{[1][27][]27}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{What the ablation plot demonstrates.}{27}{section*.70}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Scientific conclusion from ablations.}{27}{section*.71}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.7}Failure-Case Analysis and Diagnostics}{27}{subsection.9.7}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Failure examples: These images are generated automatically when the evaluator saves the worst-error samples or samples with too few inliers.}}{27}{figure.caption.72}\protected@file@percent }
+\newlabel{fig:failure_cases}{{5}{27}{Failure examples: These images are generated automatically when the evaluator saves the worst-error samples or samples with too few inliers}{figure.caption.72}{}}
+\newlabel{fig:failure_cases@cref}{{[figure][5][]5}{[1][27][]27}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{What failure figures demonstrate.}{28}{section*.73}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Scientifically justified mitigations (activated only if supported by measured improvements).}{28}{section*.74}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.8}Result Summary: What the Results Prove}{28}{subsection.9.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {10}Code Explanation}{28}{section.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {11}Codebase Walkthrough and Implementation Rationale}{28}{section.11}\protected@file@percent }
+\newlabel{sec:code_explanation}{{11}{28}{Codebase Walkthrough and Implementation Rationale}{section.11}{}}
+\newlabel{sec:code_explanation@cref}{{[section][11][]11}{[1][28][]28}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.1}\texttt  {deepgen/data.py}: Data transforms and loaders}{29}{subsection.11.1}\protected@file@percent }
+\newlabel{subsec:code_data}{{11.1}{29}{\texttt {deepgen/data.py}: Data transforms and loaders}{subsection.11.1}{}}
+\newlabel{subsec:code_data@cref}{{[subsection][1][11]11.1}{[1][28][]29}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Purpose.}{29}{section*.75}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.2}\texttt  {deepgen/utils.py}: Reproducibility, checkpointing, bookkeeping, attention blocks}{29}{subsection.11.2}\protected@file@percent }
+\newlabel{subsec:code_utils}{{11.2}{29}{\texttt {deepgen/utils.py}: Reproducibility, checkpointing, bookkeeping, attention blocks}{subsection.11.2}{}}
+\newlabel{subsec:code_utils@cref}{{[subsection][2][11]11.2}{[1][29][]29}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Purpose.}{29}{section*.78}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {ChannelAttention}.}{31}{section*.86}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {SelfAttention2d}.}{31}{section*.87}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.3}\texttt  {deepgen/metrics.py}: Feature extraction and FID-like score}{31}{subsection.11.3}\protected@file@percent }
+\newlabel{subsec:code_metrics}{{11.3}{31}{\texttt {deepgen/metrics.py}: Feature extraction and FID-like score}{subsection.11.3}{}}
+\newlabel{subsec:code_metrics@cref}{{[subsection][3][11]11.3}{[1][31][]31}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Purpose.}{31}{section*.88}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.4}\texttt  {deepgen/models/blocks.py}: Core building blocks (Residual, SE, Self-Attention)}{32}{subsection.11.4}\protected@file@percent }
+\newlabel{subsec:code_blocks}{{11.4}{32}{\texttt {deepgen/models/blocks.py}: Core building blocks (Residual, SE, Self-Attention)}{subsection.11.4}{}}
+\newlabel{subsec:code_blocks@cref}{{[subsection][4][11]11.4}{[1][32][]32}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {SEBlock}.}{32}{section*.92}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {ResidualBlock}.}{32}{section*.93}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {SelfAttention2d}.}{32}{section*.94}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.5}\texttt  {deepgen/models/classifier.py}: LeNet5 classifier as feature extractor}{32}{subsection.11.5}\protected@file@percent }
+\newlabel{subsec:code_classifier}{{11.5}{32}{\texttt {deepgen/models/classifier.py}: LeNet5 classifier as feature extractor}{subsection.11.5}{}}
+\newlabel{subsec:code_classifier@cref}{{[subsection][5][11]11.5}{[1][32][]32}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Purpose.}{32}{section*.95}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.6}\texttt  {deepgen/models/gan.py}: Conditional GAN with SN, attention, and Projection Discriminator}{33}{subsection.11.6}\protected@file@percent }
+\newlabel{subsec:code_gan}{{11.6}{33}{\texttt {deepgen/models/gan.py}: Conditional GAN with SN, attention, and Projection Discriminator}{subsection.11.6}{}}
+\newlabel{subsec:code_gan@cref}{{[subsection][6][11]11.6}{[1][32][]33}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{High-level design.}{33}{section*.97}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.7}\texttt  {deepgen/models/vae.py}: VAE with VampPrior and ELBO}{34}{subsection.11.7}\protected@file@percent }
+\newlabel{subsec:code_vae}{{11.7}{34}{\texttt {deepgen/models/vae.py}: VAE with VampPrior and ELBO}{subsection.11.7}{}}
+\newlabel{subsec:code_vae@cref}{{[subsection][7][11]11.7}{[1][34][]34}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Model definition.}{34}{section*.103}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Pseudo-inputs.}{35}{section*.107}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Reparameterization.}{35}{section*.108}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {\_log\_normal(z, mu, logvar)}.}{35}{section*.109}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {log\_pz\_vampprior(z)}.}{35}{section*.110}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.8}Practical integration notes (what connects to what)}{36}{subsection.11.8}\protected@file@percent }
+\newlabel{subsec:code_integration}{{11.8}{36}{Practical integration notes (what connects to what)}{subsection.11.8}{}}
+\newlabel{subsec:code_integration@cref}{{[subsection][8][11]11.8}{[1][36][]36}{}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Data range conventions.}{36}{section*.113}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Metric pipeline.}{36}{section*.114}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Maintainability warning (duplicate attention blocks).}{36}{section*.115}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Computational cost note (VampPrior prior evaluation).}{36}{section*.116}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {12}Discussion}{36}{section.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {12.1}Assumptions and Validity Domain}{36}{subsection.12.1}\protected@file@percent }
+\citation{Rublee2011ORB}
+\@writefile{toc}{\contentsline {subsection}{\numberline {12.2}Limitations}{37}{subsection.12.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {12.3}Mitigation Strategies (Evidence-Driven)}{37}{subsection.12.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {12.4}Threats to Validity}{38}{subsection.12.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {13}Reproducibility}{38}{section.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {13.1}Environment Specification}{38}{subsection.13.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {13.2}Determinism Controls}{39}{subsection.13.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {13.3}Reproducible Command Lines}{39}{subsection.13.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {13.4}File-Based Output Contract}{39}{subsection.13.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {14}Conclusion}{39}{section.14}\protected@file@percent }
+\citation{HartleyZisserman2004}
+\citation{FischlerBolles1981}
+\citation{Rublee2011ORB}
+\@writefile{toc}{\contentsline {subsection}{\numberline {14.1}Future Directions}{40}{subsection.14.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {A}Appendix}{40}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.1}Recommended Metrics File Formats}{40}{subsection.A.1}\protected@file@percent }
+\bibstyle{ieeetr}
+\bibdata{references}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.2}Annotation Schema (Point Correspondences)}{41}{subsection.A.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3}Parameter Logging}{41}{subsection.A.3}\protected@file@percent }
+\gdef \@abspage@last{41}

@@ -1,0 +1,185 @@
+\contentsline {section}{\numberline {1}Introduction}{4}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Problem Statement}{4}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Motivation}{4}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Contributions}{4}{subsection.1.3}%
+\contentsline {section}{\numberline {2}Notation and Definitions}{5}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Symbols}{5}{subsection.2.1}%
+\contentsline {paragraph}{Data and distributions (VAE).}{5}{section*.2}%
+\contentsline {paragraph}{Enhanced-capacity prior / pseudo-inputs (referenced VAE).}{5}{section*.3}%
+\contentsline {paragraph}{Hierarchical VAE (two-layer latent).}{5}{section*.4}%
+\contentsline {paragraph}{Likelihood estimation.}{6}{section*.5}%
+\contentsline {paragraph}{Conditional WGAN-GP (GAN augmentation).}{6}{section*.6}%
+\contentsline {subsection}{\numberline {2.2}Abbreviations}{6}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Key Modeling Assumptions}{7}{subsection.2.3}%
+\contentsline {section}{\numberline {3}System Overview}{7}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Pipeline Summary}{7}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Repository Layout (Expected)}{8}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Why Feature-Based Registration}{8}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Related Work}{9}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Variational Autoencoders and objective design}{9}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Likelihood estimation for latent-variable models}{9}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Conditional GANs, stability, and augmentation}{9}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Methodology}{10}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Variational Autoencoders (VAE)}{10}{subsection.5.1}%
+\contentsline {paragraph}{Latent-variable model and variational inference.}{10}{section*.7}%
+\contentsline {paragraph}{ELBO objective and KL regularization.}{10}{section*.8}%
+\contentsline {paragraph}{Reparameterization trick.}{10}{section*.9}%
+\contentsline {paragraph}{Enhanced-capacity objective: flexible prior via pseudo-inputs.}{10}{section*.10}%
+\contentsline {paragraph}{Hierarchical latent architecture.}{11}{section*.11}%
+\contentsline {paragraph}{Likelihood estimation.}{11}{section*.12}%
+\contentsline {paragraph}{Diagnostics for posterior behavior and collapse.}{11}{section*.13}%
+\contentsline {subsection}{\numberline {5.2}Conditional GAN for Data Augmentation (WGAN-GP)}{11}{subsection.5.2}%
+\contentsline {paragraph}{Problem setting and data splits.}{11}{section*.14}%
+\contentsline {paragraph}{Conditional generator.}{11}{section*.15}%
+\contentsline {paragraph}{Projection discriminator (conditional critic).}{12}{section*.16}%
+\contentsline {paragraph}{Spectral normalization.}{12}{section*.17}%
+\contentsline {paragraph}{Attention mechanisms.}{12}{section*.18}%
+\contentsline {paragraph}{WGAN-GP objective with regularization.}{12}{section*.19}%
+\contentsline {paragraph}{Optimization and training protocol.}{13}{section*.20}%
+\contentsline {paragraph}{Sampling protocol and augmentation evaluation.}{13}{section*.21}%
+\contentsline {section}{\numberline {6}Data and Experimental Protocol}{13}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Datasets}{13}{subsection.6.1}%
+\contentsline {subsubsection}{\numberline {6.1.1}Dynamic MNIST}{13}{subsubsection.6.1.1}%
+\contentsline {subsubsection}{\numberline {6.1.2}FashionMNIST}{13}{subsubsection.6.1.2}%
+\contentsline {subsection}{\numberline {6.2}Limited-data regime and non-overlapping splits (FashionMNIST)}{14}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Train/Validation/Test protocol}{14}{subsection.6.3}%
+\contentsline {paragraph}{VAE (Dynamic MNIST).}{14}{section*.22}%
+\contentsline {paragraph}{GAN augmentation (FashionMNIST).}{14}{section*.23}%
+\contentsline {subsection}{\numberline {6.4}Ground truth and evaluation endpoints}{14}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}Dataset integrity checks}{14}{subsection.6.5}%
+\contentsline {subsection}{\numberline {6.6}Preprocessing Goals}{15}{subsection.6.6}%
+\contentsline {subsection}{\numberline {6.7}Preprocessing for Dynamic MNIST (VAE)}{15}{subsection.6.7}%
+\contentsline {subsubsection}{\numberline {6.7.1}Dynamic binarization protocol}{15}{subsubsection.6.7.1}%
+\contentsline {subsubsection}{\numberline {6.7.2}Model-aligned input and decoder likelihood}{15}{subsubsection.6.7.2}%
+\contentsline {subsubsection}{\numberline {6.7.3}Practical implementation details}{15}{subsubsection.6.7.3}%
+\contentsline {subsection}{\numberline {6.8}Preprocessing for FashionMNIST (GAN augmentation)}{16}{subsection.6.8}%
+\contentsline {subsubsection}{\numberline {6.8.1}Normalization and numeric range}{16}{subsubsection.6.8.1}%
+\contentsline {subsubsection}{\numberline {6.8.2}Label handling}{16}{subsubsection.6.8.2}%
+\contentsline {subsubsection}{\numberline {6.8.3}Ensuring fairness in augmentation evaluation}{16}{subsubsection.6.8.3}%
+\contentsline {subsection}{\numberline {6.9}Scientific Rationale and Controlled Variables}{16}{subsection.6.9}%
+\contentsline {subsection}{\numberline {6.10}Datasets and Inputs}{16}{subsection.6.10}%
+\contentsline {subsection}{\numberline {6.11}Evaluation Metrics}{17}{subsection.6.11}%
+\contentsline {paragraph}{Mean/Median Reprojection Error (pixels).}{17}{section*.24}%
+\contentsline {paragraph}{Success Rate.}{17}{section*.25}%
+\contentsline {paragraph}{Optional IoU.}{17}{section*.26}%
+\contentsline {paragraph}{Runtime.}{17}{section*.27}%
+\contentsline {subsection}{\numberline {6.12}Parameter Settings (Recorded for Reproducibility)}{18}{subsection.6.12}%
+\contentsline {section}{\numberline {7}Implementation}{18}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Objective and Scope}{18}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Repository Layout and Script Responsibilities}{18}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Software Stack and Determinism Controls}{19}{subsection.7.3}%
+\contentsline {paragraph}{Core dependencies.}{19}{section*.28}%
+\contentsline {paragraph}{Reproducibility controls.}{19}{section*.29}%
+\contentsline {subsection}{\numberline {7.4}Part I: VAE Implementations (Dynamic MNIST)}{19}{subsection.7.4}%
+\contentsline {subsubsection}{\numberline {7.4.1}Dynamic MNIST data pipeline}{19}{subsubsection.7.4.1}%
+\contentsline {subsubsection}{\numberline {7.4.2}Baseline VAE}{19}{subsubsection.7.4.2}%
+\contentsline {paragraph}{Model parameterization.}{19}{section*.30}%
+\contentsline {paragraph}{Objective and logging.}{20}{section*.31}%
+\contentsline {subsubsection}{\numberline {7.4.3}Proposed VAE: enhanced-capacity objective and hierarchical structure}{20}{subsubsection.7.4.3}%
+\contentsline {paragraph}{Enhanced-capacity objective (learned mixture prior).}{20}{section*.32}%
+\contentsline {paragraph}{Hierarchical latent implementation.}{20}{section*.33}%
+\contentsline {subsubsection}{\numberline {7.4.4}Latent diagnostics and posterior collapse analysis}{20}{subsubsection.7.4.4}%
+\contentsline {subsection}{\numberline {7.5}Part II: Conditional WGAN-GP for Augmentation (FashionMNIST)}{20}{subsection.7.5}%
+\contentsline {subsubsection}{\numberline {7.5.1}Non-overlapping data splits}{20}{subsubsection.7.5.1}%
+\contentsline {subsubsection}{\numberline {7.5.2}Architectural modules: SN, Self-Attention, Channel Attention}{20}{subsubsection.7.5.2}%
+\contentsline {paragraph}{Spectral Normalization (SN).}{20}{section*.34}%
+\contentsline {paragraph}{Self-Attention (SA).}{20}{section*.35}%
+\contentsline {paragraph}{Channel Attention (CA).}{20}{section*.36}%
+\contentsline {subsubsection}{\numberline {7.5.3}Conditional generator and projection discriminator}{21}{subsubsection.7.5.3}%
+\contentsline {paragraph}{Conditional generator.}{21}{section*.37}%
+\contentsline {paragraph}{Projection discriminator.}{21}{section*.38}%
+\contentsline {subsubsection}{\numberline {7.5.4}WGAN-GP losses and training loop}{21}{subsubsection.7.5.4}%
+\contentsline {paragraph}{Loss terms.}{21}{section*.39}%
+\contentsline {paragraph}{Optimization protocol.}{21}{section*.40}%
+\contentsline {subsubsection}{\numberline {7.5.5}Augmentation and classifier evaluation}{21}{subsubsection.7.5.5}%
+\contentsline {subsection}{\numberline {7.6}Datasets}{21}{subsection.7.6}%
+\contentsline {paragraph}{Dynamic MNIST.}{21}{section*.41}%
+\contentsline {paragraph}{FashionMNIST (limited-data regime).}{21}{section*.42}%
+\contentsline {subsection}{\numberline {7.7}Train/Validation/Test Protocol}{21}{subsection.7.7}%
+\contentsline {paragraph}{VAE.}{21}{section*.43}%
+\contentsline {paragraph}{GAN augmentation.}{22}{section*.44}%
+\contentsline {subsection}{\numberline {7.8}Experimental Settings}{22}{subsection.7.8}%
+\contentsline {paragraph}{VAE experiments.}{22}{section*.45}%
+\contentsline {paragraph}{GAN experiments.}{22}{section*.46}%
+\contentsline {subsection}{\numberline {7.9}Artifacts and Output Contract}{22}{subsection.7.9}%
+\contentsline {section}{\numberline {8}Evaluation and Metrics}{22}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Evaluation Objectives}{22}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}VAE Metrics and Diagnostics}{23}{subsection.8.2}%
+\contentsline {paragraph}{(V1) Loss decomposition.}{23}{section*.47}%
+\contentsline {paragraph}{(V2) Latent activity / active units.}{23}{section*.48}%
+\contentsline {paragraph}{(V3) Posterior vs prior match.}{23}{section*.49}%
+\contentsline {paragraph}{(V4) Likelihood estimation (importance sampling).}{23}{section*.50}%
+\contentsline {paragraph}{(V5) Qualitative samples and traversals.}{23}{section*.51}%
+\contentsline {paragraph}{(V6) Pseudo-input visualization.}{23}{section*.52}%
+\contentsline {subsection}{\numberline {8.3}GAN Training Metrics}{23}{subsection.8.3}%
+\contentsline {paragraph}{(G1) Critic and generator losses.}{23}{section*.53}%
+\contentsline {paragraph}{(G2) Regularization terms.}{23}{section*.54}%
+\contentsline {paragraph}{(G3) Fixed-noise sample grids.}{23}{section*.55}%
+\contentsline {subsection}{\numberline {8.4}Augmentation Evaluation (Classifier-Based)}{23}{subsection.8.4}%
+\contentsline {paragraph}{(A1) Baseline vs augmented training.}{23}{section*.56}%
+\contentsline {paragraph}{(A2) Performance reporting.}{24}{section*.57}%
+\contentsline {section}{\numberline {9}Results and Analysis}{24}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Overview of Exported Artifacts}{24}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Quantitative Summary}{24}{subsection.9.2}%
+\contentsline {paragraph}{How to interpret the summary table scientifically.}{25}{section*.59}%
+\contentsline {subsection}{\numberline {9.3}Qualitative Results: Overlay Inspection}{25}{subsection.9.3}%
+\contentsline {paragraph}{What this figure demonstrates.}{25}{section*.61}%
+\contentsline {paragraph}{Operational conclusion from overlays.}{25}{section*.62}%
+\contentsline {subsection}{\numberline {9.4}Alignment Error Distribution}{26}{subsection.9.4}%
+\contentsline {paragraph}{What the error histogram demonstrates.}{26}{section*.64}%
+\contentsline {paragraph}{Scientific interpretation of MRE vs.\ MedRE.}{26}{section*.65}%
+\contentsline {subsection}{\numberline {9.5}Runtime and Stage-Wise Profiling}{26}{subsection.9.5}%
+\contentsline {paragraph}{What runtime breakdown demonstrates.}{26}{section*.67}%
+\contentsline {paragraph}{Deployment feasibility statement.}{27}{section*.68}%
+\contentsline {subsection}{\numberline {9.6}Ablation Study: Parameter Sensitivity}{27}{subsection.9.6}%
+\contentsline {paragraph}{What the ablation plot demonstrates.}{27}{section*.70}%
+\contentsline {paragraph}{Scientific conclusion from ablations.}{27}{section*.71}%
+\contentsline {subsection}{\numberline {9.7}Failure-Case Analysis and Diagnostics}{27}{subsection.9.7}%
+\contentsline {paragraph}{What failure figures demonstrate.}{28}{section*.73}%
+\contentsline {paragraph}{Scientifically justified mitigations (activated only if supported by measured improvements).}{28}{section*.74}%
+\contentsline {subsection}{\numberline {9.8}Result Summary: What the Results Prove}{28}{subsection.9.8}%
+\contentsline {section}{\numberline {10}Code Explanation}{28}{section.10}%
+\contentsline {section}{\numberline {11}Codebase Walkthrough and Implementation Rationale}{28}{section.11}%
+\contentsline {subsection}{\numberline {11.1}\texttt {deepgen/data.py}: Data transforms and loaders}{29}{subsection.11.1}%
+\contentsline {paragraph}{Purpose.}{29}{section*.75}%
+\contentsline {subsection}{\numberline {11.2}\texttt {deepgen/utils.py}: Reproducibility, checkpointing, bookkeeping, attention blocks}{29}{subsection.11.2}%
+\contentsline {paragraph}{Purpose.}{29}{section*.78}%
+\contentsline {paragraph}{\texttt {ChannelAttention}.}{31}{section*.86}%
+\contentsline {paragraph}{\texttt {SelfAttention2d}.}{31}{section*.87}%
+\contentsline {subsection}{\numberline {11.3}\texttt {deepgen/metrics.py}: Feature extraction and FID-like score}{31}{subsection.11.3}%
+\contentsline {paragraph}{Purpose.}{31}{section*.88}%
+\contentsline {subsection}{\numberline {11.4}\texttt {deepgen/models/blocks.py}: Core building blocks (Residual, SE, Self-Attention)}{32}{subsection.11.4}%
+\contentsline {paragraph}{\texttt {SEBlock}.}{32}{section*.92}%
+\contentsline {paragraph}{\texttt {ResidualBlock}.}{32}{section*.93}%
+\contentsline {paragraph}{\texttt {SelfAttention2d}.}{32}{section*.94}%
+\contentsline {subsection}{\numberline {11.5}\texttt {deepgen/models/classifier.py}: LeNet5 classifier as feature extractor}{32}{subsection.11.5}%
+\contentsline {paragraph}{Purpose.}{32}{section*.95}%
+\contentsline {subsection}{\numberline {11.6}\texttt {deepgen/models/gan.py}: Conditional GAN with SN, attention, and Projection Discriminator}{33}{subsection.11.6}%
+\contentsline {paragraph}{High-level design.}{33}{section*.97}%
+\contentsline {subsection}{\numberline {11.7}\texttt {deepgen/models/vae.py}: VAE with VampPrior and ELBO}{34}{subsection.11.7}%
+\contentsline {paragraph}{Model definition.}{34}{section*.103}%
+\contentsline {paragraph}{Pseudo-inputs.}{35}{section*.107}%
+\contentsline {paragraph}{Reparameterization.}{35}{section*.108}%
+\contentsline {paragraph}{\texttt {\_log\_normal(z, mu, logvar)}.}{35}{section*.109}%
+\contentsline {paragraph}{\texttt {log\_pz\_vampprior(z)}.}{35}{section*.110}%
+\contentsline {subsection}{\numberline {11.8}Practical integration notes (what connects to what)}{36}{subsection.11.8}%
+\contentsline {paragraph}{Data range conventions.}{36}{section*.113}%
+\contentsline {paragraph}{Metric pipeline.}{36}{section*.114}%
+\contentsline {paragraph}{Maintainability warning (duplicate attention blocks).}{36}{section*.115}%
+\contentsline {paragraph}{Computational cost note (VampPrior prior evaluation).}{36}{section*.116}%
+\contentsline {section}{\numberline {12}Discussion}{36}{section.12}%
+\contentsline {subsection}{\numberline {12.1}Assumptions and Validity Domain}{36}{subsection.12.1}%
+\contentsline {subsection}{\numberline {12.2}Limitations}{37}{subsection.12.2}%
+\contentsline {subsection}{\numberline {12.3}Mitigation Strategies (Evidence-Driven)}{37}{subsection.12.3}%
+\contentsline {subsection}{\numberline {12.4}Threats to Validity}{38}{subsection.12.4}%
+\contentsline {section}{\numberline {13}Reproducibility}{38}{section.13}%
+\contentsline {subsection}{\numberline {13.1}Environment Specification}{38}{subsection.13.1}%
+\contentsline {subsection}{\numberline {13.2}Determinism Controls}{39}{subsection.13.2}%
+\contentsline {subsection}{\numberline {13.3}Reproducible Command Lines}{39}{subsection.13.3}%
+\contentsline {subsection}{\numberline {13.4}File-Based Output Contract}{39}{subsection.13.4}%
+\contentsline {section}{\numberline {14}Conclusion}{39}{section.14}%
+\contentsline {subsection}{\numberline {14.1}Future Directions}{40}{subsection.14.1}%
+\contentsline {section}{\numberline {A}Appendix}{40}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Recommended Metrics File Formats}{40}{subsection.A.1}%
+\contentsline {subsection}{\numberline {A.2}Annotation Schema (Point Correspondences)}{41}{subsection.A.2}%
+\contentsline {subsection}{\numberline {A.3}Parameter Logging}{41}{subsection.A.3}%

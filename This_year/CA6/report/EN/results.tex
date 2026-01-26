@@ -1,152 +1,217 @@
 % =========================
-% report/results.tex
+% report/results.tex  (DROP-IN, EXPANDED)
 % =========================
 
-\subsection{Overview of Exported Artifacts}
-The pipeline is designed to export both qualitative and quantitative artifacts, ensuring the reproducibility and transparency of the results. The following artifacts are exported during evaluation:
+\subsection{Overview of Exported Artifacts and Traceability Contract}
+The evaluation pipeline exports \emph{both} qualitative and quantitative artifacts to guarantee that every claim in this section can be traced to files on disk. We follow a strict ``artifact contract'': for each evaluated pair $(\mathcal{I}_T,\mathcal{I}_Q)$ we export (i) at least one overlay image, and (ii) one row in a per-sample metrics CSV. Dataset-level tables and report figures are derived \emph{only} from these raw exports.
 
+\paragraph{Directory structure.}
+Artifacts are stored under:
 \begin{itemize}
-  \item \textbf{Overlay images:} These images are stored under \texttt{../results/overlays/}. They show the final alignment, with the template overlaid onto the photograph. These images serve as visual validation of the alignment process. Each overlay image allows the reader to visually inspect the quality of alignment, ensuring that key features (edges, holes, contours, etc.) from the template align with the corresponding features in the query photograph.
-  \item \textbf{Metrics files:} These files are stored under \texttt{../results/metrics/}. They include all quantitative performance measures such as mean reprojection error (MRE), success rate, and runtime measurements, which are essential for evaluating the system’s performance. These metrics are automatically generated and exported to ensure that the evaluation process is transparent and reproducible.
-  \item \textbf{Figures used in this report:} The figures that are referenced in this report, including error distributions, runtime breakdowns, and ablation studies, are saved under \texttt{../results/figures/}. These figures summarize key results and provide visual insights into the alignment system’s performance. These figures help illustrate and support the conclusions drawn from the quantitative and qualitative results.
-\end{itemize}
-This coupling of exported artifacts ensures that all claims in the report can be traced back to the stored output files, providing full transparency for reproducibility. By storing these artifacts in dedicated folders, we ensure that they are easily accessible for future analysis and verification.
-
-\subsection{Quantitative Summary}
-A summary of the key metrics is exported as a CSV file, which provides the aggregated performance results across the dataset. This file includes dataset-level aggregates that provide insight into the overall alignment accuracy and efficiency.
-
-\SafeCSVTable{../results/metrics/summary.csv}{Summary metrics exported by the evaluation script (example filename: \texttt{summary.csv}).}{tab:summary_metrics}
-
-\paragraph{How to interpret the summary table scientifically.}
-The summary table should contain the following dataset-level aggregates:
-\begin{itemize}
-  \item \textbf{Mean Reprojection Error (MRE):} Lower values are better, indicating better geometric alignment accuracy in pixel units. MRE provides a direct measure of the overall alignment error and is a primary indicator of the system’s effectiveness.
-  \item \textbf{Median Reprojection Error (MedRE):} This metric provides the central tendency of the reprojection errors and is less sensitive to extreme outliers. If MedRE is much lower than MRE, it suggests the presence of large outliers or failures in some cases, highlighting specific failure modes (e.g., poor keypoint matching).
-  \item \textbf{Success Rate at Threshold $\delta$:} This operationally interpretable metric reports the fraction of images where the alignment error (MRE) is below a specified threshold $\delta$ (e.g., 5 pixels). It provides a clear measure of how many alignments are considered successful based on a user-defined tolerance.
-  \item \textbf{Runtime (ms) and FPS:} These metrics are critical for assessing the feasibility of deploying the system in real-time applications. They reflect the computational efficiency of the system and its ability to process images within the time constraints of practical use cases. The runtime is measured per image, and FPS (frames per second) is calculated to evaluate the system's processing speed under normal operational conditions.
+  \item \textbf{Overlays:} \texttt{../results/overlays/} --- warped template rendered into the photo frame.
+  \item \textbf{Metrics:} \texttt{../results/metrics/} --- per-sample and summary CSV/JSON logs.
+  \item \textbf{Figures:} \texttt{../results/figures/} --- plots used in this report (histograms, curves, ablations, runtime).
+  \item \textbf{Debug (optional):} \texttt{../results/matches/} --- match visualizations, inlier masks, and RANSAC diagnostics.
 \end{itemize}
 
-\subsection{Qualitative Results: Overlay Inspection}
-\begin{figure}[h!]
-\centering
-% \includegraphics[width=0.95\linewidth]{../results/figures/overlay_grid.png}
-\caption{Representative overlays: the warped template projected onto query photographs. Generated by the evaluation script.}
-\label{fig:overlay_grid}
-\end{figure}
+\paragraph{Recommended file naming convention.}
+To make provenance unambiguous, filenames should include a sample identifier and key configuration parameters (or a short run hash). For example:
+\begin{itemize}
+  \item \texttt{overlays/\{id\}\_\{run\_hash\}\_overlay.png}
+  \item \texttt{matches/\{id\}\_\{run\_hash\}\_matches.png}, \texttt{matches/\{id\}\_\{run\_hash\}\_inliers.png}
+  \item \texttt{metrics/per\_sample.csv}, \texttt{metrics/summary.csv}, \texttt{metrics/config.json}
+\end{itemize}
+The \texttt{run\_hash} can be computed from the config JSON (e.g., SHA1 of the serialized config) to ensure that artifacts are uniquely tied to a configuration.
+
+\paragraph{Minimum required exported metrics per sample.}
+At minimum, each evaluated pair should export one row with:
+\begin{itemize}
+  \item identifiers: \texttt{sample\_id}, \texttt{template\_path}, \texttt{photo\_path}
+  \item matching: \texttt{n\_kp\_T}, \texttt{n\_kp\_Q}, \texttt{n\_matches}, \texttt{n\_inliers}, \texttt{inlier\_ratio}
+  \item geometry: \texttt{H\_status} (ok/fail), \texttt{H\_cond} (optional), \texttt{warp\_area\_ratio} (optional)
+  \item accuracy (if GT exists): \texttt{MRE}, \texttt{MedRE}, (optional) \texttt{p90\_err}, \texttt{p95\_err}
+  \item runtime: \texttt{t\_pre}, \texttt{t\_feat}, \texttt{t\_match}, \texttt{t\_ransac}, \texttt{t\_warp}, \texttt{t\_total} (all in ms)
+\end{itemize}
+If ground truth is unavailable, the evaluator must explicitly report that MRE/MedRE are not computed and the results are based on proxy metrics (e.g., inlier ratio and overlay inspection).
+
+\subsection{Quantitative Summary (Dataset-Level Aggregates)}
+A dataset-level summary is exported as \texttt{../results/metrics/summary.csv}. This table aggregates performance across all evaluated samples under a fixed configuration. To prevent misleading conclusions from heavy-tailed failures, we report robust statistics in addition to means.
+
+\SafeCSVTable{../results/metrics/summary.csv}{Dataset-level summary metrics exported by the evaluation script.}{tab:summary_metrics}
+
+\paragraph{Scientifically correct interpretation of the summary table.}
+The summary table should contain (at minimum):
+\begin{itemize}
+  \item \textbf{Mean reprojection error (MRE):} average geometric error in pixels. Sensitive to failures; can be dominated by outliers.
+  \item \textbf{Median reprojection error (MedRE):} robust central tendency. If $\text{MedRE} \ll \text{MRE}$, performance is bimodal or heavy-tailed.
+  \item \textbf{Success rate at tolerance $\delta$:} $\Pr(\text{MRE}<\delta)$ (or $\Pr(\text{MedRE}<\delta)$ if specified). Operationally interpretable.
+  \item \textbf{Runtime median and P95:} median latency reflects typical performance; P95 captures tail latency critical for deployment.
+\end{itemize}
+
+\paragraph{Confidence intervals (recommended).}
+If the dataset size is not large, or if you compare multiple configurations, report uncertainty:
+\begin{itemize}
+  \item \textbf{Bootstrap CIs} for MRE/MedRE and success rate (e.g., 1{,}000 bootstrap resamples of per-sample metrics),
+  \item and/or \textbf{multi-seed runs} (if any randomized steps exist) reporting mean$\pm$std across runs.
+\end{itemize}
+This prevents overclaiming based on a single dataset realization.
+
+\subsection{Qualitative Results: Overlay Inspection Protocol}
+Qualitative overlays are the primary sanity check that the estimated homography produces a visually consistent mapping.
+
+% \ResultGraphic{../results/figures/overlay_grid.png}{0.95\linewidth}{Representative overlays: warped template projected onto query photographs. The grid should include a stratified set covering low, median, and high error cases (when GT is available).}
 
 \paragraph{What this figure demonstrates.}
-The overlay grid is the primary qualitative validation tool for assessing the alignment quality. Each image in the grid shows a representative photograph with the warped template overlaid on it, providing visual feedback on the alignment performance:
+Overlays provide evidence that the mapping is correct in the \emph{image plane}:
 \begin{itemize}
-  \item Correct alignment is indicated when the edges, holes, contours, or printed markings of the template align with the corresponding features in the photographed part. The alignment should be visually perfect, with no noticeable displacement of the template over the photograph.
-  \item Misalignments, particularly near critical areas such as corners or edges, often indicate issues such as insufficient inliers, non-planarity, or preprocessing mismatches (e.g., scale/rotation errors or contrast issues). These misalignments can be attributed to errors in feature matching or incorrect homography estimation.
-  \item If overlays show consistent misalignment in the same direction across the dataset, the issue is likely deterministic (e.g., an error in the resizing convention, template standardization mismatch, or a miscalculation in the homography matrix).
+  \item \textbf{Correct alignment:} template contours (edges, holes, fiducials) coincide with the photographed part geometry.
+  \item \textbf{Local drift:} misalignment increasing toward image corners often indicates insufficient inlier support, poor conditioning of $\mathbf{H}$, or planarity violation.
+  \item \textbf{Systematic offset:} consistent displacement across samples strongly suggests a deterministic preprocessing mismatch (scale convention, cropping origin, or inconsistent template normalization).
 \end{itemize}
 
-\paragraph{Operational conclusion from overlays.}
-If the overlays consistently show accurate alignment with minimal misalignment, the system can be considered suitable for visual inspection tasks in real-world applications. However, if the alignment is only occasionally correct, it suggests that further improvements, such as Region of Interest (ROI) gating, stricter match filtering, or template enhancement, may be necessary for reliable performance. The next sections will discuss the quantitative results that provide more insights into the performance metrics.
+\paragraph{Selection policy for overlays (to avoid cherry-picking).}
+To make qualitative reporting scientifically defensible, include at least:
+\begin{itemize}
+  \item a random subset of samples (fixed random seed),
+  \item and the worst-$k$ samples by error (or by lowest inlier ratio if no GT exists),
+  \item plus a small set of ``typical'' (median) cases.
+\end{itemize}
+This ensures that failure modes are visible and not hidden by selection.
 
-\subsection{Alignment Error Distribution}
-\begin{figure}[h!]
-\centering
-% \includegraphics[width=0.85\linewidth]{../results/figures/reproj_error_hist.png}
-\caption{Distribution of per-image mean reprojection error (pixels).}
-\label{fig:reproj_error_hist}
-\end{figure}
+\subsection{Alignment Error Distribution and Success Curves}
+Distributional reporting is essential because feature-based pipelines typically show heavy-tailed failures.
+
+% \ResultGraphic{../results/figures/reproj_error_hist.png}{0.85\linewidth}{Distribution of per-sample mean reprojection error (pixels). Report median, P90, and P95 in the caption when available.}
 
 \paragraph{What the error histogram demonstrates.}
-The error histogram offers a statistical overview of the alignment accuracy. It shows how the alignment errors are distributed across the dataset:
 \begin{itemize}
-  \item A \textbf{tight, unimodal} distribution concentrated near low errors indicates that the system performs consistently well, with minimal misalignment across most images.
-  \item A \textbf{heavy tail} suggests that, while most cases are well-aligned, occasional misalignments occur that may dominate the mean error. This indicates that there are a few challenging cases where the alignment fails, possibly due to extreme conditions (e.g., glare, occlusion, or featureless regions).
-  \item A \textbf{bimodal} distribution points to two distinct regimes: (i) a "success" regime where the alignment is accurate, and (ii) a "failure" regime where the alignment is poor. This could be a result of failure modes such as repetitive textures, glare, or occlusion that the system struggles to handle.
+  \item \textbf{Tight unimodal near zero:} stable, repeatable estimation.
+  \item \textbf{Heavy tail:} rare catastrophic misalignments; motivates reporting success rates and worst-case diagnostics.
+  \item \textbf{Bimodality:} two regimes (success vs failure), often caused by lighting/clutter/occlusion thresholds or repetitive patterns.
 \end{itemize}
 
-\paragraph{Scientific interpretation of MRE vs.\ MedRE.}
+\paragraph{Success-vs-tolerance curve (recommended).}
+In addition to a single tolerance $\delta$, export a success curve:
+\[
+S(\delta)=\Pr(\mathrm{MRE}<\delta), \quad \delta\in\{\delta_1,\dots,\delta_m\}.
+\]
+Plotting $S(\delta)$ reveals whether improvements are meaningful at strict tolerances (precision) or only at loose tolerances (coarse alignment). Export as:
+\texttt{../results/figures/success\_curve.png} and \texttt{../results/metrics/success\_curve.csv}.
+
+\subsection{Matching and Geometry Diagnostics (Beyond Error Alone)}
+Quantitative alignment error does not fully explain failures. We therefore report match/geometry diagnostics that correlate with success.
+
+\paragraph{Inlier ratio and inlier count.}
+Given RANSAC inliers $\mathcal{M}_{\text{in}}$ and matches $\mathcal{M}$, define:
+\[
+r_{\text{in}}=\frac{|\mathcal{M}_{\text{in}}|}{|\mathcal{M}|}.
+\]
+Low $|\mathcal{M}_{\text{in}}|$ or low $r_{\text{in}}$ often predicts instability in $\mathbf{H}$.
+
+\paragraph{Homography sanity checks (recommended and loggable).}
+Even if RANSAC returns a matrix, it can be numerically or geometrically implausible. Log and optionally threshold:
 \begin{itemize}
-  \item If MedRE remains low while MRE increases, it suggests the presence of outliers (e.g., catastrophic misalignments) that should be examined more closely in the qualitative analysis. These outliers may occur due to challenging image conditions or specific failure cases.
-  \item If both MedRE and MRE are high, it implies that the system is generally inaccurate under the tested conditions, which would warrant revisiting the method’s assumptions, feature extraction, or preprocessing techniques. This would suggest that further work is needed to improve the robustness of the method.
+  \item \textbf{Condition indicator:} a proxy such as $\kappa(\mathbf{H})$ or $\kappa(\mathbf{A})$ from DLT, if available.
+  \item \textbf{Warped-corner validity:} warp the template corners and check that a reasonable fraction lie within the photo bounds.
+  \item \textbf{Area ratio:} compare area of warped template quadrilateral to original; extreme ratios indicate degenerate solutions.
 \end{itemize}
+If a sample fails sanity checks, label \texttt{H\_status=fail} and exclude from numeric error summaries (or report separately), while still saving overlays for diagnosis.
 
 \subsection{Runtime and Stage-Wise Profiling}
-\begin{figure}[h!]
-\centering
-% \includegraphics[width=0.9\linewidth]{../results/figures/runtime_breakdown.png}
-\caption{Runtime breakdown across pipeline stages (feature extraction, matching, RANSAC, warp).}
-\label{fig:runtime_breakdown}
-\end{figure}
+Runtime must be reported with a clear measurement protocol to avoid misleading numbers.
 
-\paragraph{What runtime breakdown demonstrates.}
-Runtime profiling isolates performance bottlenecks and provides insights into areas for optimization:
+% \ResultGraphic{../results/figures/runtime_breakdown.png}{0.90\linewidth}{Stage-wise runtime breakdown (ms): preprocessing, feature extraction, matching, RANSAC, warp/overlay. Report median and P95 per stage.}
+
+\paragraph{Measurement protocol (must be stated).}
+To produce credible runtime claims:
 \begin{itemize}
-  \item If feature extraction dominates the runtime, reducing image resolution or limiting the number of ORB features (\texttt{nfeatures}) can reduce the computational load. Reducing the number of features can improve processing speed at the expense of matching accuracy.
-  \item If matching time is high, applying more aggressive pre-filtering (such as distance thresholding) or using approximate matching techniques (e.g., KD-tree or approximate nearest neighbor search) may speed up the process, albeit with a potential tradeoff in accuracy.
-  \item If RANSAC dominates, it may indicate that the inlier ratio is low (leading to more iterations) and suggests that better match filtering, ROI gating, or a higher-quality initial feature matching strategy may help improve performance.
+  \item report hardware and software versions (CPU/GPU, OpenCV build),
+  \item use a warm-up phase (discard first $n$ samples) to avoid cold-start bias,
+  \item measure per-image latency with consistent resolution policy ($M$ fixed),
+  \item report \textbf{median and P95}, not only mean.
 \end{itemize}
 
-\paragraph{Deployment feasibility statement.}
-The system is feasible for deployment if the measured median latency satisfies the operational constraints. The variance of latency, measured by the 95th percentile (P95), should also be acceptable to ensure that pathological cases do not significantly degrade system performance. The runtime analysis helps identify critical stages that might require further optimization. The system can be deployed in real-time applications if these runtime thresholds are met.
-
-\subsection{Ablation Study: Parameter Sensitivity}
-\begin{figure}[h!]
-\centering
-% \includegraphics[width=0.9\linewidth]{../results/figures/ablation_plot.png}
-\caption{Ablation: alignment quality and success rate vs.\ key parameters (e.g., ORB \texttt{nfeatures}, RANSAC threshold $\tau$, match filtering).}
-\label{fig:ablation_plot}
-\end{figure}
-
-\paragraph{What the ablation plot demonstrates.}
-Ablations help identify stable operating regions by exploring how key parameters influence alignment quality:
+\paragraph{Interpreting bottlenecks.}
 \begin{itemize}
-  \item Increasing \texttt{nfeatures} generally increases the number of inliers and alignment stability up to a point, after which further increases may add noise and slow down runtime. It is important to find the balance between increasing features and maintaining efficiency.
-  \item Increasing the RANSAC reprojection threshold $\tau$ allows more inliers to be accepted, but it can degrade precision if the threshold is set too permissive. The threshold value must be chosen based on the dataset's noise level and characteristics.
-  \item Using cross-checking typically reduces false matches at the cost of fewer valid correspondences, making it particularly beneficial in noisy or cluttered environments where background matches may dominate.
+  \item \textbf{Feature extraction dominated:} reduce $M$ or ORB \texttt{nfeatures} / pyramid depth.
+  \item \textbf{Matching dominated:} use stricter prefilters (distance percentile), cross-check, or reduce descriptors.
+  \item \textbf{RANSAC dominated:} indicates low inlier ratio; improve match quality or ROI-gate to suppress background.
 \end{itemize}
 
-\paragraph{Scientific conclusion from ablations.}
-A robust configuration is one where:
+\subsection{Ablation Study: Parameter Sensitivity and Stability Regions}
+A scientifically defensible system is not only accurate at one setting; it is stable over a neighborhood of parameters.
+
+% \ResultGraphic{../results/figures/ablation_plot.png}{0.90\linewidth}{Ablation results: accuracy (MRE/MedRE or proxy) and success rate vs key parameters. Prefer reporting a stability region rather than a single best point.}
+
+\paragraph{Ablation design (recommended).}
+At minimum, sweep:
 \begin{itemize}
-  \item The success rate remains high and stable despite small parameter variations. This ensures that the system’s performance is not overly sensitive to hyperparameter tuning.
-  \item The error remains low without the need for extreme parameter tuning. This indicates that the method is stable and generalizes well across different datasets.
-  \item The runtime is efficient and remains within the operational constraints, ensuring that the system can handle real-time processing needs.
+  \item ORB \texttt{nfeatures} (e.g., $\{500,1000,2000\}$),
+  \item RANSAC threshold $\tau$ (pixels) (e.g., $\{2,3,5,8\}$),
+  \item match filtering (cross-check on/off; distance percentile).
 \end{itemize}
-The goal is not to find a single optimal setting, but to identify a region where the method consistently performs well under realistic variations in parameters.
+For each setting, report: MedRE, success rate at $\delta$, and runtime median/P95.
+
+\paragraph{Interpreting stability.}
+A robust operating regime is characterized by:
+\begin{itemize}
+  \item a \textbf{plateau} in success rate (insensitive to small perturbations),
+  \item low MedRE without extreme $\tau$,
+  \item acceptable runtime across the plateau.
+\end{itemize}
+The scientific goal is to select a configuration from the stability region, not an isolated peak that may overfit the dataset.
 
 \subsection{Failure-Case Analysis and Diagnostics}
-\begin{figure}[h!]
-\centering
-\begin{subfigure}{0.48\linewidth}
-\centering
-% \includegraphics[width=\linewidth]{../results/figures/failure_case_1.png}
-\caption{Failure mode 1: Repetitive texture or ambiguous keypoints.}
-\end{subfigure}
-\begin{subfigure}{0.48\linewidth}
-\centering
-% \includegraphics[width=\linewidth]{../results/figures/failure_case_2.png}
-\caption{Failure mode 2: Strong glare / low contrast.}
-\end{subfigure}
-\caption{Failure examples: These images are generated automatically when the evaluator saves the worst-error samples or samples with too few inliers.}
-\label{fig:failure_cases}
-\end{figure}
+We explicitly document failures, since they define the validity domain and guide mitigations.
 
-\paragraph{What failure figures demonstrate.}
-Failure-case figures provide boundary conditions for the validity of the method:
+% \ResultGraphicTwo%
+% {../results/figures/failure_case_1.png}%
+% {../results/figures/failure_case_2.png}%
+% {Failure mode 1: repetitive texture / ambiguous correspondences.}%
+% {Failure mode 2: glare / low contrast causing sparse or unstable keypoints.}%
+% {Failure cases automatically exported (e.g., worst error or lowest inlier ratio). Captions should report \texttt{n\_matches}, \texttt{n\_inliers}, and error when available.}%
+% {failure_cases}
+
+\paragraph{Failure taxonomy (report as counts).}
+Classify failures into categories and report how many occur in the test set:
 \begin{itemize}
-  \item \textbf{Repetitive patterns:} These patterns can lead to geometrically consistent but incorrect homographies if the matching algorithm incorrectly clusters keypoints on repeated motifs.
-  \item \textbf{Glare/low contrast:} These conditions reduce feature repeatability, resulting in too few inliers or unstable homographies.
-  \item \textbf{Occlusion or truncation:} Partial occlusion reduces the overlap between the template and the photograph, lowering the number of inliers and causing RANSAC to fail in some cases.
+  \item \textbf{Texture ambiguity / repetition:} geometrically consistent but incorrect homography.
+  \item \textbf{Low texture / blur:} too few reliable keypoints, low inlier count.
+  \item \textbf{Glare / saturation:} keypoint instability due to suppressed gradients.
+  \item \textbf{Occlusion / truncation:} insufficient overlap between template and photo.
+  \item \textbf{Planarity violation:} systematic drift that cannot be eliminated by tuning.
 \end{itemize}
 
-\paragraph{Scientifically justified mitigations (activated only if supported by measured improvements).}
+\paragraph{Evidence-driven mitigations (activate only if metrics improve).}
 \begin{itemize}
-  \item ROI gating using a coarse detector or segmentation mask to suppress background matches.
-  \item More stringent match filtering, such as distance percentile filtering or additional geometric sanity checks.
-  \item Improved illumination normalization, such as CLAHE, when glare or low contrast is the dominant failure driver.
+  \item \textbf{ROI gating:} restrict matching to the part region to suppress background outliers (expected to increase $r_{\text{in}}$).
+  \item \textbf{Stricter filtering:} cross-check + distance percentile; optionally enforce spatial dispersion of inliers to reduce local clustering.
+  \item \textbf{Illumination normalization:} CLAHE in grayscale if glare/low contrast is the dominant failure driver.
+  \item \textbf{Template standardization:} enforce consistent scale/contrast/line thickness to increase descriptor repeatability.
 \end{itemize}
+A mitigation is accepted only if it increases success rate at the chosen tolerance and reduces tail failures (e.g., lower P95 error), not merely improves the mean.
 
-\subsection{Result Summary: What the Results Prove}
-The exported results collectively support the following claims:
+\subsection{Result Summary: What the Results Establish}
+Collectively, the exported artifacts support three scientifically testable claims:
+
 \begin{enumerate}
-  \item \textbf{Geometric correctness:} This claim is supported by low reprojection error and visually accurate overlays on representative samples.
-  \item \textbf{Robustness characteristics:} This is supported by the error distribution (tail behavior) and the stability regions identified in the ablation study.
-  \item \textbf{Feasibility:} This claim is supported by runtime analysis and bottleneck identification, which indicate that the method can be deployed within the computational constraints for practical use cases.
+  \item \textbf{Geometric correctness (within the validity domain):}
+  supported by low MedRE/MRE (when GT exists) and visually consistent overlays on a stratified set of samples.
+
+  \item \textbf{Robustness characteristics:}
+  supported by error distributions (tail behavior), success-vs-tolerance curves, and explicit failure-case taxonomy with counts.
+
+  \item \textbf{Operational feasibility:}
+  supported by median/P95 runtime and stage-wise bottleneck analysis under a fixed resolution policy.
 \end{enumerate}
+
+\paragraph{What must be filled with real numbers.}
+Replace placeholders using \texttt{../results/metrics/} exports:
+\begin{itemize}
+  \item dataset size: \Placeholder{N}
+  \item MedRE, MRE, P90/P95 error: \Placeholder{MedRE}, \Placeholder{MRE}, \Placeholder{P95}
+  \item success at key tolerances: \Placeholder{S(3px)}, \Placeholder{S(5px)}, \Placeholder{S(10px)}
+  \item runtime median/P95: \Placeholder{median ms}, \Placeholder{P95 ms}
+  \item failure counts by category: \Placeholder{counts}
+\end{itemize}
+All reported values must be directly traceable to the exported CSVs and figures.

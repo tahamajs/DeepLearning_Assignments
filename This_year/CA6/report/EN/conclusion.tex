@@ -1,21 +1,55 @@
 % =========================
-% report/conclusion.tex
+% report/conclusion.tex  (UPDATED, MORE SCIENTIFIC + REPORT-READY)
 % =========================
 
-This work implemented and evaluated a feature-based template-to-photo alignment and overlay system based on established principles of multi-view geometry and robust estimation. The method is designed to produce geometrically consistent overlays and quantitative alignment metrics that enable a comprehensive assessment of both geometric correctness and operational feasibility.
+\section{Conclusion}
+\label{sec:conclusion}
 
-The results demonstrate that the system effectively handles the alignment of template images to query photographs, providing reproducible overlays, error distributions, and performance stability diagnostics. The analysis shows that the method performs well under controlled conditions but is sensitive to glare, low-texture regions, and large perspective changes. Additionally, the choice of template quality and preprocessing techniques significantly impacts the system's robustness.
+This work implemented and evaluated a feature-based template-to-photograph alignment and overlay pipeline grounded in established multi-view geometry and robust model fitting. The method computes a planar projective mapping (homography) from template coordinates to photograph coordinates using local feature correspondences and RANSAC-based outlier rejection \cite{HartleyZisserman2004,FischlerBolles1981}. The resulting mapping is used to warp the template into the camera view and produce geometrically consistent overlays for inspection, alongside quantitative metrics that support scientific assessment and reproducibility.
 
-The evaluation section highlights the performance under various experimental settings, including the impact of different preprocessing parameters, the stability of the method under parameter variation, and the effectiveness of proposed mitigation strategies like ROI gating and template enhancement. These results provide a clear understanding of the boundary conditions under which the method operates effectively.
+\subsection{Summary of Method and Experimental Evidence}
+The system was designed as a modular pipeline with explicit exported artifacts (overlays, per-image metrics, distributions, and ablations), ensuring that all reported claims are traceable to stored outputs. Quantitatively, alignment quality is summarized using reprojection error statistics (mean and median) and operational success rates under application-specific tolerances, while runtime profiling provides feasibility evidence through median and tail latency (e.g., 95th percentile). Qualitatively, overlay grids provide a complementary validity check because small geometric deviations can be perceptually salient even when aggregate metrics appear acceptable.
 
-Future work should focus on improving the system's robustness in uncontrolled environments with high illumination variation and background clutter. Additionally, the method could be extended to non-planar targets, where the homography model is insufficient, by exploring more complex geometric models or hybrid methods that can handle depth variation more accurately.
+Across the evaluation protocol, the results demonstrate that the pipeline can produce stable alignments under the validity domain of its modeling assumptions, particularly when (i) the imaged part face is approximately planar, (ii) sufficient repeatable local structure exists for feature matching, and (iii) preprocessing preserves discriminative gradients. The combination of distributional metrics (error histograms), ablations (parameter sensitivity), and explicit failure-case diagnostics enables a defensible characterization of robustness rather than relying on isolated examples.
 
-\subsection{Future Directions}
-Several directions for future work could enhance the applicability and robustness of the alignment system:
+\subsection{Key Findings and Practical Implications}
+The experimental analysis supports the following conclusions:
+
+\paragraph{Geometric correctness under the planar assumption.}
+When the target surface is planar (or sufficiently close within the application tolerance), a single homography provides an accurate and compact model of the cross-view mapping \cite{HartleyZisserman2004}. In these cases, the method produces overlays with strong edge/contour coincidence and low reprojection error, indicating geometric consistency.
+
+\paragraph{Robustness is bounded by feature repeatability and scene conditions.}
+Performance degrades in conditions that reduce keypoint repeatability or increase correspondence ambiguity, including strong glare/specularities, low-texture regions, motion blur, and repetitive patterns. These effects manifest in the error distribution as heavy tails and in failure-case overlays as gross misalignment. Importantly, such failures are not merely ``noise''; they define operational boundary conditions of feature-based registration in unconstrained scenes.
+
+\paragraph{Preprocessing and template quality are first-order factors.}
+Template contrast, line thickness, and consistent scale normalization materially affect feature density and descriptor stability. Similarly, preprocessing policies (resize resolution, optional local contrast enhancement such as CLAHE) mediate a fundamental trade-off between runtime and matchability. The ablation study is therefore not auxiliary; it is required to justify configuration choices empirically and to identify a stable operating region rather than a fragile single optimum.
+
+\paragraph{Mitigation strategies must be evidence-driven.}
+ROI gating (e.g., restricting correspondence search to a detected/segmented part region) and stricter match filtering can reduce catastrophic tail failures by suppressing background-induced mismatches. However, such additions should be adopted only when they measurably improve success rates and reduce error tails on a representative evaluation set, consistent with scientific methodology that distinguishes hypothesized improvements from demonstrated gains.
+
+\subsection{Limitations and Boundary Conditions}
+Despite strong performance within its intended domain, the method has intrinsic limitations:
+
 \begin{itemize}
-  \item \textbf{Non-planar surfaces:} Extending the model to handle non-planar surfaces, such as curved objects or parts with significant depth variation, would require alternative geometric models (e.g., projective geometry models with more parameters).
-  \item \textbf{Cluttered environments:} Improvements in feature matching and outlier rejection are needed for highly cluttered environments. This could involve integrating semantic segmentation or object detection techniques to better isolate the region of interest.
-  \item \textbf{Real-time performance:} For deployment in real-time applications, further optimizations in speed, such as approximate nearest neighbor search or more efficient keypoint detection algorithms, should be explored.
+  \item \textbf{Non-planarity:} When the observed surface contains significant depth variation (curved parts, strong relief, or perspective-induced parallax across depth layers), a single homography cannot model the mapping exactly, and residual errors persist even under correct correspondences \cite{HartleyZisserman2004}.
+  \item \textbf{Ambiguous correspondences:} Repetitive textures can yield geometrically self-consistent but semantically incorrect homographies, particularly when incorrect matches concentrate in a locally coherent region.
+  \item \textbf{Illumination pathologies:} Specular glare and low contrast reduce keypoint repeatability, lowering inlier counts and destabilizing RANSAC estimation \cite{FischlerBolles1981}.
+  \item \textbf{Evaluation dependence on ground truth quality:} Reprojection metrics rely on accurate point annotations; label noise can inflate measured errors. This is mitigated by reporting robust statistics (median, percentiles) and by pairing quantitative results with overlay inspection.
 \end{itemize}
 
-These directions will ensure that the method can handle a broader range of practical scenarios, improving its utility in real-world applications like industrial inspection, medical imaging, and autonomous navigation.
+These limitations define where the method should be used as-is (planar inspection tasks with sufficient structure) versus where extensions are required (non-planar targets, severe lighting artifacts, heavy clutter).
+
+\subsection{Future Directions}
+\label{subsec:future_directions}
+Several technically well-motivated directions can extend the method’s validity domain and robustness:
+
+\begin{itemize}
+  \item \textbf{Non-planar alignment models:} For parts with depth variation, replace the single-homography assumption with models that represent 3D structure, such as multi-homography (piecewise planar) registration, pose estimation with known CAD geometry (PnP), or dense alignment methods that explicitly model parallax. The choice should be driven by the application’s tolerance and available priors (e.g., known camera intrinsics, CAD correspondences).
+  \item \textbf{ROI-aware matching in clutter:} Integrate a coarse detector or segmentation gate to restrict correspondence search to the part region. This reduces background-induced false matches and can significantly improve tail robustness, particularly when workbench clutter dominates failure modes.
+  \item \textbf{Illumination-robust preprocessing:} Systematically evaluate photometric normalization strategies (e.g., CLAHE, glare suppression, gradient-domain representations) under controlled lighting variations, reporting effects on both accuracy and inlier ratios.
+  \item \textbf{Deployment optimization:} If runtime constraints are strict, adopt configuration choices supported by ablation stability regions (e.g., reduced resolution and bounded \texttt{nfeatures}), precompute template descriptors, and consider approximate nearest-neighbor matching where it does not degrade success rate. Report median and tail latency to ensure rare pathological cases do not dominate operational behavior.
+\end{itemize}
+
+Overall, the presented pipeline provides a scientifically grounded baseline for template-to-photo alignment, with a complete evaluation methodology that characterizes both typical performance and boundary conditions. The exported artifacts and reproducible structure enable direct extension to more challenging scenarios while preserving traceability and experimental rigor.
+
+% End of conclusion.tex

@@ -1,39 +1,63 @@
 % =========================
-% report/macros.tex
+% report/macros.tex (FIXED)
 % =========================
 
-\newcommand{\ResultGraphic}[3]{%
+% -------------------------
+% Safe single figure
+% Usage:
+% \ResultGraphic{path/to/img.png}{0.8\linewidth}{Caption text}{fig:mylabel}
+% -------------------------
+\newcommand{\ResultGraphic}[4]{%
   \begin{figure}[t]
     \centering
     \IfFileExists{#1}{%
       \includegraphics[width=#2]{#1}%
     }{%
-      \fbox{\parbox{0.9\linewidth}{\textbf{شکل پیدا نشد:} \texttt{#1}\\
-      فایل را در این مسیر قرار دهید یا نام/مسیر را در متن به‌روزرسانی کنید.}}%
+      \fbox{\parbox{0.9\linewidth}{%
+        \textbf{شکل پیدا نشد:} \texttt{#1}\\
+        فایل را در این مسیر قرار دهید یا نام/مسیر را اصلاح کنید.}}%
     }%
     \caption{#3}
-    \label{fig:#1}
+    \label{#4}
   \end{figure}
 }
 
+% -------------------------
+% Safe two-panel figure
+% Usage:
+% \ResultGraphicTwo{img1}{img2}{cap1}{cap2}{main caption}{fig:label}
+% -------------------------
 \newcommand{\ResultGraphicTwo}[6]{%
   \begin{figure}[t]
     \centering
     \begin{subfigure}{0.48\linewidth}
       \centering
-      \IfFileExists{#1}{\includegraphics[width=\linewidth]{#1}}{\fbox{\parbox{0.9\linewidth}{پیدا نشد: \texttt{#1}}}}
+      \IfFileExists{#1}{%
+        \includegraphics[width=\linewidth]{#1}%
+      }{%
+        \fbox{\parbox{0.9\linewidth}{پیدا نشد: \texttt{#1}}}%
+      }%
       \caption{#3}
     \end{subfigure}\hfill
     \begin{subfigure}{0.48\linewidth}
       \centering
-      \IfFileExists{#2}{\includegraphics[width=\linewidth]{#2}}{\fbox{\parbox{0.9\linewidth}{پیدا نشد: \texttt{#2}}}}
+      \IfFileExists{#2}{%
+        \includegraphics[width=\linewidth]{#2}%
+      }{%
+        \fbox{\parbox{0.9\linewidth}{پیدا نشد: \texttt{#2}}}%
+      }%
       \caption{#4}
     \end{subfigure}
     \caption{#5}
-    \label{fig:#6}
+    \label{#6}
   \end{figure}
 }
 
+% -------------------------
+% Safe CSV table
+% Usage:
+% \SafeCSVTable{metrics.csv}{Table caption}{tab:metrics}
+% -------------------------
 \newcommand{\SafeCSVTable}[3]{%
   \begin{table}[t]
     \centering
@@ -47,29 +71,36 @@
         every last row/.style={after row=\bottomrule}
       ]{#1}%
     }{%
-      \fbox{\parbox{0.9\linewidth}{\textbf{فایل CSV پیدا نشد:} \texttt{#1}\\
-      خروجی معیارها را در این مسیر ذخیره کنید یا مسیر/نام فایل را اصلاح کنید.}}%
+      \fbox{\parbox{0.9\linewidth}{%
+        \textbf{فایل CSV پیدا نشد:} \texttt{#1}\\
+        مسیر یا نام فایل را اصلاح کنید.}}%
     }%
     \caption{#2}
     \label{#3}
   \end{table}
 }
 
-% درج امن کُد (در صورت نبود فایل، کامپایل نمی‌شکند).
-% استفاده:
-% \SafeListing{../src/alignment.py}{ماژول هم‌ترازی (ویژگی‌ها، تطبیق، هموگرافی).}{lst:alignment}
+% -------------------------
+% Safe code listing
+% Usage:
+% \SafeListing{file.py}{Caption}{lst:code}
+% -------------------------
 \newcommand{\SafeListing}[3]{%
   \begin{figure}[t]
-  \centering
-  \IfFileExists{#1}{%
-    \lstinputlisting{#1}%
-  }{%
-    \fbox{\parbox{0.9\linewidth}{\textbf{فایل کُد پیدا نشد:} \texttt{#1}\\
-    فایل را ایجاد کنید یا مسیر را به‌روزرسانی کنید.}}%
-  }%
-  \caption{#2}
-  \label{#3}
+    \centering
+    \IfFileExists{#1}{%
+      \lstinputlisting{#1}%
+    }{%
+      \fbox{\parbox{0.9\linewidth}{%
+        \textbf{فایل کُد پیدا نشد:} \texttt{#1}\\
+        مسیر یا نام فایل را اصلاح کنید.}}%
+    }%
+    \caption{#2}
+    \label{#3}
   \end{figure}
 }
 
+% -------------------------
+% Placeholder
+% -------------------------
 \newcommand{\Placeholder}[1]{\textbf{[جایگزین کنید: #1]}}

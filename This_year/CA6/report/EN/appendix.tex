@@ -2,24 +2,104 @@
 % report/appendix.tex
 % =========================
 
+\section{Appendix}
+\label{sec:appendix}
+
 \subsection{Recommended Metrics File Formats}
-For reproducibility and traceability, the output of all evaluation scripts should be logged in well-defined formats. The dataset summary should include the following key metrics:
+\label{subsec:appendix_metrics_formats}
+
+For scientific reproducibility, every evaluation run should export machine-readable logs with (i) clear semantics, (ii) stable column names, and (iii) explicit units. We recommend producing both a \textbf{per-image metrics file} and a \textbf{dataset-level summary file}. This separation enables (a) aggregate reporting in the main paper and (b) post-hoc analyses such as error distributions, tail risk, and failure clustering.
+
+\subsubsection*{A. Per-image metrics: \texttt{../results/metrics/per\_image.csv}}
+Each row corresponds to a single evaluated photo-template pair. This file supports scientific analyses beyond averages (e.g., heavy-tail detection, subgroup analysis by lighting/viewpoint, and failure-case extraction).
+
+\paragraph{Required columns (minimum scientific set).}
 \begin{itemize}
-  \item \texttt{metric}, \texttt{value} pairs for each run,
-  \item \texttt{N}, \texttt{MRE\_mean}, \texttt{MRE\_median}, \texttt{success\_rate\_5px}, \texttt{runtime\_median\_ms}, \texttt{runtime\_p95\_ms} for overall evaluation summary.
+  \item \texttt{image\_id}: filename or unique identifier of the query photo.
+  \item \texttt{template\_id}: filename or unique identifier of the template used.
+  \item \texttt{mre\_px}: mean reprojection error (pixels) computed on ground-truth correspondences.
+  \item \texttt{medre\_px}: median reprojection error (pixels).
+  \item \texttt{success\_delta}: binary success indicator at the report tolerance $\delta$ (e.g., $5$ px), i.e., $\mathbb{I}(\text{mre\_px}<\delta)$.
+  \item \texttt{n\_matches}: number of raw descriptor matches before RANSAC.
+  \item \texttt{n\_inliers}: number of RANSAC inliers.
+  \item \texttt{inlier\_ratio}: \texttt{n\_inliers / max(1, n\_matches)}.
+  \item \texttt{runtime\_ms}: total end-to-end runtime for this sample (milliseconds).
 \end{itemize}
-An example summary format could be as follows:
+
+\paragraph{Recommended columns (diagnostics).}
+\begin{itemize}
+  \item \texttt{tau\_px}: RANSAC reprojection threshold $\tau$ used for this run (pixels).
+  \item \texttt{H\_00}...\texttt{H\_22}: flattened homography matrix entries (optional; for debugging/regression testing).
+  \item \texttt{roi\_enabled}: whether ROI gating was used (0/1).
+  \item \texttt{clahe\_enabled}: whether CLAHE was used (0/1).
+  \item \texttt{failure\_reason}: string label if alignment fails (e.g., \texttt{too\_few\_inliers}, \texttt{degenerate\_H}, \texttt{missing\_gt}).
+  \item \texttt{overlay\_path}: relative path to the saved overlay image for this sample.
+\end{itemize}
+
+\paragraph{Example (\texttt{per\_image.csv}).}
 \begin{verbatim}
-metric,value
-MRE_mean,0.35
-MRE_median,0.30
-success_rate_5px,0.90
-runtime_median_ms,150
-runtime_p95_ms,200
+image_id,template_id,mre_px,medre_px,success_delta,n_matches,n_inliers,inlier_ratio,runtime_ms,overlay_path
+photo_001.jpg,template_A.png,1.82,1.55,1,412,176,0.427,118.4,../results/overlays/photo_001__template_A.png
+photo_002.jpg,template_A.png,13.20,12.70,0,95,12,0.126,97.1,../results/overlays/photo_002__template_A.png
 \end{verbatim}
 
+\subsubsection*{B. Dataset summary: \texttt{../results/metrics/summary.csv}}
+The dataset-level summary is what the report tables should ingest (via \texttt{\textbackslash SafeCSVTable}). It must include both central tendency and tail statistics to support deployment-relevant conclusions.
+
+\paragraph{Required summary fields (minimum scientific set).}
+\begin{itemize}
+  \item \texttt{N}: number of evaluated image pairs.
+  \item \texttt{MRE\_mean\_px}, \texttt{MRE\_median\_px}: mean and median of per-image MRE.
+  \item \texttt{MedRE\_median\_px}: median of per-image MedRE (optional but recommended).
+  \item \texttt{success\_rate\_\{delta\}px}: success rate at threshold $\delta$ (e.g., \texttt{success\_rate\_5px}).
+  \item \texttt{runtime\_median\_ms}: median runtime per image.
+  \item \texttt{runtime\_p95\_ms}: 95th percentile runtime (tail latency).
+\end{itemize}
+
+\paragraph{Recommended summary fields (robustness and tail risk).}
+\begin{itemize}
+  \item \texttt{MRE\_p90\_px}, \texttt{MRE\_p95\_px}: tail error percentiles.
+  \item \texttt{inlier\_ratio\_mean}, \texttt{inlier\_ratio\_median}: correspondence consistency indicators.
+  \item \texttt{fail\_rate}: fraction of samples with failure label \(\neq\) empty.
+\end{itemize}
+
+\paragraph{Example (\texttt{summary.csv}).}
+\begin{verbatim}
+metric,value
+N,200
+MRE_mean_px,2.35
+MRE_median_px,1.78
+MRE_p95_px,8.92
+success_rate_5px,0.91
+inlier_ratio_mean,0.39
+runtime_median_ms,112.6
+runtime_p95_ms,176.4
+fail_rate,0.04
+\end{verbatim}
+
+\subsubsection*{C. Run manifest: \texttt{../results/metrics/run\_manifest.json} (recommended)}
+To ensure full traceability across multiple experiments (ablations, parameter sweeps), each run should export a manifest linking \texttt{config.json}, metrics files, and figure artifacts.
+
+\paragraph{Example (\texttt{run\_manifest.json}).}
+\begin{verbatim}
+{
+  "run_id": "2026-01-26T09-12-31",
+  "git_commit": "a1b2c3d",
+  "config_path": "../results/metrics/config.json",
+  "per_image_path": "../results/metrics/per_image.csv",
+  "summary_path": "../results/metrics/summary.csv",
+  "figures_dir": "../results/figures/",
+  "overlays_dir": "../results/overlays/"
+}
+\end{verbatim}
+
+% ------------------------------------------------------------
 \subsection{Annotation Schema (Point Correspondences)}
-Ground-truth point correspondences should follow a standardized JSON schema, ensuring consistency across experiments and datasets:
+\label{subsec:appendix_annotation_schema}
+
+Quantitative geometric evaluation requires ground-truth correspondences between template and photograph. We recommend a single JSON object per image pair stored under \texttt{../data/annotations/}. The schema below is designed to be minimal, explicit, and extensible.
+
+\subsubsection*{A. Minimal schema}
 \begin{verbatim}
 {
   "image_id": "photo_001.jpg",
@@ -28,16 +108,162 @@ Ground-truth point correspondences should follow a standardized JSON schema, ens
   "points_photo":    [[u1,v1],[u2,v2],[u3,v3],[u4,v4]]
 }
 \end{verbatim}
-For stable homography estimation, at least four non-collinear point pairs are required. Additional points may be used to increase robustness, especially when noisy correspondences or complex scenes are involved.
 
-\subsection{Parameter Logging}
-For full scientific reproducibility, every experimental run should export a configuration JSON file (e.g., \texttt{../results/metrics/config.json}) containing the following key parameters:
+\paragraph{Scientific requirements.}
 \begin{itemize}
-  \item \textbf{image resize policy,} specifying the maximum image dimension used for matching.
-  \item \textbf{ORB parameters,} including the number of features, pyramid levels, and scale factor.
-  \item \textbf{Matching rules,} such as cross-checking and distance thresholding.
-  \item \textbf{RANSAC threshold and maximum iterations,} which control outlier rejection.
-  \item \textbf{Alpha blending value,} for overlay visualization.
+  \item At least four point pairs are required to evaluate a homography-driven mapping meaningfully; points must be non-collinear to avoid degeneracy.
+  \item For reliable evaluation, points should be chosen on \textbf{repeatable landmarks} (corners, holes, endpoints of edges) rather than texture-only regions.
+  \item If the image is resized for matching, either (i) annotate after resizing, or (ii) store the original resolution and the exact resize transform so evaluation occurs in a consistent coordinate system.
 \end{itemize}
 
-These logs will allow full traceability and reproducibility of results, ensuring that other researchers can replicate and build upon the work presented in this report.
+\subsubsection*{B. Recommended extended schema (for rigorous reporting)}
+For robust analysis and correct coordinate handling across resizing/cropping, we recommend adding explicit metadata:
+
+\begin{verbatim}
+{
+  "image_id": "photo_001.jpg",
+  "template_id": "template_A.png",
+  "image_size_original": [W0, H0],
+  "template_size_original": [WT0, HT0],
+  "image_size_used": [W, H],
+  "template_size_used": [WT, HT],
+  "preprocess": {
+    "resize_policy": "max_dim",
+    "max_dim": 1024,
+    "clahe": false,
+    "roi": null
+  },
+  "points_template": [[x1,y1],[x2,y2],[x3,y3],[x4,y4],[x5,y5]],
+  "points_photo":    [[u1,v1],[u2,v2],[u3,v3],[u4,v4],[u5,v5]],
+  "annotator": "rater_01",
+  "timestamp": "2026-01-26T09:00:00"
+}
+\end{verbatim}
+
+\paragraph{Why these fields matter.}
+\begin{itemize}
+  \item \texttt{image\_size\_used} and \texttt{template\_size\_used} prevent silent evaluation bugs caused by inconsistent resize conventions.
+  \item \texttt{annotator} enables inter-rater analysis if multiple annotators are used.
+  \item \texttt{preprocess} metadata enables causal debugging (e.g., whether CLAHE changes landmark visibility).
+\end{itemize}
+
+% ------------------------------------------------------------
+\subsection{Parameter Logging (\texttt{config.json})}
+\label{subsec:appendix_config_logging}
+
+To reproduce results exactly, every run must export a single configuration file (recommended path: \texttt{../results/metrics/config.json}). This file should capture all parameters that can affect outputs, including preprocessing, feature extraction, matching, RANSAC settings, and runtime controls.
+
+\subsubsection*{A. Required configuration fields}
+\begin{itemize}
+  \item \textbf{Data and I/O}
+  \begin{itemize}
+    \item \texttt{templates\_dir}, \texttt{photos\_dir}, \texttt{annotations\_dir}
+    \item \texttt{results\_dir}
+  \end{itemize}
+
+  \item \textbf{Preprocessing}
+  \begin{itemize}
+    \item \texttt{max\_dim} (maximum image dimension used for matching)
+    \item \texttt{grayscale} (should be true for ORB in this pipeline)
+    \item \texttt{clahe\_enabled}, and CLAHE parameters if enabled (clip limit, tile grid size)
+    \item \texttt{roi\_enabled} and ROI source (manual box, detector name, mask path), if used
+  \end{itemize}
+
+  \item \textbf{ORB parameters}
+  \begin{itemize}
+    \item \texttt{orb\_nfeatures}
+    \item \texttt{orb\_scaleFactor}, \texttt{orb\_nlevels}
+    \item \texttt{orb\_edgeThreshold}, \texttt{orb\_patchSize} (if modified)
+  \end{itemize}
+
+  \item \textbf{Matching parameters}
+  \begin{itemize}
+    \item \texttt{matcher} (e.g., BF-Hamming)
+    \item \texttt{cross\_check} (0/1)
+    \item \texttt{distance\_filter} (e.g., percentile threshold)
+    \item \texttt{distance\_percentile} (if applicable)
+  \end{itemize}
+
+  \item \textbf{RANSAC / homography}
+  \begin{itemize}
+    \item \texttt{ransac\_tau\_px} (reprojection threshold $\tau$)
+    \item \texttt{ransac\_maxIters}
+    \item \texttt{ransac\_confidence}
+    \item \texttt{min\_inliers} (for declaring success/failure)
+  \end{itemize}
+
+  \item \textbf{Overlay}
+  \begin{itemize}
+    \item \texttt{alpha} (blending parameter)
+    \item \texttt{overlay\_color} (if fixed color is used; otherwise omit)
+  \end{itemize}
+
+  \item \textbf{Evaluation}
+  \begin{itemize}
+    \item \texttt{delta\_px} (success threshold $\delta$)
+    \item \texttt{metrics} (list of computed metrics; e.g., \texttt{["mre","medre","inlier\_ratio","runtime"]})
+    \item \texttt{iou\_enabled} (0/1) and mask paths if enabled
+  \end{itemize}
+
+  \item \textbf{Runtime and determinism}
+  \begin{itemize}
+    \item \texttt{seed}
+    \item \texttt{opencv\_num\_threads}
+  \end{itemize}
+\end{itemize}
+
+\subsubsection*{B. Example \texttt{config.json}}
+\begin{verbatim}
+{
+  "seed": 123,
+  "opencv_num_threads": 1,
+  "paths": {
+    "templates_dir": "../data/templates",
+    "photos_dir": "../data/photos",
+    "annotations_dir": "../data/annotations",
+    "results_dir": "../results"
+  },
+  "preprocessing": {
+    "max_dim": 1024,
+    "grayscale": true,
+    "clahe_enabled": false,
+    "roi_enabled": false
+  },
+  "orb": {
+    "nfeatures": 2000,
+    "scaleFactor": 1.2,
+    "nlevels": 8
+  },
+  "matching": {
+    "matcher": "bf_hamming",
+    "cross_check": true,
+    "distance_filter": "percentile",
+    "distance_percentile": 90
+  },
+  "homography": {
+    "ransac_tau_px": 3.0,
+    "ransac_maxIters": 5000,
+    "ransac_confidence": 0.995,
+    "min_inliers": 20
+  },
+  "overlay": {
+    "alpha": 0.45
+  },
+  "evaluation": {
+    "delta_px": 5.0,
+    "iou_enabled": false
+  }
+}
+\end{verbatim}
+
+\subsubsection*{C. Scientific reproducibility checklist (what must be present)}
+To claim reproducibility, each reported experiment must have:
+\begin{itemize}
+  \item \texttt{config.json} with all parameters used,
+  \item \texttt{per\_image.csv} enabling re-computation of summary stats,
+  \item \texttt{summary.csv} included in the report table,
+  \item overlays and figures referenced in the report saved under the declared paths,
+  \item a run identifier (timestamp or hash) linking config, metrics, and artifacts.
+\end{itemize}
+
+% End of report/appendix.tex

@@ -20,18 +20,22 @@
 \usepackage{pgfplotstable}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+
+% \usepackage{cleveref}
 
 % ---------- فارسی ----------
 \usepackage{xepersian}
 % اگر فونت فارسی ندارید، این خطوط را تغییر دهید یا موقتاً کامنت کنید.
 % نمونه‌های رایج: XB Niloofar, XB Zar, IRNazanin, Vazirmatn
-\settextfont{XB Niloofar}
+\settextfont{Geeza Pro}
 \setlatintextfont{Times New Roman}
 
 \usepackage{hyperref}
 \usepackage[nameinlink,noabbrev]{cleveref}
 
-\graphicspath{{../results/}{../results/figures/}{../results/overlays/}{../results/matches/}}
+% \graphicspath{{../results/}{../results/figures/}{../results/overlays/}{../results/matches/}}
 
 % Listings style for Python
 \lstdefinestyle{py}{
@@ -58,7 +62,7 @@
 \maketitle
 
 \begin{abstract}
-\input{abstract}
+% \input{abstract}
 \end{abstract}
 
 \tableofcontents

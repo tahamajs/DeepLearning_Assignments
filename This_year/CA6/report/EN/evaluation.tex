@@ -1,64 +1,172 @@
+% =========================
+% report/evaluation.tex  (DROP-IN REPLACEMENT; VAE + cWGAN-GP)
+% =========================
+
 \subsection{Evaluation Objectives}
-Evaluation is designed to answer three scientific questions:
+Evaluation is designed to answer three scientific questions under controlled, reproducible conditions:
+
 \begin{enumerate}
-  \item \textbf{VAE capacity and inference quality:} Does the modified objective/hierarchy improve latent utilization, sample quality, and likelihood-related metrics relative to a standard VAE?
-  \item \textbf{Posterior collapse behavior:} How do KL dynamics, active units, and posterior statistics differ between baseline and proposed models?
-  \item \textbf{Augmentation effectiveness:} Under limited data, does GAN-generated augmentation measurably improve classifier generalization on real test data?
+  \item \textbf{VAE capacity and inference quality:}
+  Does the modified VAE (e.g., flexible prior such as VampPrior, hierarchical latent design when enabled, and/or architectural capacity changes) improve latent utilization, sample quality, and likelihood-related metrics relative to a baseline VAE with a simple prior?
+
+  \item \textbf{Posterior collapse behavior:}
+  How do KL dynamics, active units, and aggregate posterior statistics differ between baseline and proposed models, and do these differences indicate reduced collapse risk or more effective latent usage?
+
+  \item \textbf{Augmentation effectiveness:}
+  Under a limited labeled-data regime, does conditional WGAN-GP augmentation improve downstream classifier generalization \emph{on real test data} without contaminating the classifier training split or introducing systematic class confusion?
 \end{enumerate}
 
+\subsection{General Evaluation Protocol and Reproducibility Controls}
+\paragraph{Fixed splits and no leakage.}
+For the augmentation experiment, all subset indices defining $\mathcal{D}_{\mathrm{GAN}}$ and $\mathcal{D}_{\mathrm{CLS}}$ are stored to disk and reused across runs. We enforce:
+\[
+\mathcal{D}_{\mathrm{GAN}} \cap \mathcal{D}_{\mathrm{CLS}} = \emptyset,
+\]
+and log the intersection size (must be zero) as an integrity check. For all experiments, the test set is never used for tuning.
+
+\paragraph{Determinism and run metadata.}
+Each run logs a \texttt{config.json} specifying (at minimum): random seed, dataset split paths, model hyperparameters, optimizer settings, number of steps/epochs, and evaluation settings (e.g., $K_{\mathrm{IS}}$ for IWAE). When feasible, we fix PyTorch and NumPy seeds and disable nondeterministic CuDNN behaviors. Reported results are either:
+(i) single-run results with a fixed seed plus full artifacts, or
+(ii) averages over multiple seeds with mean$\pm$std reporting.
+
+\paragraph{Exported evaluation artifacts.}
+All evaluation scripts export both raw per-sample metrics and summary tables:
+\begin{itemize}
+  \item \texttt{../results/metrics/}: CSV/JSON logs (per-step and per-epoch), per-image/per-sample scores, and summary tables.
+  \item \texttt{../results/figures/}: plots used in the report (loss curves, KL curves, histograms, sample grids).
+  \item \texttt{../results/samples/}: generated samples and traversals (VAE samples, GAN fixed-noise grids).
+\end{itemize}
+This ensures traceability: each plot/table in the report corresponds to a stored file.
+
+% ---------------------------------------------------------
 \subsection{VAE Metrics and Diagnostics}
-\paragraph{(V1) Loss decomposition.}
-We report reconstruction loss $\mathcal{L}_{\mathrm{rec}}$, KL term(s) $\mathcal{L}_{\mathrm{KL}}$ (per latent level when hierarchical), and total negative ELBO.
+We evaluate VAEs with complementary objectives: (i) predictive/likelihood-related evidence, (ii) representation and posterior diagnostics, and (iii) qualitative interpretability.
 
-\paragraph{(V2) Latent activity / active units.}
-We quantify latent utilization via active units, e.g.,
-dimensions with $\mathrm{Var}_x[\mathbb{E}(z\mid x)]$ above a small threshold, and via per-dimension KL contributions.
+\paragraph{(V1) Loss decomposition and reporting conventions.}
+We report the negative ELBO and its components:
+\[
+\mathcal{L}_{\mathrm{total}} = \mathcal{L}_{\mathrm{rec}} + \beta \cdot \mathcal{L}_{\mathrm{KL}},
+\]
+where $\mathcal{L}_{\mathrm{rec}}$ is the reconstruction term (BCE for Bernoulli pixels) and $\mathcal{L}_{\mathrm{KL}}$ is the KL divergence term. If a hierarchical latent model is used, we additionally report KL \emph{per level} (e.g., $\mathrm{KL}(z_1)$ and $\mathrm{KL}(z_2)$) and the total KL. In practice we log:
+\begin{itemize}
+  \item epoch/step, $\mathcal{L}_{\mathrm{rec}}$, $\mathcal{L}_{\mathrm{KL}}$ (and per-level KL if applicable), $\mathcal{L}_{\mathrm{total}}$,
+  \item batch statistics (mean, median) and dataset-level aggregates on validation/test.
+\end{itemize}
+Interpretation: improvements in $\mathcal{L}_{\mathrm{total}}$ are only meaningful when both reconstruction and KL terms are analyzed, because a lower total loss can be achieved by collapsing KL to near-zero (posterior collapse) without learning useful latents.
 
-\paragraph{(V3) Posterior vs prior match.}
-We compare aggregate posterior statistics (means, variances, covariance structure in PCA space) to the prior (standard normal or learned mixture prior). This directly probes over-regularization and collapse-like behavior.
+\paragraph{(V2) Latent activity and active units.}
+Latent utilization is measured using \emph{active units}. A standard criterion is:
+\[
+\text{AU}_j = \mathbb{I}\left(\mathrm{Var}_{x}\!\left[\mathbb{E}_{q_\phi(z\mid x)}(z_j)\right] > \tau_{\mathrm{AU}}\right),
+\]
+and the number of active units is $\sum_{j=1}^{d} \text{AU}_j$. We also report per-dimension KL contributions:
+\[
+\mathrm{KL}_j \approx \mathbb{E}_{x}\left[\mathrm{KL}\left(q_\phi(z_j\mid x)\,\|\,p(z_j)\right)\right],
+\]
+(or the corresponding quantity for a learned mixture prior).
+Interpretation: a model with many inactive units (few AUs and near-zero $\mathrm{KL}_j$ for most dimensions) indicates collapse or over-regularization; a healthier latent representation exhibits non-trivial AUs and structured $\mathrm{KL}_j$.
 
-\paragraph{(V4) Likelihood estimation (importance sampling).}
-We estimate $\log p_\theta(x)$ with an importance-weighted estimator:
+\paragraph{(V3) Posterior--prior match (aggregate statistics).}
+We compute aggregate posterior statistics over a large sample of datapoints:
+\[
+\mu_q = \mathbb{E}_{x}\left[\mathbb{E}_{q_\phi(z\mid x)}(z)\right],\qquad
+\Sigma_q = \mathrm{Cov}_{x}\left(\mathbb{E}_{q_\phi(z\mid x)}(z)\right),
+\]
+and compare to:
+(i) the standard normal prior ($\mu=0$, $\Sigma=I$), or
+(ii) the learned prior (e.g., mixture implied by pseudo-inputs).
+We also visualize $\Sigma_q$ in a PCA basis (eigen-spectrum and leading components) to assess whether the posterior occupies a lower-dimensional subspace.
+Interpretation: strong mismatch can indicate either insufficient prior flexibility or an overly constrained posterior; a flexible prior (e.g., VampPrior) should reduce pathological mismatch while maintaining non-trivial latent structure.
+
+\paragraph{(V4) Likelihood estimation via importance sampling (IWAE-style).}
+Because ELBO is a lower bound, we estimate $\log p_\theta(x)$ using an importance-weighted estimator:
 \[
 \widehat{\log p_\theta(x)}=
 \log\left(\frac{1}{K_{\mathrm{IS}}}\sum_{k=1}^{K_{\mathrm{IS}}}
 \frac{p_\theta(x\mid z^{(k)})p(z^{(k)})}{q_\phi(z^{(k)}\mid x)}\right),
 \quad z^{(k)}\sim q_\phi(z\mid x).
 \]
-We explicitly report $K_{\mathrm{IS}}$ and use the same estimator across models for fair comparison.
+For fairness, we use the same $K_{\mathrm{IS}}$ across models, and we report $K_{\mathrm{IS}}$ explicitly. We compute dataset-level averages and uncertainty estimates (e.g., mean$\pm$std across datapoints or seeds).
+Interpretation: higher (less negative) values indicate better likelihood, but must be interpreted alongside collapse diagnostics, because some architectures can optimize likelihood while learning poor latent semantics.
 
-\paragraph{(V5) Qualitative samples and traversals.}
-We provide generated samples from $p(z)$ and latent traversals (and PCA-based traversals) to assess whether learned directions correspond to meaningful factors of variation.
-
-\paragraph{(V6) Pseudo-input visualization.}
-We visualize pseudo-inputs $\{u_k\}$ and interpret whether they represent diverse modes of the data distribution, consistent with a multimodal learned prior.
-
-\subsection{GAN Training Metrics}
-\paragraph{(G1) Critic and generator losses.}
-We plot $-\mathbb{E}[D(x_{\mathrm{real}},y)]+\mathbb{E}[D(x_{\mathrm{fake}},y)]$ (Wasserstein term), total critic loss (including GP, drift, embedding regularization), and generator loss $-\mathbb{E}[D(x_{\mathrm{fake}},y)]$.
-
-\paragraph{(G2) Regularization terms.}
-We plot gradient penalty magnitude, drift penalty, and embedding regularization across training steps.
-
-\paragraph{(G3) Fixed-noise sample grids.}
-We export grids at steps $\{0,1000,2000,3000,4000\}$ using fixed noise and fixed labels to ensure comparable qualitative assessment across checkpoints.
-
-\subsection{Augmentation Evaluation (Classifier-Based)}
-\paragraph{(A1) Baseline vs augmented training.}
-We train the same classifier architecture under:
+\paragraph{(V5) Qualitative samples and latent traversals.}
+We export:
 \begin{itemize}
-  \item real-only (limited-data) training,
-  \item real + GAN-generated synthetic augmentation.
+  \item unconditional samples: $z\sim p(z)$ then $x\sim p_\theta(x\mid z)$,
+  \item latent traversals: vary one latent dimension while holding others fixed,
+  \item PCA traversals: traverse along principal directions of inferred latent codes.
 \end{itemize}
-Evaluation uses the untouched FashionMNIST test set.
+Interpretation: meaningful traversals suggest disentangled or at least interpretable factors; random/noisy traversals with low KL often correlate with collapse.
 
-\paragraph{(A2) Performance reporting.}
+\paragraph{(V6) Pseudo-input visualization (VampPrior-specific).}
+For VampPrior models, we visualize pseudo-inputs $\{u_k\}$ (after any range constraint such as $\tanh$) and optionally their decoded reconstructions. We interpret whether pseudo-inputs cover multiple modes (diverse digit styles/clothing prototypes).
+Interpretation: diverse pseudo-inputs are consistent with a multimodal learned prior that can reduce over-regularization; highly similar pseudo-inputs can indicate poor utilization of the mixture capacity.
+
+% ---------------------------------------------------------
+\subsection{GAN Training Metrics (Conditional WGAN-GP)}
+We evaluate GAN training using both \emph{objective-based} statistics and \emph{artifact-based} qualitative monitoring.
+
+\paragraph{(G1) Critic and generator losses (decomposed).}
+We log:
+\begin{itemize}
+  \item Wasserstein term: $\mathbb{E}[D(x_{\mathrm{real}},y)]-\mathbb{E}[D(x_{\mathrm{fake}},y)]$,
+  \item critic total loss: Wasserstein term plus regularization,
+  \item generator loss: $-\mathbb{E}[D(x_{\mathrm{fake}},y)]$.
+\end{itemize}
+Interpretation: the Wasserstein estimate should not diverge; excessively large magnitudes, instability, or oscillations often indicate training pathologies or learning-rate mismatch.
+
+\paragraph{(G2) Regularization terms and constraint satisfaction.}
+We explicitly plot:
+\begin{itemize}
+  \item gradient penalty magnitude and its moving average,
+  \item drift penalty contribution,
+  \item embedding regularization magnitude (if used).
+\end{itemize}
+Interpretation: gradient penalty should remain in a reasonable range; persistent extreme GP values may imply critic gradients are poorly conditioned or that Lipschitz constraints are not being satisfied.
+
+\paragraph{(G3) Fixed-noise, fixed-label sample grids (checkpoint comparable).}
+We export sample grids at fixed training steps (e.g., $\{0,1000,2000,3000,4000\}$ or assignment-specified checkpoints) using fixed noise vectors and a fixed label pattern covering all classes. This ensures that visual differences across grids reflect \emph{model changes} rather than sampling noise.
+Interpretation: improvements should manifest as sharper class-appropriate structure and reduced mode collapse (diversity within each class).
+
+\paragraph{(G4) Optional feature-space quality metric (FID-like proxy).}
+If a consistent feature extractor is available (e.g., a fixed LeNet feature model), we compute a FID-like Fréchet distance between real and generated features. This is reported as a proxy quality measure and must be interpreted as \emph{feature-model dependent}.
+
+% ---------------------------------------------------------
+\subsection{Augmentation Evaluation (Classifier-Based)}
+Augmentation is evaluated strictly on \emph{real} test data to measure generalization, not memorization.
+
+\paragraph{(A1) Baseline vs augmented training protocol.}
+We train the same classifier architecture under two regimes:
+\begin{itemize}
+  \item \textbf{Real-only baseline:} train on $\mathcal{D}_{\mathrm{CLS}}$ only.
+  \item \textbf{Augmented:} train on $\mathcal{D}_{\mathrm{CLS}}$ plus $N_{\mathrm{syn}}$ synthetic samples per class generated by the trained conditional GAN.
+\end{itemize}
+All hyperparameters (optimizer, learning rate schedule, epochs, augmentations other than GAN) are held fixed to isolate the effect of GAN augmentation.
+
+\paragraph{(A2) Performance endpoints and reporting.}
 We report:
 \begin{itemize}
-  \item overall test accuracy,
-  \item class-wise accuracy (or per-class error rate),
-  \item confusion matrix (optional but recommended for diagnosing boundary shifts).
+  \item overall test accuracy on the untouched FashionMNIST test set,
+  \item class-wise accuracy (or per-class error),
+  \item optional confusion matrix to diagnose systematic class confusion,
+  \item confidence intervals or mean$\pm$std across seeds (recommended in limited-data settings).
 \end{itemize}
-Any improvement is interpreted in light of label-conditional sample quality and coverage, and limitations are documented when augmentation introduces class confusion.
+Interpretation: a scientifically meaningful improvement is one that is statistically consistent across seeds and not driven by a single class. Confusion matrices are particularly informative for detecting augmentation-induced boundary shifts.
 
+\paragraph{(A3) Interpreting augmentation gains with sample quality diagnostics.}
+Any observed accuracy improvement is interpreted jointly with:
+\begin{itemize}
+  \item conditional sample grids (class fidelity and diversity),
+  \item critic diagnostics (stability and constraint satisfaction),
+  \item class-wise performance (to detect whether some classes are harmed).
+\end{itemize}
+If augmentation improves accuracy but increases confusion in specific classes, we document this as a limitation and analyze whether the generator is producing ambiguous inter-class samples.
 
+\paragraph{(A4) Failure modes and validity threats specific to augmentation.}
+We explicitly document:
+\begin{itemize}
+  \item \textbf{Mode dropping:} generator produces limited intra-class diversity; can yield limited or misleading augmentation benefit.
+  \item \textbf{Label noise via conditional confusion:} generator outputs samples that visually resemble a different class than the conditioning label, potentially harming classifier training.
+  \item \textbf{Distribution shift amplification:} synthetic samples may overemphasize artifacts (checkerboarding, texture bias) that shift classifier decision boundaries.
+\end{itemize}
+Mitigation is evidence-driven: for example, reducing $N_{\mathrm{syn}}$, filtering low-quality samples, or improving conditional fidelity (architecture/regularization) is adopted only if it improves test performance and reduces class-wise harm.

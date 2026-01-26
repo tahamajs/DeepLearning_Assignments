@@ -1,222 +1,113 @@
 % =========================
-% report/implementation.tex  (REPLACEMENT FOR VAE + cWGAN-GP REPORT)
-% NOTE: main.tex already contains \section{Implementation}; do NOT add another \section here.
-% =========================
-\label{sec:implementation}
-
-\subsection{Objective and Scope}
-This section documents a complete, reproducible implementation of:
-(i) baseline and referenced VAEs (including enhanced-capacity objective and hierarchical latent architecture) trained on Dynamic MNIST, and
-(ii) a conditional WGAN-GP with attention and spectral normalization trained on FashionMNIST for data augmentation, followed by classifier-based evaluation.
-
-All experiments produce audit-ready artifacts: training curves (loss components), generated samples at fixed checkpoints, latent diagnostics (posterior statistics, activity measures, traversals/PCA), and classifier metrics under real-only and augmented regimes.
-
-\subsection{Repository Layout and Script Responsibilities}
-A clean separation of concerns is used to ensure traceability:
-\begin{verbatim}
-project_root/
-  src/
-    vae/
-      01_train_baseline_vae.py
-      02_train_proposed_vae.py
-      03_eval_latent_diagnostics.py
-      04_estimate_likelihood.py
-      05_visualize_pseudo_inputs.py
-    gan/
-      01_build_splits.py
-      02_train_cwgan_gp.py
-      03_generate_augmented_set.py
-      04_train_classifier.py
-      05_compare_results.py
-  data/
-    mnist_dynamic/      (or generated on-the-fly from MNIST with dynamic binarization)
-    fashionmnist/
-    splits/             (indices for non-overlapping subsets)
-  results/
-    vae/
-      curves/
-      samples/
-      latents/
-      pseudo_inputs/
-      likelihood/
-    gan/
-      curves/
-      samples/
-      augmented_data/
-      classifier/
-  report/
-    notation.tex
-    implementation.tex
-    experiments.tex
-    evaluation.tex
-    reproducibility.tex
-    references.bib
-\end{verbatim}
-
-\subsection{Software Stack and Determinism Controls}
-\paragraph{Core dependencies.}
-\begin{itemize}
-  \item PyTorch for model definition, training, and automatic differentiation.
-  \item torchvision for MNIST/FashionMNIST loading and standard transforms.
-  \item NumPy for numerics and dataset index management.
-  \item Matplotlib for report-quality plots.
-\end{itemize}
-
-\paragraph{Reproducibility controls.}
-All scripts:
-\begin{itemize}
-  \item fix random seeds (Python/NumPy/PyTorch),
-  \item log configurations (YAML/JSON) alongside outputs,
-  \item record device (CPU/GPU), PyTorch version, and commit hash (if applicable),
-  \item store dataset split indices to guarantee non-overlapping subsets.
-\end{itemize}
-
-\subsection{Part I: VAE Implementations (Dynamic MNIST)}
-\subsubsection{Dynamic MNIST data pipeline}
-Dynamic MNIST is implemented via \emph{dynamic binarization}: at each epoch/iteration, grayscale pixel intensities (in $[0,1]$) are treated as Bernoulli parameters and binarized by sampling. This prevents overfitting to a fixed binarization and is standard for likelihood-based comparisons.
-
-\subsubsection{Baseline VAE}
-\paragraph{Model parameterization.}
-We use an encoder $q_\phi(z\mid x)=\mathcal{N}(\mu_\phi(x),\mathrm{diag}(\sigma_\phi^2(x)))$ and a Bernoulli decoder $p_\theta(x\mid z)$ parameterized by a neural network producing logits (or probabilities after sigmoid).
-
-\paragraph{Objective and logging.}
-The baseline optimizes:
-\[
-\mathcal{L}_{\mathrm{ELBO}}(x)=
-\mathbb{E}_{q_\phi(z\mid x)}[\log p_\theta(x\mid z)]
--
-\mathrm{KL}(q_\phi(z\mid x)\|p(z)).
-\]
-We log $\mathcal{L}_{\mathrm{rec}}$ and $\mathcal{L}_{\mathrm{KL}}$ separately per step/epoch, along with total loss.
-
-\subsubsection{Proposed VAE: enhanced-capacity objective and hierarchical structure}
-\paragraph{Enhanced-capacity objective (learned mixture prior).}
-We implement the paper’s modification by replacing $p(z)$ with a flexible prior $p_\lambda(z)$ induced by pseudo-inputs $\{u_k\}$:
-\[
-p_\lambda(z)=\frac{1}{K}\sum_{k=1}^K q_\phi(z\mid u_k),
-\qquad
-\mathcal{L}(x)=
-\mathbb{E}_{q_\phi(z\mid x)}[\log p_\theta(x\mid z)]
--
-\mathrm{KL}(q_\phi(z\mid x)\|p_\lambda(z)).
-\]
-Pseudo-inputs are learned jointly with $\theta,\phi$ and visualized during training.
-
-\paragraph{Hierarchical latent implementation.}
-We implement a two-level hierarchy ($z_2\rightarrow z_1\rightarrow x$) as specified in the assignment/paper:
-\[
-p_\theta(x,z_1,z_2)=p_\theta(x\mid z_1)\,p_\theta(z_1\mid z_2)\,p(z_2),
-\quad
-q_\phi(z_1,z_2\mid x)=q_\phi(z_2\mid x)\,q_\phi(z_1\mid x,z_2).
-\]
-We report KL terms per level to analyze latent utilization and posterior collapse behavior.
-
-\subsubsection{Latent diagnostics and posterior collapse analysis}
-We compute:
-\begin{itemize}
-  \item posterior mean/variance summaries across the dataset,
-  \item per-dimension KL contributions and the number of \emph{active units},
-  \item PCA on latent codes and controlled latent traversals,
-  \item pseudo-input visualizations (inputs and their induced latent modes),
-  \item likelihood estimates using importance sampling (IWAE-style).
-\end{itemize}
-
-\subsection{Part II: Conditional WGAN-GP for Augmentation (FashionMNIST)}
-\subsubsection{Non-overlapping data splits}
-We construct two disjoint subsets:
-(i) a GAN subset for learning $p(x\mid y)$, and
-(ii) a classifier subset for downstream evaluation.
-Per-class sampling is implemented exactly as required (e.g., $N$ per class) and split indices are saved under \texttt{data/splits/}.
-
-\subsubsection{Architectural modules: SN, Self-Attention, Channel Attention}
-\paragraph{Spectral Normalization (SN).}
-We wrap Conv2d/ConvTranspose2d layers with SN to control the spectral norm of weights, improving critic stability.
-
-\paragraph{Self-Attention (SA).}
-SA modules follow the assignment’s tensor naming and shapes ($f,g,h,v$), compute attention maps of size $(B,N,N)$ with $N=HW$, and apply a residual connection $y=\gamma o + x$ with learnable scalar $\gamma$.
-
-\paragraph{Channel Attention (CA).}
-CA uses global average pooling, an MLP (two FC layers with ReLU), and sigmoid gating to recalibrate feature channels.
-
-\subsubsection{Conditional generator and projection discriminator}
-\paragraph{Conditional generator.}
-Class embeddings are concatenated with noise: $\tilde{z}=[z; e_G(y)]$, then mapped through the specified upsampling blocks to generate $x_{\mathrm{fake}}$.
-
-\paragraph{Projection discriminator.}
-The critic computes
-\[
-D_\omega(x,y)=s_\omega(\phi_\omega(x))+\langle \phi_\omega(x), e_D(y)\rangle,
-\]
-ensuring label conditioning via inner products in feature space.
-
-\subsubsection{WGAN-GP losses and training loop}
-\paragraph{Loss terms.}
-We implement the assignment’s exact WGAN-GP loss with:
-\begin{itemize}
-  \item Wasserstein term,
-  \item gradient penalty ($\lambda_{\mathrm{GP}}=10$),
-  \item drift penalty ($0.001$),
-  \item embedding $L_2$ penalty ($0.001$).
-\end{itemize}
-
-\paragraph{Optimization protocol.}
-We follow the specified hyperparameters:
-Adam with $\mathrm{LR}(G)=2\times10^{-4}$, $\mathrm{LR}(D)=4\times10^{-4}$, betas $(0.0,0.9)$; scheduler $\gamma=0.95$ every 100 steps; $N_{\mathrm{critic}}=5$ critic steps per generator step; fixed noise/labels for checkpoint grids at steps $\{0,1000,2000,3000,4000\}$.
-
-\subsubsection{Augmentation and classifier evaluation}
-We generate a controlled number of synthetic samples per class from the trained generator, build an augmented training set (real + synthetic), and train the same classifier architecture under both regimes. Evaluation is performed on the unchanged FashionMNIST test set. We report overall accuracy and class-wise performance, supported by confusion matrices and per-class error rates where relevant.
-
-
-
-% =========================
-% report/experiments.tex  (REPLACEMENT FOR VAE + cWGAN-GP REPORT)
-% NOTE: main.tex already has a Data/Protocol section; keep this file at \subsection level.
+% report/implementation.tex  (CODEBASE EXPLANATION)
 % =========================
 
-\subsection{Datasets}
-\paragraph{Dynamic MNIST.}
-Dynamic MNIST is derived from MNIST by sampling a binarized image at each iteration using pixel intensities as Bernoulli parameters. This yields a stochastic training set that prevents models from overfitting a fixed binarization and is standard for likelihood-based evaluation.
+\section{Implementation Details and Codebase Walkthrough}
+This section documents the code modules that implement the datasets, metrics, reproducibility utilities, and model architectures. The goal is to ensure that every reported experimental claim can be traced to a specific implementation component.
 
-\paragraph{FashionMNIST (limited-data regime).}
-FashionMNIST is used for conditional generation and augmentation. All images are normalized using:
+\subsection{\texttt{deepgen/data.py}: Datasets, transforms, and loaders}
+\paragraph{Purpose.}
+This module defines the preprocessing transforms and PyTorch \texttt{DataLoader} objects used throughout training and evaluation.
+
+\paragraph{Transform definition: \texttt{mnist\_transforms}.}
+The function \texttt{mnist\_transforms(scale\_to\_minus1\_1)} composes:
+\begin{itemize}
+  \item \texttt{ToTensor}: converts PIL images to float tensors in $[0,1]$,
+  \item optional \texttt{Normalize(mean=0.5,std=0.5)}: maps $[0,1]\rightarrow[-1,1]$ using $x\mapsto (x-0.5)/0.5$.
+\end{itemize}
+This range convention is essential because the GAN generator outputs $\tanh(\cdot)\in[-1,1]$, and the VAE encoder in this project is written assuming inputs in $[-1,1]$. When the VAE reconstruction uses BCE against sigmoid outputs, targets are converted back to $[0,1]$ as $(x+1)/2$ inside the loss.
+
+\paragraph{Loader construction: \texttt{get\_mnist\_loaders}.}
+\texttt{get\_mnist\_loaders} downloads MNIST via \texttt{torchvision.datasets.MNIST} and returns two loaders (train/test). Key scientific/engineering choices:
+\begin{itemize}
+  \item \textbf{Shuffling:} training data is shuffled to reduce gradient bias.
+  \item \textbf{drop\_last=True (train):} ensures consistent batch size; this is often important for stable adversarial training and for batchnorm behavior.
+  \item \textbf{pin\_memory:} enabled only when CUDA is available to speed host-to-device transfers.
+  \item \textbf{train\_subset:} allows controlled small-data experiments by restricting training indices to \texttt{range(train\_subset)}; this must be logged to preserve interpretability of limited-regime results.
+\end{itemize}
+
+\subsection{\texttt{deepgen/metrics.py}: Feature extraction and FID-like distance}
+\paragraph{Purpose.}
+This module computes a Fréchet-distance-style metric in a learned feature space, analogous to FID, but using a project-specific feature extractor rather than Inception.
+
+\paragraph{\texttt{extract\_features}.}
+Given a \texttt{feature\_model} and a \texttt{DataLoader}, this function:
+\begin{itemize}
+  \item switches to eval mode and disables gradients,
+  \item forwards batches through the model with \texttt{return\_features=True},
+  \item aggregates features into a NumPy array of shape $(N,D)$.
+\end{itemize}
+This yields a deterministic feature matrix when seeds and threading are controlled.
+
+\paragraph{Covariance and matrix square root.}
+The helper \texttt{\_covariance} computes empirical mean and covariance with Bessel correction. The function \texttt{\_sqrtm\_psd} computes the symmetric PSD square root using eigen-decomposition with eigenvalue clipping for numerical stability.
+
+\paragraph{\texttt{fid\_like}.}
+Given real features and fake features, the metric is:
 \[
-x \leftarrow \frac{x-0.5}{0.5},
+\|\mu_r-\mu_f\|_2^2 + \mathrm{Tr}\Big(\Sigma_r+\Sigma_f-2(\Sigma_r^{1/2}\Sigma_f\Sigma_r^{1/2})^{1/2}\Big),
 \]
-matching the assignment’s transform specification.
+with diagonal jitter $\epsilon I$ added to covariances. This is a standard Fréchet distance formula; in this project it should be interpreted as a \emph{FID-like proxy} dependent on the chosen feature model (e.g., LeNet penultimate features), and must be reported with that caveat.
 
-\subsection{Train/Validation/Test Protocol}
-\paragraph{VAE.}
-VAEs are trained on the Dynamic MNIST training split. Where needed, a validation subset is used for early diagnostics (without altering test evaluation). Final reporting uses held-out test evaluation for likelihood estimation and latent analysis.
+\subsection{\texttt{deepgen/utils.py}: Reproducibility utilities and checkpointing}
+\paragraph{Determinism controls.}
+\texttt{set\_seed(seed)} sets Python, NumPy, and Torch seeds, and forces CuDNN determinism (at possible speed cost). This is required for scientifically defensible comparisons of GAN/VAE runs, since nondeterminism can otherwise dominate observed variance.
 
-\paragraph{GAN augmentation.}
-The FashionMNIST training set is split into two \emph{non-overlapping} subsets:
+\paragraph{Device selection.}
+\texttt{get\_device("auto")} chooses CUDA when available, otherwise CPU, ensuring a single codepath with logged hardware dependence.
+
+\paragraph{Atomic checkpoint saving.}
+\texttt{\_atomic\_torch\_save} writes checkpoints to a temporary file and then atomically renames it, preventing partial/corrupted checkpoints if the process crashes mid-write.
+
+\paragraph{RNG state capture/restore.}
+\texttt{capture\_rng\_state} and \texttt{restore\_rng\_state} store/restore Python/NumPy/Torch RNG states (and CUDA RNG if available). This enables exact continuation of training trajectories from checkpoints.
+
+\paragraph{Checkpoint schema.}
+\texttt{save\_checkpoint} stores:
 \begin{itemize}
-  \item GAN subset: used exclusively to train the conditional WGAN-GP.
-  \item Classifier subset: used to train the downstream classifier (baseline and augmented).
+  \item model state dict,
+  \item optimizer state dict (optional),
+  \item extra metadata (optional),
+  \item RNG state,
+  \item torch version string.
 \end{itemize}
-The split is stratified by class and uses the exact per-class sampling required by the assignment. Split indices are saved for reproducibility.
+This schema is sufficient for scientific reproducibility and audit trails.
 
-\subsection{Experimental Settings}
-\paragraph{VAE experiments.}
-We run:
-\begin{itemize}
-  \item baseline VAE with low-dimensional $d$,
-  \item proposed model (enhanced objective + hierarchy) with the same $d$,
-  \item proposed model with high-dimensional latent (e.g., $d=40$ as required).
-\end{itemize}
-For each run we export: training curves (reconstruction/KL/total), generated samples, posterior statistics, active units, PCA/traversals, pseudo-input visualizations, and likelihood estimates.
+\paragraph{AverageMeter.}
+\texttt{AverageMeter} tracks running averages for losses/metrics; it is used to report stable epoch-level summaries rather than noisy per-step values.
 
-\paragraph{GAN experiments.}
-We train the conditional WGAN-GP for $\mathrm{RUN}=4000$ steps with $N_{\mathrm{critic}}=5$ and log:
-critic loss, generator loss, Wasserstein estimate, gradient penalty, drift term, and embedding regularization. Samples are saved at steps $\{0,1000,2000,3000,4000\}$ using fixed noise and fixed labels.
+\subsection{\texttt{deepgen/models/blocks.py}: Reusable neural building blocks}
+\paragraph{SEBlock (channel attention).}
+\texttt{SEBlock} implements squeeze-and-excitation gating: global average pooling creates a channel descriptor, then a bottleneck MLP and sigmoid gate produce channel-wise weights that modulate the input. This improves representational efficiency by emphasizing informative channels.
 
-\subsection{Artifacts and Output Contract}
-All experiments write:
-\begin{itemize}
-  \item plots under \texttt{results/*/curves/},
-  \item samples/grids under \texttt{results/*/samples/},
-  \item latent diagnostics under \texttt{results/vae/latents/},
-  \item pseudo-input visualizations under \texttt{results/vae/pseudo\_inputs/},
-  \item classifier metrics under \texttt{results/gan/classifier/}.
-\end{itemize}
+\paragraph{ResidualBlock.}
+\texttt{ResidualBlock} provides two conv-bn layers plus an optional SE module and a skip path. When \texttt{downsample=True}, stride=2 is used and the skip path becomes a $1\times 1$ strided conv. This supports deep encoders/decoders with stable gradients.
 
+\paragraph{SelfAttention2d.}
+\texttt{SelfAttention2d} computes attention across spatial positions (SAGAN-style). It builds query/key/value projections and uses a residual connection with a learnable scalar \texttt{gamma}, allowing the network to gradually introduce non-local interactions as training stabilizes.
+
+\subsection{\texttt{deepgen/models/classifier.py}: Feature extractor and classifier (LeNet5)}
+\paragraph{Purpose.}
+\texttt{LeNet5} serves two roles:
+(i) a baseline classifier for MNIST-like data, and
+(ii) a feature extractor for \texttt{fid\_like} when called with \texttt{return\_features=True}.
+
+\paragraph{Feature interface.}
+The model exposes penultimate features (dimension 84) via \texttt{return\_features}. This is the representation used for feature-space evaluation in \texttt{deepgen/metrics.py}. Any reported FID-like score must explicitly state that features are LeNet-based.
+
+\subsection{\texttt{deepgen/models/gan.py}: Conditional WGAN-GP with projection discriminator}
+\paragraph{Generator.}
+The generator embeds labels and adds them to noise, projects to a $7\times 7$ feature map, upsamples via residual-style blocks, applies self-attention, and outputs $\tanh$-bounded images in $[-1,1]$.
+
+\paragraph{Discriminator (critic).}
+The projection discriminator computes pooled features and adds an inner product with a label embedding. This is a standard conditional design that is parameter-efficient and empirically stable.
+
+\paragraph{Gradient penalty.}
+\texttt{gradient\_penalty} constructs interpolates $\hat{x}$ and enforces $\|\nabla_{\hat{x}}D(\hat{x},y)\|_2\approx 1$. This is the core WGAN-GP regularizer for Lipschitz control.
+
+\subsection{\texttt{deepgen/models/vae.py}: VAE with VampPrior}
+\paragraph{Encoder/decoder.}
+The encoder outputs $(\mu,\log\sigma^2)$. The decoder outputs sigmoid pixels in $(0,1)$.
+
+\paragraph{VampPrior pseudo-inputs.}
+Pseudo-inputs are learned image-shaped parameters. Sampling selects a pseudo-input, encodes it to get $(\mu,\log\sigma^2)$, samples $z$, and decodes. The KL term is computed against the mixture prior using log-sum-exp, which is numerically stable and aligns with the VampPrior definition.

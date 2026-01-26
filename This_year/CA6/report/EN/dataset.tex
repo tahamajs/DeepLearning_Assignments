@@ -1,66 +1,165 @@
 % =========================
-% report/dataset.tex  (REPLACEMENT FOR VAE + cWGAN-GP REPORT)
+% report/dataset.tex  (UPDATED + ALIGNED WITH deepgen/data.py)
 % =========================
 
+\section{Datasets and Data Loading}
+\label{sec:dataset}
+
 \subsection{Datasets}
-This report uses two standard vision datasets selected to match the two tasks:
+This report uses two standard vision datasets, chosen to match the two tasks in the assignment:
 (i) likelihood-based generative modeling and latent analysis (Dynamic MNIST), and
-(ii) conditional generation for augmentation with limited labeled data (FashionMNIST).
+(ii) conditional generation for augmentation under limited labeled data (FashionMNIST).
+
+All experiments use the canonical 28$\times$28 single-channel (grayscale) image format. For computational reproducibility, we fix preprocessing and data-loading conventions (normalization range, batching policy, and optional subset selection) and log the exact settings used in each run.
 
 \subsubsection{Dynamic MNIST}
-Dynamic MNIST is derived from the MNIST handwritten digits dataset (28$\times$28 grayscale). Instead of using a single fixed binarization, each image is binarized \emph{stochastically} at each presentation using the pixel intensity as a Bernoulli parameter:
+\label{subsec:dynamic_mnist}
+Dynamic MNIST is derived from the MNIST handwritten digits dataset \cite{LeCun1998MNIST}. In contrast to a \emph{fixed} binarization (where each grayscale image is thresholded once and stored as a static binary image), Dynamic MNIST uses \emph{stochastic binarization} at each presentation. Concretely, let $x^{\mathrm{gray}} \in [0,1]^D$ denote the normalized grayscale image (flattened to $D=784$ pixels). Each training step generates a binary sample $x \in \{0,1\}^D$ via pixel-wise Bernoulli sampling:
 \[
-x_i \sim \mathrm{Bernoulli}(x^{\mathrm{gray}}_i),\quad i=1,\dots,D.
+x_i \sim \mathrm{Bernoulli}\!\left(x^{\mathrm{gray}}_i\right), \quad i=1,\dots,D.
 \]
-This yields a distribution over binary images that more faithfully reflects uncertainty in pixel values and is widely used in likelihood-based generative modeling studies. The dataset is used to evaluate:
+This yields a distribution over binary images per underlying grayscale digit and is widely used in likelihood-based generative modeling because it avoids treating an arbitrary single thresholding as ground truth. In this report, Dynamic MNIST is used to evaluate:
 \begin{itemize}
-  \item baseline VAE vs proposed VAE objective/architecture,
-  \item low-dimensional vs high-dimensional latent settings,
-  \item posterior behavior, collapse indicators, and likelihood estimates.
+  \item the baseline VAE objective vs.\ the modified objective and hierarchical structure required by the assignment,
+  \item low-dimensional vs.\ high-dimensional latent settings,
+  \item posterior behavior (KL diagnostics, latent activity, collapse indicators),
+  \item log-likelihood estimation using importance-weighted estimators.
 \end{itemize}
 
+\paragraph{Important implementation note (dynamic vs.\ static).}
+If the data pipeline loads only fixed images without Bernoulli resampling, the dataset becomes \emph{static} (deterministic) and no longer matches the Dynamic MNIST protocol. Therefore, Dynamic MNIST must apply the Bernoulli sampling either as a dataset transform or inside the training loop before computing the reconstruction loss.
+
 \subsubsection{FashionMNIST}
-FashionMNIST contains 28$\times$28 grayscale images across 10 clothing categories (e.g., T-shirt/top, trouser, pullover). It is used for conditional image generation and augmentation. Images are normalized to $[-1,1]$ using:
+\label{subsec:fashion_mnist}
+FashionMNIST contains 28$\times$28 grayscale images from 10 clothing categories (e.g., T-shirt/top, trouser, pullover) \cite{Xiao2017FashionMNIST}. It is used for class-conditional generation and augmentation because it supports clear label conditioning and direct measurement of downstream classification generalization.
+
+To match the GAN specification, inputs are normalized to $[-1,1]$:
 \[
 x \leftarrow \frac{x-0.5}{0.5}.
 \]
-FashionMNIST supports clean class-conditional evaluation and direct measurement of augmentation effects on classifier generalization.
+This normalization is consistent with a generator output activation $\tanh(\cdot)$ producing samples in $[-1,1]$.
+
+\subsection{Data Loading and Preprocessing Implementation (\texttt{deepgen/data.py})}
+\label{subsec:data_py_alignment}
+
+This project uses a minimal, auditable PyTorch data-loading implementation. The file \texttt{deepgen/data.py} provides two core utilities: (i) a consistent transform stack for MNIST-like datasets, and (ii) train/test \texttt{DataLoader} construction with controlled batching behavior.
+
+\subsubsection{Transform definition: \texttt{mnist\_transforms}}
+\label{subsubsec:mnist_transforms}
+The function
+\texttt{mnist\_transforms(scale\_to\_minus1\_1: bool)}
+returns a composed transform:
+\begin{itemize}
+  \item \textbf{\texttt{transforms.ToTensor()}:} converts a PIL image to a torch tensor in $[0,1]$, with shape $(1,28,28)$.
+  \item \textbf{\texttt{transforms.Normalize(mean=(0.5,), std=(0.5,))}:} if enabled, maps the tensor from $[0,1]$ to $[-1,1]$ via
+  \(
+    x \mapsto (x-0.5)/0.5.
+  \)
+\end{itemize}
+
+\paragraph{Scientific rationale.}
+\begin{itemize}
+  \item For GAN training, $[-1,1]$ scaling is standard when the generator output uses $\tanh$, improving numerical stability and making the data range consistent with model outputs.
+  \item For VAE training, the reconstruction likelihood for Bernoulli decoders typically assumes targets in $[0,1]$. If the pipeline stores inputs in $[-1,1]$, the reconstruction target must be converted back to $[0,1]$ (as done in the VAE loss implementation by mapping $(x+1)/2$).
+\end{itemize}
+
+\subsubsection{Loader construction: \texttt{get\_mnist\_loaders}}
+\label{subsubsec:get_mnist_loaders}
+The function
+\texttt{get\_mnist\_loaders(root, batch\_size, num\_workers, train\_subset, scale\_to\_minus1\_1, pin\_memory)}
+constructs two loaders (train and test), using the same transform stack:
+
+\paragraph{Dataset objects.}
+\begin{itemize}
+  \item \textbf{Training set:} \texttt{datasets.MNIST(train=True, download=True, transform=tfm)}.
+  \item \textbf{Test set:} \texttt{datasets.MNIST(train=False, download=True, transform=tfm)}.
+\end{itemize}
+
+\paragraph{Optional subset selection (\texttt{train\_subset}).}
+If \texttt{train\_subset} is provided, the code wraps the training dataset in \texttt{torch.utils.data.Subset} using the first \texttt{train\_subset} indices. This feature is intended for:
+\begin{itemize}
+  \item rapid debugging (short runs to validate losses, shapes, and logging),
+  \item ablations under limited data regimes,
+  \item controlled experiments where dataset size is an independent variable.
+\end{itemize}
+The implementation explicitly checks \texttt{train\_subset > 0} to prevent silent empty datasets.
+
+\paragraph{DataLoader policy (train).}
+The training \texttt{DataLoader} is created with:
+\begin{itemize}
+  \item \textbf{\texttt{shuffle=True}:} ensures SGD sees randomized mini-batches.
+  \item \textbf{\texttt{drop\_last=True}:} enforces fixed batch size, which simplifies:
+  (i) batch-norm statistics consistency,
+  (ii) logging alignment across steps,
+  (iii) gradient penalty code (in GANs) that often assumes stable batch shapes.
+  \item \textbf{\texttt{pin\_memory}:} enabled only when CUDA is available, improving host-to-device transfer throughput.
+  \item \textbf{\texttt{num\_workers}:} controls parallel data loading; this can affect throughput but should not affect correctness when determinism controls are used (see \Cref{sec:reproducibility}).
+\end{itemize}
+
+\paragraph{DataLoader policy (test).}
+The test \texttt{DataLoader} uses:
+\begin{itemize}
+  \item \textbf{\texttt{shuffle=False}:} deterministic evaluation order.
+  \item \textbf{\texttt{drop\_last=False}:} preserves all test samples to avoid biased evaluation.
+\end{itemize}
+
+\subsubsection{How Dynamic MNIST fits this implementation}
+\label{subsubsec:dynamic_mnist_in_code}
+The provided \texttt{deepgen/data.py} pipeline loads MNIST images as continuous tensors (in $[0,1]$ after \texttt{ToTensor}, optionally mapped to $[-1,1]$). To obtain \textbf{Dynamic MNIST}, a Bernoulli sampling step must be applied \emph{per iteration}. Scientifically, this can be implemented in one of two equivalent ways:
+
+\paragraph{Option A (transform-level dynamic binarization).}
+Insert a stochastic transform between \texttt{ToTensor} and \texttt{Normalize}. This ensures each \texttt{\_\_getitem\_\_} produces a newly sampled binary image.
+
+\paragraph{Option B (training-loop dynamic binarization).}
+Keep the dataset in grayscale, and at each step sample:
+\[
+x \leftarrow \mathbf{1}\{u < x^{\mathrm{gray}}\},\quad u\sim \mathrm{Uniform}(0,1),
+\]
+then (optionally) rescale to match the model input convention. This approach makes the stochasticity explicit in the training procedure and is often preferred when one wants to log both the underlying grayscale and sampled binary realizations.
+
+\paragraph{Consistency with the VAE likelihood model.}
+If the decoder likelihood is Bernoulli (binary cross-entropy reconstruction), then the training target must be in $[0,1]$ and interpreted as a binary sample (or a Bernoulli parameterization if using continuous relaxation). Therefore, when the input tensor is stored in $[-1,1]$ for shared code reuse, the VAE loss must map it back to $[0,1]$ before BCE, which is exactly why the VAE code uses:
+\[
+x_{01} = (x + 1)/2.
+\]
 
 \subsection{Limited-data regime and non-overlapping splits (FashionMNIST)}
-To simulate limited labeled data and to ensure the augmentation experiment is scientifically valid, we construct two \emph{non-overlapping} subsets of the FashionMNIST training set:
+\label{subsec:limited_data_splits}
+To simulate limited labeled data and ensure scientifically valid augmentation evaluation, we construct two \emph{non-overlapping} subsets from the FashionMNIST training set \cite{Xiao2017FashionMNIST}:
 \begin{itemize}
   \item $\mathcal{D}_{\mathrm{GAN}}$: used exclusively to train the conditional WGAN-GP generator/critic.
   \item $\mathcal{D}_{\mathrm{CLS}}$: used exclusively to train the downstream classifier.
 \end{itemize}
-The subsets are stratified by class, and the per-class sample counts follow the assignment specification (e.g., $N$ samples per class). The index lists of both subsets are saved to disk (e.g., \texttt{data/splits/}) and reused for all runs. This prevents accidental overlap and eliminates a key confounder: if $\mathcal{D}_{\mathrm{GAN}} \cap \mathcal{D}_{\mathrm{CLS}} \neq \emptyset$, the generator can effectively memorize classifier training examples, and ``augmentation'' would not be an independent distributional expansion.
+Both subsets are stratified by class. The per-class sample count follows the assignment specification (e.g., $N$ samples per class). We persist the selected indices to disk (e.g., \texttt{data/splits/gan\_idx.pt} and \texttt{data/splits/cls\_idx.pt}) and reuse them for all runs. This prevents accidental leakage:
+\[
+\mathcal{D}_{\mathrm{GAN}} \cap \mathcal{D}_{\mathrm{CLS}} = \emptyset.
+\]
+This constraint is essential; if overlap exists, the generator can memorize examples that the classifier sees during training, and the ``augmentation'' would not represent an independent distributional expansion.
 
 \subsection{Train/Validation/Test protocol}
+\label{subsec:protocol}
+
 \paragraph{VAE (Dynamic MNIST).}
-Models are trained on the training split. Evaluation uses a held-out test split for:
-(i) likelihood estimation (importance-weighted estimator),
-(ii) latent diagnostics (posterior statistics and PCA/traversals),
-(iii) qualitative sample generation. If a validation set is used for hyperparameter selection (e.g., learning rates, architecture depth), it is formed only from the training split to preserve test integrity.
+Models are trained on the training split. Evaluation uses the held-out test split for:
+(i) ELBO decomposition and KL diagnostics,
+(ii) importance-weighted log-likelihood estimates,
+(iii) latent analysis (posterior statistics, PCA/traversals),
+(iv) qualitative sampling. If a validation set is used for hyperparameter selection, it is drawn only from the training split to preserve test integrity.
 
 \paragraph{GAN augmentation (FashionMNIST).}
 \begin{itemize}
   \item The GAN is trained only on $\mathcal{D}_{\mathrm{GAN}}$.
-  \item The classifier is trained only on $\mathcal{D}_{\mathrm{CLS}}$ (real-only baseline) or on $\mathcal{D}_{\mathrm{CLS}}$ plus synthetic samples generated by the trained GAN (augmented condition).
-  \item Final evaluation is performed on the untouched FashionMNIST test set, which contains only real samples.
-\end{itemize}
-
-\subsection{Ground truth and evaluation endpoints}
-Both tasks use standard, unambiguous evaluation endpoints:
-\begin{itemize}
-  \item \textbf{VAE:} ELBO decomposition, importance-sampled log-likelihood estimates, posterior/latent diagnostics, and qualitative sampling.
-  \item \textbf{GAN augmentation:} classifier test accuracy and class-wise performance on real test data, plus training diagnostics (Wasserstein estimate, GP, drift, embedding regularization) and fixed-noise sample grids at specified checkpoints.
+  \item The classifier is trained on $\mathcal{D}_{\mathrm{CLS}}$ (real-only baseline) or on $\mathcal{D}_{\mathrm{CLS}}$ plus synthetic samples generated by the trained GAN (augmented condition).
+  \item Final evaluation uses the untouched FashionMNIST test set containing only real samples.
 \end{itemize}
 
 \subsection{Dataset integrity checks}
-Before training, we perform the following checks and log them:
+\label{subsec:integrity_checks}
+Before training, we perform and log:
 \begin{itemize}
-  \item class balance in $\mathcal{D}_{\mathrm{GAN}}$ and $\mathcal{D}_{\mathrm{CLS}}$,
-  \item confirmation of zero overlap between splits,
-  \item normalization range verification (min/max and histogram sanity checks),
-  \item sample visualizations after preprocessing (to detect transform mistakes).
+  \item class balance verification in $\mathcal{D}_{\mathrm{GAN}}$ and $\mathcal{D}_{\mathrm{CLS}}$,
+  \item explicit confirmation of zero overlap between splits (intersection cardinality equals zero),
+  \item normalization range checks (min/max; optionally histograms) to verify $[0,1]$ or $[-1,1]$ as intended,
+  \item visual sanity checks after preprocessing (random grids) to detect transform mistakes.
 \end{itemize}
-These checks prevent common implementation errors that can invalidate generative modeling comparisons or augmentation conclusions.
+These checks mitigate common implementation errors that can invalidate generative model comparisons or augmentation conclusions.

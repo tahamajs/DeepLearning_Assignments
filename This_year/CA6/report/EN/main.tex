@@ -6,27 +6,67 @@
 %   bibtex main
 %   pdflatex main.tex
 %   pdflatex main.tex
+%
+% (Optional, recommended) If you have latexmk:
+%   latexmk -pdf -bibtex -interaction=nonstopmode main.tex
 
 \documentclass[11pt]{article}
 
+% -------------------------
+% Encoding + font (pdflatex-safe)
+% -------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% -------------------------
+% Page layout
+% -------------------------
 \usepackage[a4paper,margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% -------------------------
+% Core math + symbols
+% -------------------------
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+
+% -------------------------
+% Figures, tables, captions
+% -------------------------
 \usepackage{graphicx}
 \usepackage{subcaption}
-\usepackage{amsmath,amssymb}
 \usepackage{booktabs}
-\usepackage{natbib}
 \usepackage{siunitx}
-\usepackage{hyperref}
-\usepackage[nameinlink,noabbrev]{cleveref}
-\usepackage{xcolor}
-\usepackage{listings}
+\sisetup{
+  detect-all,
+  per-mode=symbol,
+  range-phrase=--,
+  range-units=single
+}
+
+% -------------------------
+% Better lists
+% -------------------------
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=*, topsep=4pt, itemsep=2pt}
+\setlist[enumerate]{leftmargin=*, topsep=4pt, itemsep=2pt}
+
+% -------------------------
+% Plots/tables from CSV
+% -------------------------
 \usepackage{pgfplotstable}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 
-\graphicspath{{../results/}{../results/figures/}{../results/overlays/}{../results/matches/}}
+% -------------------------
+% Code listings (Python)
+% -------------------------
+\usepackage{listings}
+\usepackage{xcolor}
 
-% Listings style for Python
 \lstdefinestyle{py}{
   language=Python,
   basicstyle=\ttfamily\small,
@@ -41,10 +81,51 @@
 }
 \lstset{style=py}
 
+% -------------------------
+% Citations + hyperlinks
+% -------------------------
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% Hyperref styling (clean, print-friendly)
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!55!black,
+  citecolor=blue!55!black,
+  urlcolor=blue!55!black,
+  pdftitle={Variational Autoencoders with Enhanced Capacity and Conditional GANs for Data Augmentation under Limited Data Regimes},
+  pdfauthor={(Author Name)},
+  pdfsubject={Generative Modeling: VAE and Conditional WGAN-GP},
+  pdfkeywords={VAE, VampPrior, IWAE, Conditional GAN, WGAN-GP, Data Augmentation}
+}
+\urlstyle{same}
+
+% -------------------------
+% Header/footer (professional report style)
+% -------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small Generative Modeling Report}
+\rhead{\small \thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% -------------------------
+% Graphics paths
+% -------------------------
+\graphicspath{{../results/}{../results/figures/}{../results/overlays/}{../results/matches/}}
+
+% -------------------------
+% Project macros (Safe figures/tables/listings, placeholders)
+% -------------------------
 \input{macros}
 
-\title{Variational Autoencoders with Enhanced Capacity and Conditional GANs for Data Augmentation under Limited Data Regimes}
-\author{(Author Name) \\ (Affiliation) \\ (Email)}
+% -------------------------
+% Title block
+% -------------------------
+\title{\textbf{Variational Autoencoders with Enhanced Capacity and Conditional GANs for Data Augmentation under Limited Data Regimes}}
+\author{(Author Name) \\ (Affiliation) \\ \texttt{(Email)}}
 \date{\today}
 
 \begin{document}
@@ -54,9 +135,13 @@
 \input{abstract}
 \end{abstract}
 
+\clearpage
 \tableofcontents
-\newpage
+\clearpage
 
+% -------------------------
+% Main Sections
+% -------------------------
 \section{Introduction}
 \input{introduction}
 
@@ -98,14 +183,23 @@
 \section{Conclusion}
 \input{conclusion}
 
+\clearpage
 \section*{Acknowledgements}
 \input{acknowledgements}
 
+% -------------------------
+% Appendix
+% -------------------------
+\clearpage
 \appendix
 \section{Appendix}
 \input{appendix}
 
-\bibliographystyle{ieeetr}
+% -------------------------
+% References
+% -------------------------
+\clearpage
+\bibliographystyle{unsrtnat}
 \bibliography{references}
 
 \end{document}

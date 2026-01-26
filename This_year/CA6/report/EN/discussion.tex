@@ -1,45 +1,139 @@
 % =========================
-% report/discussion.tex
+% report/discussion.tex  (UPDATED, MORE COMPLETE + SCIENTIFIC)
 % =========================
 
+\section{Discussion}
+\label{sec:discussion}
+
 \subsection{Assumptions and Validity Domain}
-The feature-based template-to-photo alignment method is grounded in the assumption that the relevant template surface is either planar or sufficiently close to planar within the required geometric tolerance. This assumption ensures that a single homography transformation can accurately map points from the template image $\mathcal{I}_T$ to the query photograph $\mathcal{I}_Q$. In cases where the surface deviates significantly from planarity (e.g., curved surfaces, significant depth variation), the homography model becomes inadequate, and the residual errors will persist even with the most accurate feature matching.
+\label{subsec:assumptions_validity}
+The proposed template-to-photograph alignment pipeline is a classical \emph{feature-based registration} system whose core geometric model is a single planar projective transformation (homography) $\mathbf{H}\in\mathbb{R}^{3\times 3}$ \citep{HartleyZisserman2004}. The modeling assumption is therefore:
 
-The validity of this method is most effective when applied to scenarios where the subject’s physical surface exhibits minimal variation in depth, or where such variation can be reasonably approximated as a planar region (e.g., flat parts in industrial or architectural images). The assumption holds particularly well for cases like technical drawings, blueprints, and map alignment, where the geometry of the template and photograph is typically controlled or constrained to lie within a planar view.
+\begin{quote}
+\emph{All geometrically relevant points used for alignment lie on (or can be approximated by) a single plane in 3D space, as observed by a pinhole-like camera model.}
+\end{quote}
 
-\subsection{Limitations}
-Key limitations of the method include:
+Under this assumption, a homography provides an exact mapping between two images of the same planar surface. In practice, ``approximately planar'' is acceptable when deviations from planarity produce reprojection errors below the operational tolerance $\delta$ (e.g., a few pixels at the working resolution). RANSAC-based estimation further assumes that a sufficient fraction of putative correspondences are inliers (i.e., consistent with a common $\mathbf{H}$) to enable robust recovery in the presence of outliers \citep{FischlerBolles1981}.
+
+\paragraph{When the assumption is valid.}
+The method is expected to perform well when:
 \begin{itemize}
-  \item \textbf{Sensitivity to glare, low texture, and repetitive patterns:} Local feature detectors like ORB can struggle with poorly textured regions or repetitive patterns that do not provide sufficiently distinctive keypoints for matching \citep{Rublee2011ORB}. Additionally, glare or reflections may obscure the visual details necessary for accurate feature extraction.
-  \item \textbf{Performance degradation under large perspective changes or partial occlusions:} The method assumes that the template and photo align relatively well with each other. Significant changes in viewpoint (e.g., extreme tilt or rotation) or occlusions (where parts of the template or object are hidden) may lead to mismatched correspondences or loss of keypoint detectability, severely degrading performance.
-  \item \textbf{Dependence on template quality:} The quality of the template image is crucial to the method’s performance. Issues like inconsistent line thickness, poor contrast, or scale mismatches can negatively affect keypoint detection and matching, making alignment less reliable. Template standardization (e.g., scaling, contrast normalization) is required to reduce this variability.
+  \item the imaged part face is flat (industrial plates, panels, PCB faces, printed labels), or the region of interest can be restricted to a near-planar patch;
+  \item the camera viewpoint changes are moderate so that local appearance remains matchable by the chosen features (ORB by default);
+  \item there is sufficient \emph{repeatable local structure} (edges, corners, junctions, text/markings) to support stable keypoint detection and descriptor matching.
 \end{itemize}
 
-These limitations suggest that the method may be less robust in uncontrolled environments where illumination, viewpoint, or occlusions are highly variable. The performance can also degrade in cases where the template quality is suboptimal, requiring additional preprocessing or enhancement steps.
-
-\subsection{Mitigation Strategies (Evidence-Driven)}
-Mitigation strategies should only be adopted if they lead to a measurable reduction in tail failures and improved alignment success under the specified tolerance. The following strategies are evidence-driven and supported by ablation studies:
+\paragraph{When the assumption is violated.}
+A single homography becomes inadequate in common real-world cases:
 \begin{itemize}
-  \item \textbf{Region of Interest (ROI) gating:} To suppress background correspondences and improve the accuracy of alignment in cluttered scenes, ROI gating can be applied to restrict matching to the part region of interest. This approach has shown to significantly reduce the number of incorrect matches from irrelevant background features.
-  \item \textbf{Parameter selection based on ablation studies:} Choosing optimal parameters (e.g., ORB number of features, RANSAC threshold) based on experimental stability regions helps identify the values where the method is most robust and reduces the likelihood of parameter overfitting. The parameter ranges tested should be informed by the ablation studies, which provide insights into how performance varies under different settings.
-  \item \textbf{Template enhancement techniques:} Enhancing the template image can help mitigate alignment difficulties. For instance, applying contrast normalization (e.g., CLAHE) can improve keypoint stability in low-contrast regions, while multi-variant templates (representing different scales or rotations) can be used when the template is expected to appear in various orientations.
+  \item \textbf{Non-planar geometry / parallax:} curved surfaces, protrusions, and large depth variation induce parallax that cannot be modeled by one $\mathbf{H}$, producing systematic residuals even when correspondences are locally correct \citep{HartleyZisserman2004}.
+  \item \textbf{Strong occlusion / truncation:} insufficient overlap reduces the number of valid inliers, increasing estimator variance and failure probability.
+  \item \textbf{Severe viewpoint changes:} appearance changes can break descriptor invariances, reducing match quality and inlier ratios.
 \end{itemize}
 
-These strategies aim to improve the system’s robustness and accuracy under challenging conditions. However, the decision to adopt them should be based on clear empirical evidence from performance analysis and ablation studies.
+Accordingly, the \emph{validity domain} of the pipeline should be stated explicitly in the report: it is a robust planar registration method whose correctness is bounded by planarity, overlap, and feature repeatability.
 
-\subsection{Threats to Validity}
-The main threats to the validity of the method include:
+\subsection{Limitations and Failure Modes}
+\label{subsec:limitations}
+The primary limitations arise from the interaction of (i) local-feature matching, (ii) robust estimation, and (iii) photometric/scene conditions.
+
+\paragraph{(L1) Sensitivity to low texture, glare, and repetitive patterns.}
+ORB is efficient and effective in many CPU-constrained scenarios, but its discriminative power depends on stable gradient structure and distinctive local neighborhoods \citep{Rublee2011ORB}. In low-texture regions, keypoint density drops, and the correspondence set becomes too small for stable homography estimation. Specular highlights and glare can destroy repeatability by saturating intensities and altering local gradients. Repetitive patterns create \emph{ambiguous} descriptors, increasing the probability of geometrically plausible but semantically incorrect homographies.
+
+\paragraph{(L2) Degradation under large perspective changes and partial occlusions.}
+Large viewpoint changes can (i) reduce overlap between template and photo, (ii) induce anisotropic scaling and foreshortening that harms descriptor matching, and (iii) lower the inlier ratio. Partial occlusions reduce the effective correspondence set and can cause RANSAC to select incorrect hypotheses due to insufficient inlier support \citep{FischlerBolles1981}.
+
+\paragraph{(L3) Dependence on template quality and standardization.}
+Because the template is one half of the matching problem, its rendering quality materially affects keypoint extraction and descriptor stability. Inconsistent line thickness, aliasing, poor contrast, or scale mismatches reduce matchability. Standardization (resolution normalization, contrast normalization, and consistent interpolation rules) is therefore not optional; it is a prerequisite for fair and stable evaluation.
+
+\paragraph{(L4) Parameter sensitivity and latent ``overfitting'' via tuning.}
+Even though the method is not learned end-to-end, its performance depends on parameters (resolution, ORB \texttt{nfeatures}, RANSAC $\tau$, match filtering thresholds). Aggressive tuning on a small dataset can yield over-optimistic performance estimates. This is a classical threat in empirical computer vision: algorithmic knobs can overfit the evaluation distribution, especially when the dataset is narrow.
+
+\subsection{Mitigation Strategies (Evidence-Driven and Measurable)}
+\label{subsec:mitigations}
+Mitigations should be adopted only when they produce measurable gains (improved success rate at tolerance $\delta$, reduced heavy-tail error behavior, improved inlier ratios) on a held-out evaluation set. The following interventions are technically justified and testable:
+
+\paragraph{(M1) ROI gating to suppress background-induced outliers.}
+If background clutter is a dominant failure driver, restricting correspondence search to a region of interest can increase inlier ratio and reduce catastrophic misalignments. ROI gating can be implemented via:
 \begin{itemize}
-  \item \textbf{Annotation noise:} Ground truth annotations, especially for reprojection error metrics, are inherently subject to human error. Inaccurate point correspondences or mask annotations can lead to inflated or deflated alignment errors, affecting the reliability of the reported metrics.
-  \item \textbf{Dataset bias:} The datasets used for evaluation (e.g., Dynamic MNIST, FashionMNIST) may exhibit biases related to their construction (e.g., limited variety of lighting, viewpoint, or background conditions). These biases may not fully represent real-world scenarios, especially in environments with significant variation in illumination or clutter.
-  \item \textbf{Over-tuning parameters on small datasets:} The parameter selection for key algorithms (e.g., ORB, RANSAC) may be tuned to a small dataset, which risks overfitting. While a validation set can mitigate this to some degree, the final test performance is still vulnerable to overfitting if the training set is not sufficiently diverse or large.
+  \item manual bounding boxes (fast and controllable for small deployments),
+  \item a lightweight detector/segmenter (for automation),
+  \item template-derived masks (when applicable).
+\end{itemize}
+Empirically, ROI gating is justified if it reduces error tails and increases the fraction of successful alignments under the same $\delta$.
+
+\paragraph{(M2) Parameter selection via ablation stability regions.}
+Rather than selecting a single ``best'' parameter setting, the scientifically defensible approach is to identify a \emph{stable region} where performance changes minimally under small parameter perturbations. Ablations should report the joint effect on:
+\begin{itemize}
+  \item accuracy metrics (MRE/MedRE and percentiles),
+  \item robustness metrics (success rate, inlier ratio),
+  \item efficiency metrics (median and P95 runtime).
+\end{itemize}
+A parameter choice is justified if it lies in a stable plateau of high success rate and acceptable runtime, rather than a sharp optimum.
+
+\paragraph{(M3) Photometric normalization and template enhancement.}
+When failures correlate with low contrast or glare, enable preprocessing steps whose effects can be measured:
+\begin{itemize}
+  \item CLAHE in grayscale to enhance local contrast,
+  \item mild denoising to stabilize gradients,
+  \item template contrast normalization / edge enhancement to improve repeatable keypoints.
+\end{itemize}
+These should be treated as experimental factors (on/off) and included in ablations.
+
+\paragraph{(M4) Stronger correspondence filtering.}
+When ambiguous matches dominate, stricter filtering may improve geometric consistency:
+\begin{itemize}
+  \item mutual nearest-neighbor cross-check,
+  \item distance-based pruning (e.g., keep top-$p$ percentile matches),
+  \item sanity checks on spatial dispersion of matches (avoid degenerate clusters that yield unstable $\mathbf{H}$).
+\end{itemize}
+Filtering is justified only if it increases inlier ratio and success rate without collapsing match count below the minimum needed for stable estimation.
+
+\subsection{Threats to Validity and How the Protocol Addresses Them}
+\label{subsec:threats}
+We distinguish threats to \emph{measurement validity} (whether metrics reflect reality) and \emph{external validity} (generalization to unseen conditions).
+
+\paragraph{(T1) Annotation noise and metric reliability.}
+Reprojection error depends on ground-truth correspondences. Human annotation introduces uncertainty due to pixel-level ambiguity (corner definition, blur, and scale). This threat is mitigated by:
+\begin{itemize}
+  \item using $K\ge 4$ non-collinear points, preferably more, to stabilize summary statistics;
+  \item reporting robust aggregates (median, percentiles) alongside the mean;
+  \item pairing numeric metrics with overlay inspection for face validity.
 \end{itemize}
 
-These threats can be mitigated by:
+\paragraph{(T2) Dataset bias and incomplete coverage of real-world conditions.}
+If the evaluation dataset under-represents critical conditions (e.g., harsh glare, heavy clutter, extreme viewpoint), measured robustness will be overestimated. Mitigation requires:
 \begin{itemize}
-  \item Using a robust evaluation protocol with multiple dataset splits, including both qualitative and quantitative metrics, to account for variability and biases.
-  \item Reporting error distributions and including failure-case examples in the evaluation, which help provide a more comprehensive view of the method’s performance.
-  \item Ensuring that tuning of parameters is done using a separate tuning subset to avoid information leakage into the test set.
+  \item deliberate acquisition spanning viewpoint, illumination, clutter, and occlusion regimes;
+  \item reporting error distributions (not only averages) to expose rare failures;
+  \item explicit inclusion of worst-case and representative failure figures.
 \end{itemize}
 
-These measures increase the credibility and reliability of the reported results, providing a more transparent view of the method's performance and limitations.
+\paragraph{(T3) Over-tuning and information leakage.}
+Repeated parameter adjustments using the evaluation set can inflate reported performance. The recommended protocol is:
+\begin{itemize}
+  \item \textbf{tuning split:} used for selecting parameters (resolution, \texttt{nfeatures}, $\tau$, filtering rules);
+  \item \textbf{held-out test split:} used once for final reporting;
+  \item saving split indices and configuration logs to ensure repeatability and auditability.
+\end{itemize}
+
+\paragraph{(T4) Runtime measurement variability.}
+Runtime can vary due to OS scheduling, CPU frequency scaling, and multithreading. This is mitigated by:
+\begin{itemize}
+  \item repeated timing runs and reporting median/P95 rather than single measurements,
+  \item fixing OpenCV thread count and logging hardware/software versions,
+  \item evaluating at a fixed image resolution and fixed configuration.
+\end{itemize}
+
+\subsection{Interpretation Guidelines for Readers}
+\label{subsec:interpretation}
+To avoid overclaiming, results should be interpreted through the lens of the model assumptions:
+\begin{itemize}
+  \item If the method achieves low MedRE but higher mean error, the system is generally accurate but has tail failures; operational deployment must then rely on success thresholds and failure detection (e.g., low inlier ratio triggers fallback).
+  \item If both mean and median errors are high, the likely cause is assumption violation (non-planarity) or systematic preprocessing/template mismatch; mitigation should focus on modeling changes or data preparation rather than parameter tweaks.
+  \item If runtime meets median constraints but P95 is high, the system may be acceptable only with additional safeguards (e.g., cap iterations, early termination, ROI gating) to control pathological cases.
+\end{itemize}
+
+Overall, the discussion establishes a transparent boundary of validity, enumerates measurable limitations, and specifies mitigation strategies that can be empirically validated within the report’s evaluation framework.
+
+% End of discussion.tex

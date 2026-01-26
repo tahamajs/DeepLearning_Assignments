@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025/Homebrew) (preloaded format=pdflatex 2025.11.7)  26 JAN 2026 05:51
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025/Homebrew) (preloaded format=pdflatex 2025.11.7)  26 JAN 2026 06:17
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -115,6 +115,19 @@ icrotype.cfg
 File: microtype.cfg 2025/02/11 v3.2a microtype main configuration file (RS)
 )
 LaTeX Info: Redefining \microtypesetup on input line 3065.
+)
+(/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/base/fonten
+c.sty
+Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
+LaTeX Font Info:    Trying to load font information for T1+lmr on input line 11
+6.
+
+(/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/lm/t1lmr.fd
+File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+))
+(/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/base/textco
+mp.sty
+Package: textcomp 2024/04/24 v2.1b Standard LaTeX package
 )
 (/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/geometry/ge
 ometry.sty
@@ -1095,7 +1108,7 @@ Package cleveref Info: include cross-reference names in hyperlinks on input lin
 e 7852.
 Package cleveref Info: no abbreviation of names on input line 7852.
 )
-Package hyperref Info: Option `colorlinks' set `true' on input line 101.
+Package hyperref Info: Option `colorlinks' set `true' on input line 107.
 
 (/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/fancyhdr/fa
 ncyhdr.sty
@@ -1118,13 +1131,8 @@ Package: fancyhdr 2025/02/07 v5.2 Extensive control of page headers and footers
 \@temptokenb=\toks50
 ) (./macros.tex)
 Package translations Info: No language package found. I am going to use `englis
-h' as default language. on input line 131.
-LaTeX Font Info:    Trying to load font information for T1+lmr on input line 13
-1.
+h' as default language. on input line 137.
 
-(/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/lm/t1lmr.fd
-File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
 (/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/l3backend/l
 3backend-pdftex.def
 File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
@@ -1133,38 +1141,38 @@ File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
 ) (./main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 131.
-LaTeX Font Info:    ... okay on input line 131.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 131.
-LaTeX Font Info:    ... okay on input line 131.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 131.
-LaTeX Font Info:    ... okay on input line 131.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 131.
-LaTeX Font Info:    ... okay on input line 131.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 131.
-LaTeX Font Info:    ... okay on input line 131.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 131.
-LaTeX Font Info:    ... okay on input line 131.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 131.
-LaTeX Font Info:    ... okay on input line 131.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 131.
-LaTeX Font Info:    ... okay on input line 131.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 131.
-LaTeX Font Info:    ... okay on input line 131.
-LaTeX Info: Redefining \microtypecontext on input line 131.
-Package microtype Info: Applying patch `item' on input line 131.
-Package microtype Info: Applying patch `toc' on input line 131.
-Package microtype Info: Applying patch `eqnum' on input line 131.
-Package microtype Info: Applying patch `footnote' on input line 131.
-Package microtype Info: Applying patch `verbatim' on input line 131.
-LaTeX Info: Redefining \microtypesetup on input line 131.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 137.
+LaTeX Font Info:    ... okay on input line 137.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 137.
+LaTeX Font Info:    ... okay on input line 137.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 137.
+LaTeX Font Info:    ... okay on input line 137.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 137.
+LaTeX Font Info:    ... okay on input line 137.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 137.
+LaTeX Font Info:    ... okay on input line 137.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 137.
+LaTeX Font Info:    ... okay on input line 137.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 137.
+LaTeX Font Info:    ... okay on input line 137.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 137.
+LaTeX Font Info:    ... okay on input line 137.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 137.
+LaTeX Font Info:    ... okay on input line 137.
+LaTeX Info: Redefining \microtypecontext on input line 137.
+Package microtype Info: Applying patch `item' on input line 137.
+Package microtype Info: Applying patch `toc' on input line 137.
+Package microtype Info: Applying patch `eqnum' on input line 137.
+Package microtype Info: Applying patch `footnote' on input line 137.
+Package microtype Info: Applying patch `verbatim' on input line 137.
+LaTeX Info: Redefining \microtypesetup on input line 137.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
 Package microtype Info: Automatic font expansion enabled (level 2),
 (microtype)             stretch: 20, shrink: 20, step: 1, non-selected.
 Package microtype Info: Using default expansion set `alltext-nott'.
-LaTeX Info: Redefining \showhyphens on input line 131.
+LaTeX Info: Redefining \showhyphens on input line 137.
 Package microtype Info: No adjustment of tracking.
 Package microtype Info: No adjustment of interword spacing.
 Package microtype Info: No adjustment of character kerning.
@@ -1246,52 +1254,52 @@ File: translations-basic-dictionary-english.trsl (english translation file `tra
 nslations-basic-dictionary')
 )
 Package translations Info: loading dictionary `translations-basic-dictionary' f
-or `english'. on input line 131.
+or `english'. on input line 137.
 
 Package pgfplots notification 'compat/show suggested version=true': document ha
 s been generated with the most recent feature set (\pgfplotsset{compat=1.18}).
 
 \c@lstlisting=\count371
-Package hyperref Info: Link coloring ON on input line 131.
+Package hyperref Info: Link coloring ON on input line 137.
 (./main.out) (./main.out)
 \@outlinefile=\write4
 \openout4 = `main.out'.
 
 LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 1
-33.
+39.
 
 (/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/lm/ot1lmr.f
 d
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OML+lmm on input line 1
-33.
+39.
 
 (/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/lm/omllmm.f
 d
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-133.
+139.
 
 (/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/lm/omslmsy.
 fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-133.
+139.
 
 (/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/lm/omxlmex.
 fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 133.
+(Font)              <12> on input line 139.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 133.
+(Font)              <8> on input line 139.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 133.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 133
+(Font)              <6> on input line 139.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 139
 .
 
 (/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/amsfonts/um
@@ -1302,7 +1310,7 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 t-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 133
+LaTeX Font Info:    Trying to load font information for U+msb on input line 139
 .
 
 (/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/amsfonts/um
@@ -1314,7 +1322,7 @@ t-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
-33.
+39.
 
 (/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/lm/t1lmtt.f
 d
@@ -1413,54 +1421,7 @@ nput line 50.
 
 ) (./related_work.tex
 
-Package natbib Warning: Citation `kingma2014vae' on page 10 undefined on input 
-line 5.
-
-
-Package natbib Warning: Citation `rezende2014stochastic' on page 10 undefined o
-n input line 5.
-
-
-Package natbib Warning: Citation `burda2016iwae' on page 10 undefined on input 
-line 7.
-
-
-Package natbib Warning: Citation `burda2016iwae' on page 10 undefined on input 
-line 10.
-
-
-
-[10]
-
-Package natbib Warning: Citation `gulrajani2017improved' on page 11 undefined o
-n input line 13.
-
-
-Package natbib Warning: Citation `miyato2018sn' on page 11 undefined on input l
-ine 13.
-
-
-Package natbib Warning: Citation `miyato2018projection' on page 11 undefined on
- input line 15.
-
-
-Package natbib Warning: Citation `zhang2019sagan' on page 11 undefined on input
- line 15.
-
-
-Package natbib Warning: Citation `hu2018senet' on page 11 undefined on input li
-ne 15.
-
-) (./methodology.tex
-
-Package natbib Warning: Citation `kingma2014vae' on page 11 undefined on input 
-line 19.
-
-
-Package natbib Warning: Citation `rezende2014stochastic' on page 11 undefined o
-n input line 19.
-
-
+[10]) (./methodology.tex
 
 [11]
 Overfull \hbox (24.18776pt too wide) detected at line 73
@@ -1473,33 +1434,7 @@ Overfull \hbox (24.18776pt too wide) detected at line 73
 
 [12]
 
-Package natbib Warning: Citation `burda2016iwae' on page 13 undefined on input 
-line 77.
-
-
-Package natbib Warning: Citation `miyato2018projection' on page 13 undefined on
- input line 100.
-
-
-Package natbib Warning: Citation `miyato2018sn' on page 13 undefined on input l
-ine 108.
-
-
-
 [13]
-
-Package natbib Warning: Citation `zhang2019sagan' on page 14 undefined on input
- line 117.
-
-
-Package natbib Warning: Citation `hu2018senet' on page 14 undefined on input li
-ne 126.
-
-
-Package natbib Warning: Citation `gulrajani2017improved' on page 14 undefined o
-n input line 129.
-
-
 
 [14]) (./dataset.tex
 
@@ -1555,62 +1490,13 @@ Overfull \hbox (22.62686pt too wide) in paragraph at lines 133--134
 
 [19]
 
-Package natbib Warning: Citation `kingma2014vae' on page 20 undefined on input 
-line 23.
-
-
-Package natbib Warning: Citation `rezende2014stochastic' on page 20 undefined o
-n input line 23.
-
-
-
 [20]) (./experiments.tex
-
-Package natbib Warning: Citation `kingma2014vae' on page 21 undefined on input 
-line 11.
-
-
-Package natbib Warning: Citation `rezende2014stochastic' on page 21 undefined o
-n input line 11.
-
-
 
 [21]
 
-Package natbib Warning: Citation `tomczak2018vampprior' on page 22 undefined on
- input line 54.
-
-
-
 [22]
 
-Package natbib Warning: Citation `burda2016iwae' on page 23 undefined on input 
-line 83.
-
-
-
 [23]
-
-Package natbib Warning: Citation `miyato2018projection' on page 24 undefined on
- input line 118.
-
-
-Package natbib Warning: Citation `miyato2018sn' on page 24 undefined on input l
-ine 125.
-
-
-Package natbib Warning: Citation `zhang2019sagan' on page 24 undefined on input
- line 133.
-
-
-Package natbib Warning: Citation `hu2018senet' on page 24 undefined on input li
-ne 134.
-
-
-Package natbib Warning: Citation `gulrajani2017improved' on page 24 undefined o
-n input line 138.
-
-
 
 [24]) (./implementation.tex
 Overfull \hbox (33.00081pt too wide) in paragraph at lines 13--15
@@ -1830,12 +1716,15 @@ Overfull \hbox (24.2102pt too wide) in paragraph at lines 100--101
 
 [60])
 
-[61]
-No file main.bbl.
+[61] (./main.bbl)
 
 Package natbib Warning: There were undefined citations.
 
-(./main.aux)
+
+
+[62
+
+] (./main.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
@@ -1844,118 +1733,41 @@ L3 programming layer <2025-01-18>
 
 LaTeX Warning: There were undefined references.
 
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-
-Package rerunfilecheck Warning: File `main.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `main.out':
-(rerunfilecheck)             Before: D5810522DBC7BA4C24E1AFB036D3D592;24447
-(rerunfilecheck)             After:  80223C615A51C6877CB119B893D318E4;24576.
+Package rerunfilecheck Info: File `main.out' has not changed.
+(rerunfilecheck)             Checksum: 80223C615A51C6877CB119B893D318E4;24576.
  ) 
 Here is how much of TeX's memory you used:
- 44554 strings out of 473190
- 1041786 string characters out of 5704335
- 1522047 words of memory out of 5000000
- 66437 multiletter control sequences out of 15000+600000
- 641503 words of font info for 236 fonts, out of 8000000 for 9000
+ 44616 strings out of 473190
+ 1043391 string characters out of 5704335
+ 1522281 words of memory out of 5000000
+ 66495 multiletter control sequences out of 15000+600000
+ 641633 words of font info for 237 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  114i,13n,119p,1001b,1285s stack positions out of 10000i,1000n,20000p,200000b,200000s
-
-pdfTeX warning (dest): name{subsection.17.4} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.17.3} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.17.2} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.17.1} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.14.5} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.14.4} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.14.3} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.14.2} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.14.1} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.12.8} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.12.7} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.12.6} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.12.5} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.12.4} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.12.3} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.12.2} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.12.1} has been referenced but does not e
-xist, replaced by a fixed one
-
-</opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/public/lm
-/lmbx10.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/typ
-e1/public/lm/lmbx12.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-di
-st/fonts/type1/public/lm/lmex10.pfb></opt/homebrew/Cellar/texlive/20250308_2/sh
-are/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></opt/homebrew/Cellar/texlive/2
-0250308_2/share/texmf-dist/fonts/type1/public/lm/lmmi6.pfb></opt/homebrew/Cella
-r/texlive/20250308_2/share/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></opt/hom
-ebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/public/lm/lmr10.pf
-b></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/public/
-lm/lmr12.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/ty
-pe1/public/lm/lmr6.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dis
-t/fonts/type1/public/lm/lmr8.pfb></opt/homebrew/Cellar/texlive/20250308_2/share
-/texmf-dist/fonts/type1/public/lm/lmri10.pfb></opt/homebrew/Cellar/texlive/2025
-0308_2/share/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></opt/homebrew/Cellar/
-texlive/20250308_2/share/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></opt/homeb
-rew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/public/lm/lmtk10.pfb
-></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/public/l
-m/lmtt10.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/ty
-pe1/public/lm/lmtt12.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-d
-ist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on main.pdf (61 pages, 526511 bytes).
+</opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/public/
+lm/lmbx10.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/t
+ype1/public/lm/lmbx12.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-
+dist/fonts/type1/public/lm/lmex10.pfb></opt/homebrew/Cellar/texlive/20250308_2/
+share/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></opt/homebrew/Cellar/texlive
+/20250308_2/share/texmf-dist/fonts/type1/public/lm/lmmi6.pfb></opt/homebrew/Cel
+lar/texlive/20250308_2/share/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></opt/h
+omebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/public/lm/lmr10.
+pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/publi
+c/lm/lmr12.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/
+type1/public/lm/lmr6.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-d
+ist/fonts/type1/public/lm/lmr8.pfb></opt/homebrew/Cellar/texlive/20250308_2/sha
+re/texmf-dist/fonts/type1/public/lm/lmri10.pfb></opt/homebrew/Cellar/texlive/20
+250308_2/share/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></opt/homebrew/Cella
+r/texlive/20250308_2/share/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></opt/hom
+ebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/public/lm/lmtk10.p
+fb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/public
+/lm/lmtt10.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/
+type1/public/lm/lmtt12.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf
+-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on main.pdf (62 pages, 537436 bytes).
 PDF statistics:
- 1195 PDF objects out of 1200 (max. 8388607)
- 1083 compressed objects within 11 object streams
- 394 named destinations out of 1000 (max. 500000)
- 46893 words of extra memory for PDF output out of 51595 (max. 10000000)
+ 1224 PDF objects out of 1440 (max. 8388607)
+ 1110 compressed objects within 12 object streams
+ 388 named destinations out of 1000 (max. 500000)
+ 46901 words of extra memory for PDF output out of 51595 (max. 10000000)
 

@@ -1,0 +1,60 @@
+\begin{thebibliography}{9}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Kingma and Welling(2014)]{kingma2014vae}
+Diederik~P. Kingma and Max Welling.
+\newblock Auto-encoding variational bayes.
+\newblock \emph{arXiv preprint arXiv:1312.6114}, 2014.
+
+\bibitem[Rezende et~al.(2014)Rezende, Mohamed, and
+  Wierstra]{rezende2014stochastic}
+Danilo~J. Rezende, Shakir Mohamed, and Daan Wierstra.
+\newblock Stochastic backpropagation and approximate inference in deep
+  generative models.
+\newblock \emph{arXiv preprint arXiv:1401.4082}, 2014.
+
+\bibitem[Burda et~al.(2016)Burda, Grosse, and Salakhutdinov]{burda2016iwae}
+Yuri Burda, Roger Grosse, and Ruslan Salakhutdinov.
+\newblock Importance weighted autoencoders.
+\newblock \emph{arXiv preprint arXiv:1509.00519}, 2016.
+
+\bibitem[Gulrajani et~al.(2017)Gulrajani, Ahmed, Arjovsky, Dumoulin, and
+  Courville]{gulrajani2017improved}
+Ishaan Gulrajani, Faruk Ahmed, Martin Arjovsky, Vincent Dumoulin, and Aaron
+  Courville.
+\newblock Improved training of wasserstein gans.
+\newblock \emph{arXiv preprint arXiv:1704.00028}, 2017.
+
+\bibitem[Miyato et~al.(2018)Miyato, Kataoka, Koyama, and Yoshida]{miyato2018sn}
+Takeru Miyato, Toshiki Kataoka, Masanori Koyama, and Yuichi Yoshida.
+\newblock Spectral normalization for generative adversarial networks.
+\newblock \emph{arXiv preprint arXiv:1802.05957}, 2018.
+
+\bibitem[Miyato and Koyama(2018)]{miyato2018projection}
+Takeru Miyato and Masanori Koyama.
+\newblock cgans with projection discriminator.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2018.
+
+\bibitem[Zhang et~al.(2019)Zhang, Goodfellow, Metaxas, and
+  Odena]{zhang2019sagan}
+Han Zhang, Ian Goodfellow, Dimitris Metaxas, and Augustus Odena.
+\newblock Self-attention generative adversarial networks.
+\newblock \emph{arXiv preprint arXiv:1805.08318}, 2019.
+
+\bibitem[Hu et~al.(2018)Hu, Shen, and Sun]{hu2018senet}
+Jie Hu, Li~Shen, and Gang Sun.
+\newblock Squeeze-and-excitation networks.
+\newblock In \emph{Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition (CVPR)}, 2018.
+
+\bibitem[Tomczak and Welling(2018)]{tomczak2018vampprior}
+Jakub~M. Tomczak and Max Welling.
+\newblock Vae with a vampprior.
+\newblock \emph{arXiv preprint arXiv:1705.07120}, 2018.
+
+\end{thebibliography}

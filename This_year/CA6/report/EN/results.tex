@@ -6,11 +6,11 @@
 The pipeline is designed to export both qualitative and quantitative artifacts, ensuring the reproducibility and transparency of the results. The following artifacts are exported during evaluation:
 
 \begin{itemize}
-  \item \textbf{Overlay images:} These images are stored under \texttt{../results/overlays/}. They show the final alignment, with the template overlaid onto the photograph. These images serve as visual validation of the alignment process.
-  \item \textbf{Metrics files:} These files are stored under \texttt{../results/metrics/}. They include all quantitative performance measures such as mean reprojection error (MRE), success rate, and runtime measurements, which are essential for evaluating the system’s performance.
-  \item \textbf{Figures used in this report:} The figures that are referenced in this report, including error distributions, runtime breakdowns, and ablation studies, are saved under \texttt{../results/figures/}. These figures summarize key results and provide visual insights into the alignment system’s performance.
+  \item \textbf{Overlay images:} These images are stored under \texttt{../results/overlays/}. They show the final alignment, with the template overlaid onto the photograph. These images serve as visual validation of the alignment process. Each overlay image allows the reader to visually inspect the quality of alignment, ensuring that key features (edges, holes, contours, etc.) from the template align with the corresponding features in the query photograph.
+  \item \textbf{Metrics files:} These files are stored under \texttt{../results/metrics/}. They include all quantitative performance measures such as mean reprojection error (MRE), success rate, and runtime measurements, which are essential for evaluating the system’s performance. These metrics are automatically generated and exported to ensure that the evaluation process is transparent and reproducible.
+  \item \textbf{Figures used in this report:} The figures that are referenced in this report, including error distributions, runtime breakdowns, and ablation studies, are saved under \texttt{../results/figures/}. These figures summarize key results and provide visual insights into the alignment system’s performance. These figures help illustrate and support the conclusions drawn from the quantitative and qualitative results.
 \end{itemize}
-This coupling of exported artifacts ensures that all claims in the report can be traced back to the stored output files, providing full transparency for reproducibility.
+This coupling of exported artifacts ensures that all claims in the report can be traced back to the stored output files, providing full transparency for reproducibility. By storing these artifacts in dedicated folders, we ensure that they are easily accessible for future analysis and verification.
 
 \subsection{Quantitative Summary}
 A summary of the key metrics is exported as a CSV file, which provides the aggregated performance results across the dataset. This file includes dataset-level aggregates that provide insight into the overall alignment accuracy and efficiency.
@@ -20,10 +20,10 @@ A summary of the key metrics is exported as a CSV file, which provides the aggre
 \paragraph{How to interpret the summary table scientifically.}
 The summary table should contain the following dataset-level aggregates:
 \begin{itemize}
-  \item \textbf{Mean Reprojection Error (MRE):} Lower values are better, indicating better geometric alignment accuracy in pixel units. MRE provides a direct measure of the overall alignment error.
-  \item \textbf{Median Reprojection Error (MedRE):} This metric provides the central tendency of the reprojection errors and is less sensitive to extreme outliers. If MedRE is much lower than MRE, it suggests the presence of large outliers or failures in some cases.
-  \item \textbf{Success Rate at Threshold $\delta$:} This operationally interpretable metric reports the fraction of images where the alignment error (MRE) is below a specified threshold $\delta$ (e.g., $5$ pixels). It provides a clear measure of how many alignments are considered successful based on user-defined tolerance.
-  \item \textbf{Runtime (ms) and FPS:} These metrics are critical for assessing the feasibility of deploying the system in real-time applications. They reflect the computational efficiency of the system and its ability to process images within the time constraints of practical use cases.
+  \item \textbf{Mean Reprojection Error (MRE):} Lower values are better, indicating better geometric alignment accuracy in pixel units. MRE provides a direct measure of the overall alignment error and is a primary indicator of the system’s effectiveness.
+  \item \textbf{Median Reprojection Error (MedRE):} This metric provides the central tendency of the reprojection errors and is less sensitive to extreme outliers. If MedRE is much lower than MRE, it suggests the presence of large outliers or failures in some cases, highlighting specific failure modes (e.g., poor keypoint matching).
+  \item \textbf{Success Rate at Threshold $\delta$:} This operationally interpretable metric reports the fraction of images where the alignment error (MRE) is below a specified threshold $\delta$ (e.g., 5 pixels). It provides a clear measure of how many alignments are considered successful based on a user-defined tolerance.
+  \item \textbf{Runtime (ms) and FPS:} These metrics are critical for assessing the feasibility of deploying the system in real-time applications. They reflect the computational efficiency of the system and its ability to process images within the time constraints of practical use cases. The runtime is measured per image, and FPS (frames per second) is calculated to evaluate the system's processing speed under normal operational conditions.
 \end{itemize}
 
 \subsection{Qualitative Results: Overlay Inspection}
@@ -35,15 +35,15 @@ The summary table should contain the following dataset-level aggregates:
 \end{figure}
 
 \paragraph{What this figure demonstrates.}
-The overlay grid is the primary qualitative validation tool for assessing the alignment quality:
+The overlay grid is the primary qualitative validation tool for assessing the alignment quality. Each image in the grid shows a representative photograph with the warped template overlaid on it, providing visual feedback on the alignment performance:
 \begin{itemize}
-  \item Correct alignment is indicated when the edges, holes, contours, or printed markings of the template align with the corresponding features in the photographed part.
-  \item Misalignments, particularly near critical areas such as corners or edges, often indicate issues such as insufficient inliers, non-planarity, or preprocessing mismatches (e.g., scale/rotation errors or contrast issues).
-  \item If overlays show consistent misalignment in the same direction across the dataset, the issue is likely deterministic (e.g., an error in the resizing convention or template standardization mismatch).
+  \item Correct alignment is indicated when the edges, holes, contours, or printed markings of the template align with the corresponding features in the photographed part. The alignment should be visually perfect, with no noticeable displacement of the template over the photograph.
+  \item Misalignments, particularly near critical areas such as corners or edges, often indicate issues such as insufficient inliers, non-planarity, or preprocessing mismatches (e.g., scale/rotation errors or contrast issues). These misalignments can be attributed to errors in feature matching or incorrect homography estimation.
+  \item If overlays show consistent misalignment in the same direction across the dataset, the issue is likely deterministic (e.g., an error in the resizing convention, template standardization mismatch, or a miscalculation in the homography matrix).
 \end{itemize}
 
 \paragraph{Operational conclusion from overlays.}
-If the overlays consistently show accurate alignment, the system is suitable for visual inspection tasks. However, if the alignment is only occasionally correct, it suggests that further improvements, such as Region of Interest (ROI) gating, stricter match filtering, or template enhancement, may be necessary for reliable performance.
+If the overlays consistently show accurate alignment with minimal misalignment, the system can be considered suitable for visual inspection tasks in real-world applications. However, if the alignment is only occasionally correct, it suggests that further improvements, such as Region of Interest (ROI) gating, stricter match filtering, or template enhancement, may be necessary for reliable performance. The next sections will discuss the quantitative results that provide more insights into the performance metrics.
 
 \subsection{Alignment Error Distribution}
 \begin{figure}[h!]
@@ -54,17 +54,17 @@ If the overlays consistently show accurate alignment, the system is suitable for
 \end{figure}
 
 \paragraph{What the error histogram demonstrates.}
-The error histogram offers a statistical overview of the alignment accuracy:
+The error histogram offers a statistical overview of the alignment accuracy. It shows how the alignment errors are distributed across the dataset:
 \begin{itemize}
-  \item A \textbf{tight, unimodal} distribution concentrated near low errors indicates that the system performs consistently well, with minimal misalignment.
-  \item A \textbf{heavy tail} suggests that, while most cases are well-aligned, occasional misalignments occur that may dominate the mean error, signaling failure in some challenging conditions.
-  \item A \textbf{bimodal} distribution points to two distinct regimes: one where the alignment succeeds and one where it fails systematically, possibly due to repetitive patterns, glare, or occlusion.
+  \item A \textbf{tight, unimodal} distribution concentrated near low errors indicates that the system performs consistently well, with minimal misalignment across most images.
+  \item A \textbf{heavy tail} suggests that, while most cases are well-aligned, occasional misalignments occur that may dominate the mean error. This indicates that there are a few challenging cases where the alignment fails, possibly due to extreme conditions (e.g., glare, occlusion, or featureless regions).
+  \item A \textbf{bimodal} distribution points to two distinct regimes: (i) a "success" regime where the alignment is accurate, and (ii) a "failure" regime where the alignment is poor. This could be a result of failure modes such as repetitive textures, glare, or occlusion that the system struggles to handle.
 \end{itemize}
 
 \paragraph{Scientific interpretation of MRE vs.\ MedRE.}
 \begin{itemize}
-  \item If MedRE remains low while MRE increases, it suggests the presence of outliers (e.g., catastrophic misalignments) that should be examined more closely in the qualitative analysis.
-  \item If both MedRE and MRE are high, it implies that the system is generally inaccurate under the tested conditions, which would warrant revisiting the method’s assumptions, feature extraction, or preprocessing techniques.
+  \item If MedRE remains low while MRE increases, it suggests the presence of outliers (e.g., catastrophic misalignments) that should be examined more closely in the qualitative analysis. These outliers may occur due to challenging image conditions or specific failure cases.
+  \item If both MedRE and MRE are high, it implies that the system is generally inaccurate under the tested conditions, which would warrant revisiting the method’s assumptions, feature extraction, or preprocessing techniques. This would suggest that further work is needed to improve the robustness of the method.
 \end{itemize}
 
 \subsection{Runtime and Stage-Wise Profiling}
@@ -78,13 +78,13 @@ The error histogram offers a statistical overview of the alignment accuracy:
 \paragraph{What runtime breakdown demonstrates.}
 Runtime profiling isolates performance bottlenecks and provides insights into areas for optimization:
 \begin{itemize}
-  \item If feature extraction dominates the runtime, reducing image resolution or limiting the number of ORB features (\texttt{nfeatures}) can reduce the computational load.
-  \item If matching time is high, applying more aggressive pre-filtering or using approximate matching techniques (e.g., KD-tree or approximate nearest neighbor search) may speed up the process.
-  \item If RANSAC dominates, it may indicate that the inlier ratio is low (leading to more iterations) and suggests that better match filtering or ROI gating may help improve performance.
+  \item If feature extraction dominates the runtime, reducing image resolution or limiting the number of ORB features (\texttt{nfeatures}) can reduce the computational load. Reducing the number of features can improve processing speed at the expense of matching accuracy.
+  \item If matching time is high, applying more aggressive pre-filtering (such as distance thresholding) or using approximate matching techniques (e.g., KD-tree or approximate nearest neighbor search) may speed up the process, albeit with a potential tradeoff in accuracy.
+  \item If RANSAC dominates, it may indicate that the inlier ratio is low (leading to more iterations) and suggests that better match filtering, ROI gating, or a higher-quality initial feature matching strategy may help improve performance.
 \end{itemize}
 
 \paragraph{Deployment feasibility statement.}
-The system is feasible for deployment if the measured median latency satisfies the operational constraints. The variance of latency, measured by the 95th percentile (P95), should also be acceptable to ensure that pathological cases do not significantly degrade system performance. The runtime analysis helps identify critical stages that might require further optimization.
+The system is feasible for deployment if the measured median latency satisfies the operational constraints. The variance of latency, measured by the 95th percentile (P95), should also be acceptable to ensure that pathological cases do not significantly degrade system performance. The runtime analysis helps identify critical stages that might require further optimization. The system can be deployed in real-time applications if these runtime thresholds are met.
 
 \subsection{Ablation Study: Parameter Sensitivity}
 \begin{figure}[h!]
@@ -97,17 +97,17 @@ The system is feasible for deployment if the measured median latency satisfies t
 \paragraph{What the ablation plot demonstrates.}
 Ablations help identify stable operating regions by exploring how key parameters influence alignment quality:
 \begin{itemize}
-  \item Increasing \texttt{nfeatures} generally increases the number of inliers and alignment stability up to a point, after which further increases may add noise and slow down runtime.
-  \item Increasing the RANSAC reprojection threshold $\tau$ allows more inliers to be accepted, but it can degrade precision if the threshold is set too permissive.
-  \item Using cross-checking typically reduces false matches at the cost of fewer valid correspondences, making it particularly beneficial in noisy or cluttered environments.
+  \item Increasing \texttt{nfeatures} generally increases the number of inliers and alignment stability up to a point, after which further increases may add noise and slow down runtime. It is important to find the balance between increasing features and maintaining efficiency.
+  \item Increasing the RANSAC reprojection threshold $\tau$ allows more inliers to be accepted, but it can degrade precision if the threshold is set too permissive. The threshold value must be chosen based on the dataset's noise level and characteristics.
+  \item Using cross-checking typically reduces false matches at the cost of fewer valid correspondences, making it particularly beneficial in noisy or cluttered environments where background matches may dominate.
 \end{itemize}
 
 \paragraph{Scientific conclusion from ablations.}
 A robust configuration is one where:
 \begin{itemize}
-  \item The success rate remains high and stable despite small parameter variations.
-  \item The error remains low without the need for extreme parameter tuning.
-  \item The runtime is efficient and remains within the operational constraints.
+  \item The success rate remains high and stable despite small parameter variations. This ensures that the system’s performance is not overly sensitive to hyperparameter tuning.
+  \item The error remains low without the need for extreme parameter tuning. This indicates that the method is stable and generalizes well across different datasets.
+  \item The runtime is efficient and remains within the operational constraints, ensuring that the system can handle real-time processing needs.
 \end{itemize}
 The goal is not to find a single optimal setting, but to identify a region where the method consistently performs well under realistic variations in parameters.
 

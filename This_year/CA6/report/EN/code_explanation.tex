@@ -1,0 +1,376 @@
+% =========================
+% report/code_explanation.tex
+% =========================
+
+\section{Codebase Walkthrough and Implementation Rationale}
+\label{sec:code_explanation}
+
+This section explains the implementation at the level of individual modules and functions. The codebase (\texttt{deepgen/}) supports three main workflows:
+\begin{enumerate}
+  \item Data loading and normalization (MNIST loaders; consistent pixel ranges for GAN/VAE).
+  \item Model definitions: (i) VAE with VampPrior, (ii) conditional GAN with Projection Discriminator + SN + attention, and (iii) a classifier used for feature extraction.
+  \item Metrics, logging, determinism, and checkpointing for reproducible experiments.
+\end{enumerate}
+
+Throughout the code, tensor shapes follow PyTorch conventions: images are \((B,C,H,W)\) with \(C=1\) for MNIST-like grayscale inputs. When \texttt{scale\_to\_minus1\_1=True}, inputs are mapped to \([-1,1]\), which aligns naturally with GAN generators using \(\tanh(\cdot)\).
+
+% ------------------------------------------------------------
+\subsection{\texttt{deepgen/data.py}: Data transforms and loaders}
+\label{subsec:code_data}
+
+\paragraph{Purpose.}
+This file constructs \textbf{consistent, reproducible} PyTorch dataloaders for MNIST and defines the input normalization convention used by downstream models.
+
+\subsubsection*{\texttt{mnist\_transforms(scale\_to\_minus1\_1=True)}}
+\begin{itemize}
+  \item \textbf{Step 1:} \texttt{transforms.ToTensor()} converts a PIL image to a float tensor in \([0,1]\) with shape \((1,28,28)\).
+  \item \textbf{Step 2 (optional):} \texttt{Normalize(mean=(0.5,), std=(0.5,))} maps \([0,1]\) to \([-1,1]\) via
+  \[
+  x' = \frac{x - 0.5}{0.5} = 2x - 1.
+  \]
+\end{itemize}
+\textbf{Rationale:} GAN generators typically output \([-1,1]\) through \(\tanh\), so training data in the same range avoids scale mismatch. For VAEs, the code later converts \([-1,1]\) back to \([0,1]\) when using a Bernoulli reconstruction likelihood.
+
+\subsubsection*{\texttt{get\_mnist\_loaders(...)}}
+This function returns \((\texttt{train\_loader}, \texttt{test\_loader})\). Key details:
+\begin{itemize}
+  \item \textbf{Dataset:} \texttt{datasets.MNIST(..., download=True, transform=tfm)} ensures reproducible access to raw MNIST with the exact preprocessing pipeline applied on-the-fly.
+  \item \textbf{Optional subset:} if \texttt{train\_subset} is provided, \texttt{Subset(train\_ds, range(train\_subset))} restricts training to the first \(N\) examples. This is useful for \emph{limited-data} experiments (e.g., GAN augmentation studies).
+  \item \textbf{Shuffling:} enabled for training (\texttt{shuffle=True}), disabled for test loader (\texttt{shuffle=False}).
+  \item \textbf{pin\_memory:} activated only when CUDA is available, improving host-to-device transfer throughput in GPU training.
+  \item \textbf{drop\_last:} \texttt{True} for training ensures a constant batch size, which simplifies batchnorm behavior and logging.
+\end{itemize}
+
+% ------------------------------------------------------------
+\subsection{\texttt{deepgen/utils.py}: Reproducibility, checkpointing, bookkeeping, attention blocks}
+\label{subsec:code_utils}
+
+\paragraph{Purpose.}
+This module provides (i) deterministic seeding, (ii) device selection, (iii) atomic checkpoint saving with RNG capture, and (iv) utility classes for stable logging. Your pasted content also includes attention implementations; conceptually, those are model blocks and can be relocated to \texttt{deepgen/models/blocks.py} for cohesion, but functionally they work as-is.
+
+\subsubsection*{\texttt{set\_seed(seed)}}
+Sets random seeds for:
+\begin{itemize}
+  \item Python \texttt{random}
+  \item NumPy RNG
+  \item PyTorch CPU RNG
+  \item PyTorch CUDA RNG (all devices)
+\end{itemize}
+and enforces deterministic CuDNN behavior:
+\[
+\texttt{cudnn.deterministic=True},\quad \texttt{cudnn.benchmark=False}.
+\]
+\textbf{Rationale:} This reduces run-to-run variation due to non-deterministic kernel selection or algorithm heuristics, improving scientific reproducibility. The trade-off is potential speed loss.
+
+\subsubsection*{\texttt{get\_device(device)}}
+\begin{itemize}
+  \item If \texttt{device} is \texttt{None} or \texttt{"auto"}, selects \texttt{"cuda"} when available, otherwise \texttt{"cpu"}.
+  \item Otherwise constructs \texttt{torch.device(device)}.
+\end{itemize}
+
+\subsubsection*{Atomic checkpoint saving: \texttt{\_atomic\_torch\_save}}
+Checkpoints are written to a temporary file and then renamed:
+\[
+\texttt{torch.save(tmp)} \rightarrow \texttt{os.replace(tmp, path)}.
+\]
+\textbf{Rationale:} Prevents corrupted checkpoints if the process is interrupted mid-write.
+
+\subsubsection*{\texttt{capture\_rng\_state()} and \texttt{restore\_rng\_state(state)}}
+The code stores and restores RNG states for Python, NumPy, PyTorch CPU, and (optionally) CUDA. This ensures that resuming from a checkpoint can reproduce the same stochastic sequence (important for exact reproducibility of sampling and training trajectories).
+
+\subsubsection*{\texttt{save\_checkpoint} / \texttt{load\_checkpoint}}
+A checkpoint payload includes:
+\begin{itemize}
+  \item model state dict
+  \item optimizer state dict (optional)
+  \item extra metadata (optional)
+  \item RNG states (critical for reproducibility)
+  \item PyTorch version
+\end{itemize}
+\textbf{Scientific note:} Recording \texttt{torch\_version} helps interpret any numerical drift across environments.
+
+\subsubsection*{\texttt{AverageMeter}}
+Tracks cumulative value and count, returning:
+\[
+\texttt{avg}=\frac{\sum v_i}{N}.
+\]
+Used for stable logging of losses/metrics over an epoch or steps.
+
+\subsubsection*{Attention blocks in the pasted \texttt{utils.py}}
+\paragraph{\texttt{ChannelAttention}.}
+Implements a Squeeze-and-Excitation-style mechanism:
+\begin{enumerate}
+  \item Global average pooling: \((B,C,H,W)\rightarrow(B,C)\)
+  \item Two FC layers with reduction \(r\): \(C \rightarrow \max(1,\lfloor C/r \rfloor)\rightarrow C\)
+  \item Sigmoid gating to produce channel weights \((B,C)\)
+  \item Broadcast-multiply back onto feature map: \((B,C,H,W)\)
+\end{enumerate}
+\textbf{Effect:} reweights channels based on global context, improving representational efficiency.
+
+\paragraph{\texttt{SelfAttention2d}.}
+SAGAN-style self-attention over spatial positions:
+\begin{itemize}
+  \item Query: \(q=\text{Conv}_{1\times1}(x)\in\mathbb{R}^{B\times C_q\times HW}\)
+  \item Key: \(k=\text{Conv}_{1\times1}(x)\in\mathbb{R}^{B\times C_q\times HW}\)
+  \item Attention map: \(\text{softmax}(q^\top k)\in\mathbb{R}^{B\times HW\times HW}\)
+  \item Value: \(v=\text{Conv}_{1\times1}(x)\in\mathbb{R}^{B\times C\times HW}\)
+  \item Output: \(o=v\cdot \text{Attn}^\top\rightarrow (B,C,H,W)\)
+  \item Residual: \(y=x+\gamma o\) with learnable \(\gamma\) initialized at \(0\).
+\end{itemize}
+\textbf{Rationale:} \(\gamma=0\) initialization makes the network start close to the non-attention baseline and learn attention contributions gradually, improving optimization stability.
+
+% ------------------------------------------------------------
+\subsection{\texttt{deepgen/metrics.py}: Feature extraction and FID-like score}
+\label{subsec:code_metrics}
+
+\paragraph{Purpose.}
+This module computes a Fr\'echet-distance-like statistic between features of real and generated samples. It is useful for tracking generative quality without relying on pixel-level errors.
+
+\subsubsection*{\texttt{extract\_features(feature\_model, loader, device, max\_items)}}
+\begin{itemize}
+  \item Runs \texttt{feature\_model.eval()} and disables gradients (\texttt{@torch.no\_grad()}).
+  \item For each batch \(x\), calls \texttt{feature\_model(x, return\_features=True)} to obtain features \(f\in\mathbb{R}^{B\times D}\).
+  \item Concatenates across batches into a single \(\mathbb{R}^{N\times D}\) array.
+\end{itemize}
+\textbf{Important assumption:} The model passed here (e.g., \texttt{LeNet5}) must implement \texttt{return\_features=True} and return a stable embedding representation.
+
+\subsubsection*{Covariance and PSD square root}
+\texttt{\_covariance} computes \(\mu\) and the unbiased covariance estimate:
+\[
+\Sigma=\frac{1}{N-1}(X-\mu)^\top(X-\mu).
+\]
+\texttt{\_sqrtm\_psd} computes \(\Sigma^{1/2}\) by eigen-decomposition, clipping eigenvalues to \(\epsilon\) to avoid numerical issues.
+
+\subsubsection*{\texttt{fid\_like(features\_real, features\_fake)}}
+Computes
+\[
+\|\mu_r-\mu_f\|_2^2 + \mathrm{Tr}\left(\Sigma_r+\Sigma_f-2(\Sigma_r^{1/2}\Sigma_f\Sigma_r^{1/2})^{1/2}\right).
+\]
+\textbf{Notes:}
+\begin{itemize}
+  \item This matches the standard Fr\'echet distance between Gaussians (the mathematical core of FID), but the \emph{feature extractor} is your own model, not Inception.
+  \item Small diagonal \(\epsilon I\) is added to covariances for stability.
+\end{itemize}
+
+% ------------------------------------------------------------
+\subsection{\texttt{deepgen/models/blocks.py}: Core building blocks (Residual, SE, Self-Attention)}
+\label{subsec:code_blocks}
+
+\paragraph{\texttt{SEBlock}.}
+Implements channel gating via global mean pooling and a 2-layer MLP, then multiplies the gating vector back into the feature map. This is functionally equivalent to \texttt{ChannelAttention} in spirit (SE-style attention).
+
+\paragraph{\texttt{ResidualBlock}.}
+A ResNet-style block:
+\begin{itemize}
+  \item Two \(3\times 3\) convs with BatchNorm.
+  \item Optional downsampling via stride-2 in the first conv and skip path.
+  \item Optional SE gating on the residual branch.
+  \item Output: \(\mathrm{ReLU}(h+\text{skip}(x))\).
+\end{itemize}
+\textbf{Rationale:} Residual connections improve gradient flow and stabilize deeper encoders/decoders.
+
+\paragraph{\texttt{SelfAttention2d}.}
+Provides a second implementation of SAGAN-like attention (similar to the one in your pasted \texttt{utils.py}). For maintainability, it is best practice to keep a \emph{single} canonical attention implementation and reuse it across GAN/VAE blocks.
+
+% ------------------------------------------------------------
+\subsection{\texttt{deepgen/models/classifier.py}: LeNet5 classifier as feature extractor}
+\label{subsec:code_classifier}
+
+\paragraph{Purpose.}
+\texttt{LeNet5} serves two roles:
+\begin{enumerate}
+  \item A baseline classifier (logits output) for evaluating augmentation effects.
+  \item A \textbf{feature extractor} for \texttt{fid\_like} via \texttt{return\_features=True}.
+\end{enumerate}
+
+\subsubsection*{Forward pass and shapes}
+Input \(x\in\mathbb{R}^{B\times 1\times 28\times 28}\) (expected in \([-1,1]\)):
+\begin{itemize}
+  \item \texttt{conv1(1$\rightarrow$6, 5$\times$5)}: \(28\rightarrow 24\)
+  \item avgpool \(2\times 2\): \(24\rightarrow 12\)
+  \item \texttt{conv2(6$\rightarrow$16, 5$\times$5)}: \(12\rightarrow 8\)
+  \item avgpool \(2\times 2\): \(8\rightarrow 4\)
+  \item flatten: \(16\cdot 4\cdot 4=256\)
+  \item \texttt{fc1: 256$\rightarrow$120}, \texttt{fc2: 120$\rightarrow$84} (penultimate feature), \texttt{fc3: 84$\rightarrow$10}
+\end{itemize}
+If \texttt{return\_features=True}, the model returns the \(84\)-D penultimate embedding.
+
+% ------------------------------------------------------------
+\subsection{\texttt{deepgen/models/gan.py}: Conditional GAN with SN, attention, and Projection Discriminator}
+\label{subsec:code_gan}
+
+\paragraph{High-level design.}
+The GAN is conditional (\(y\in\{0,\dots,9\}\)), uses:
+\begin{itemize}
+  \item Spectral normalization (SN) for Lipschitz control and stability.
+  \item Self-attention to model long-range spatial dependencies.
+  \item SE blocks for channel-wise reweighting.
+  \item Projection discriminator for effective conditioning.
+  \item WGAN-GP gradient penalty (implemented in \texttt{gradient\_penalty}).
+\end{itemize}
+
+\subsubsection*{\texttt{GenBlock}}
+A residual upsampling block:
+\begin{itemize}
+  \item Optional upsampling by factor 2 using nearest neighbor interpolation.
+  \item Two SN conv layers with BatchNorm and ReLU.
+  \item Optional SE gating on the residual branch.
+  \item Skip path uses a \(1\times 1\) SN conv to match channels.
+\end{itemize}
+\textbf{Rationale:} Residual upsampling is a common stable pattern in modern GAN generators. Nearest-neighbor upsampling avoids checkerboard artifacts sometimes associated with transposed convolutions.
+
+\subsubsection*{\texttt{Generator}}
+Key operations:
+\begin{itemize}
+  \item \textbf{Conditional injection:} \(\tilde{z} = z + \mathrm{Emb}(y)\), where \(\mathrm{Emb}(y)\in\mathbb{R}^{z\_dim}\).
+  \item \textbf{FC reshape:} \((B,z)\rightarrow (B,\text{base\_ch},7,7)\).
+  \item Upsample to \(14\times 14\) (\texttt{block1}), then apply self-attention, then upsample to \(28\times 28\) (\texttt{block2}).
+  \item Output uses \(\tanh\) to produce samples in \([-1,1]\), matching the dataloader normalization.
+\end{itemize}
+
+\subsubsection*{\texttt{DiscBlock}}
+Residual downsampling block:
+\begin{itemize}
+  \item SN conv with stride 2 for spatial downsampling (when enabled).
+  \item Second SN conv.
+  \item Skip connection with \(1\times 1\) SN conv and matching stride.
+  \item LeakyReLU nonlinearity.
+\end{itemize}
+
+\subsubsection*{\texttt{ProjectionDiscriminator}}
+Implements projection conditioning:
+\[
+D(x,y) = w^\top h(x) + b + \langle h(x), v(y)\rangle,
+\]
+where \(h(x)\in\mathbb{R}^{B\times C}\) is a pooled feature vector and \(v(y)\) is a class embedding. In code:
+\begin{itemize}
+  \item \texttt{features(x)} extracts conv features and applies global sum pooling:
+  \[
+  h(x) = \sum_{i,j} \text{feat}(x)_{:,:,i,j}.
+  \]
+  \item \texttt{fc(h) + bias} gives the unconditional score.
+  \item \texttt{proj = (embed(y) * h).sum(dim=1)} gives the inner product term.
+\end{itemize}
+\textbf{Note:} Global \emph{sum} pooling (not mean pooling) increases the magnitude of features with spatial extent; this can be beneficial for some GAN setups but should be kept consistent across experiments.
+
+\subsubsection*{\texttt{gradient\_penalty(D, real\_x, fake\_x, y)}}
+Implements WGAN-GP penalty:
+\begin{enumerate}
+  \item Interpolate \(x_{\hat{}}=\epsilon x_{\text{real}}+(1-\epsilon)x_{\text{fake}}\).
+  \item Compute \(D(x_{\hat{}},y)\) and gradients \(\nabla_{x_{\hat{}}}D\).
+  \item Penalize deviation of gradient norm from \(1\):
+  \[
+  \mathrm{GP}=\mathbb{E}\left[(\|\nabla_{x_{\hat{}}}D\|_2-1)^2\right].
+  \]
+\end{enumerate}
+\textbf{Rationale:} Enforces approximate 1-Lipschitz behavior needed for Wasserstein distance estimation, improving training stability.
+
+% ------------------------------------------------------------
+\subsection{\texttt{deepgen/models/vae.py}: VAE with VampPrior and ELBO}
+\label{subsec:code_vae}
+
+\paragraph{Model definition.}
+The VAE defines a latent-variable model \(p_\theta(x,z)=p_\theta(x|z)p(z)\). In this implementation, the prior \(p(z)\) is replaced by a learned \textbf{VampPrior} mixture:
+\[
+p(z)=\frac{1}{K}\sum_{k=1}^K q_\phi(z|u_k),
+\]
+where \(u_k\) are learnable pseudo-inputs (images). This increases prior flexibility and can improve latent utilization.
+
+\subsubsection*{\texttt{Encoder}}
+Input \(x\in(B,1,28,28)\). The encoder:
+\begin{itemize}
+  \item Conv stem: \(1\rightarrow 32\).
+  \item Residual downsample blocks: \(28\rightarrow 14\rightarrow 7\), channels \(32\rightarrow 64\rightarrow 128\).
+  \item FC: \(128\cdot 7\cdot 7 \rightarrow 256\).
+  \item Outputs:
+  \[
+  \mu_\phi(x)\in\mathbb{R}^{B\times z}, \quad \log\sigma^2_\phi(x)\in\mathbb{R}^{B\times z}.
+  \]
+\end{itemize}
+
+\subsubsection*{\texttt{Decoder}}
+Maps \(z\in\mathbb{R}^{B\times z}\) to \(x_{\text{rec}}\in(B,1,28,28)\):
+\begin{itemize}
+  \item FC: \(z\rightarrow 256\rightarrow 128\cdot 7\cdot 7\).
+  \item Residual block at \(7\times 7\).
+  \item Two transposed conv upsampling steps: \(7\rightarrow 14\rightarrow 28\).
+  \item Output sigmoid:
+  \[
+  x_{\text{rec}}=\sigma(\cdot)\in[0,1].
+  \]
+\end{itemize}
+\textbf{Important consistency detail:} even if training inputs are \([-1,1]\), the decoder uses sigmoid and the reconstruction loss is Bernoulli/BCE on \([0,1]\). The code therefore converts \(x\) to \([0,1]\) before BCE.
+
+\subsubsection*{\texttt{VAEVampPrior}: pseudo-inputs and prior evaluation}
+\paragraph{Pseudo-inputs.}
+\texttt{self.pseudos} is a learnable tensor of shape \((K,1,28,28)\). During sampling and prior computation, pseudo-inputs are passed through \(\tanh\) to keep them in a bounded image-like range:
+\[
+u_k = \tanh(\texttt{pseudos}_k)\approx[-1,1].
+\]
+
+\paragraph{Reparameterization.}
+Given \(\mu\) and \(\log\sigma^2\), sample:
+\[
+z=\mu + \sigma\odot\epsilon,\quad \epsilon\sim\mathcal{N}(0,I).
+\]
+
+\paragraph{\texttt{\_log\_normal(z, mu, logvar)}.}
+Computes \(\log \mathcal{N}(z;\mu,\mathrm{diag}(\exp(\log\sigma^2)))\) per sample by summing over latent dimensions.
+
+\paragraph{\texttt{log\_pz\_vampprior(z)}.}
+Computes:
+\[
+\log p(z)=\log\left(\frac{1}{K}\sum_{k=1}^K q_\phi(z|u_k)\right)
+= \log\sum_{k=1}^K \exp(\log q_\phi(z|u_k)) - \log K,
+\]
+implemented stably with \texttt{logsumexp}. This is the key difference from a standard normal prior.
+
+\subsubsection*{ELBO loss: \texttt{elbo\_loss(x, x\_rec, mu, logvar, beta)}}
+The function computes:
+\begin{itemize}
+  \item \textbf{Reconstruction term:} binary cross entropy over pixels.
+  Since \(x\) may be in \([-1,1]\), it is mapped to \([0,1]\) via
+  \[
+  x_{01} = \frac{x+1}{2}.
+  \]
+  \item \textbf{KL-like term w.r.t. VampPrior:}
+  \[
+  \mathrm{KL} = \log q_\phi(z|x) - \log p(z),
+  \]
+  where \(p(z)\) is VampPrior.
+  \item \textbf{Final loss:}
+  \[
+  \mathcal{L} = \mathbb{E}[\mathrm{Recon}] + \beta \cdot \mathbb{E}[\mathrm{KL}].
+  \]
+\end{itemize}
+\textbf{Implementation note:} This function samples \(z\) internally using \texttt{reparameterize(mu, logvar)}. If \texttt{forward} already produced a sampled \(z\), passing it through would reduce stochastic variance; however, the current approach remains correct as a Monte Carlo estimate.
+
+\subsubsection*{Sampling: \texttt{sample(n, device)}}
+Sampling follows the VampPrior mixture logic:
+\begin{enumerate}
+  \item Choose pseudo index \(k\sim \mathrm{Unif}\{1,\dots,K\}\).
+  \item Compute \(q_\phi(z|u_k)\) and sample \(z\).
+  \item Decode \(z\) to obtain \(x\in[0,1]\).
+\end{enumerate}
+This produces samples that reflect the learned prior mixture rather than a fixed standard normal.
+
+% ------------------------------------------------------------
+\subsection{Practical integration notes (what connects to what)}
+\label{subsec:code_integration}
+
+\paragraph{Data range conventions.}
+\begin{itemize}
+  \item GAN: generator outputs \([-1,1]\) using \(\tanh\); discriminator expects the same.
+  \item VAE: encoder ingests \([-1,1]\) (if enabled), but decoder outputs \([0,1]\) due to Bernoulli likelihood; BCE uses \([0,1]\) targets.
+\end{itemize}
+
+\paragraph{Metric pipeline.}
+\texttt{metrics.py} assumes a \textbf{feature model} with \texttt{return\_features=True} (here \texttt{LeNet5}), enabling a stable embedding space for Gaussian statistics and the FID-like score.
+
+\paragraph{Maintainability warning (duplicate attention blocks).}
+Your pasted code contains \texttt{SelfAttention2d} in two places (once in the pasted \texttt{utils.py} block and again in \texttt{models/blocks.py}). For a clean scientific artifact, keep one canonical implementation (recommended: \texttt{models/blocks.py}) and import it everywhere to avoid silent divergence.
+
+\paragraph{Computational cost note (VampPrior prior evaluation).}
+\texttt{log\_pz\_vampprior} computes encoder outputs for all \(K\) pseudo-inputs, which can be expensive for large \(K\). If runtime is an issue, a standard improvement is chunking pseudo-input evaluation or caching encoder outputs when the encoder parameters are not changing (not applicable during training but useful during evaluation).
+
+% End of report/code_explanation.tex

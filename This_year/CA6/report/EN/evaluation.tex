@@ -1,53 +1,64 @@
-% =========================
-% report/evaluation.tex
-% =========================
-
 \subsection{Evaluation Objectives}
-Evaluation answers three scientific questions:
+Evaluation is designed to answer three scientific questions:
 \begin{enumerate}
-  \item \textbf{Geometric correctness:} Does the estimated $\mathbf{H}$ align template structures to photo structures?
-  \item \textbf{Robustness:} How stable is performance under viewpoint/illumination/clutter variation?
-  \item \textbf{Feasibility:} Is runtime acceptable, and what stage dominates latency?
+  \item \textbf{VAE capacity and inference quality:} Does the modified objective/hierarchy improve latent utilization, sample quality, and likelihood-related metrics relative to a standard VAE?
+  \item \textbf{Posterior collapse behavior:} How do KL dynamics, active units, and posterior statistics differ between baseline and proposed models?
+  \item \textbf{Augmentation effectiveness:} Under limited data, does GAN-generated augmentation measurably improve classifier generalization on real test data?
 \end{enumerate}
 
-\subsection{Primary Quantitative Metrics}
-\paragraph{Reprojection error (pixels).}
-For ground-truth correspondence pairs $(\mathbf{p}_k^T,\mathbf{p}_k^Q)$:
-\[
-e_k = \left\|\mathbf{p}_k^Q - \pi(\mathbf{H}\tilde{\mathbf{p}}_k^T)\right\|_2.
-\]
-Aggregate as mean, median, and optionally percentiles.
+\subsection{VAE Metrics and Diagnostics}
+\paragraph{(V1) Loss decomposition.}
+We report reconstruction loss $\mathcal{L}_{\mathrm{rec}}$, KL term(s) $\mathcal{L}_{\mathrm{KL}}$ (per latent level when hierarchical), and total negative ELBO.
 
-\paragraph{Inlier ratio.}
-If $N_m$ is the number of matches and $N_i$ is the number of inliers under RANSAC:
-\[
-\text{InlierRatio} = \frac{N_i}{N_m}.
-\]
-This is a proxy for geometric consistency of correspondences.
+\paragraph{(V2) Latent activity / active units.}
+We quantify latent utilization via active units, e.g.,
+dimensions with $\mathrm{Var}_x[\mathbb{E}(z\mid x)]$ above a small threshold, and via per-dimension KL contributions.
 
-\paragraph{Success rate.}
-For tolerance $ \delta $:
-\[
-\text{Success}(\delta) = \mathbb{I}(\text{MRE}<\delta).
-\]
-Report the dataset-average success rate; select $\delta$ from application tolerance.
+\paragraph{(V3) Posterior vs prior match.}
+We compare aggregate posterior statistics (means, variances, covariance structure in PCA space) to the prior (standard normal or learned mixture prior). This directly probes over-regularization and collapse-like behavior.
 
-\subsection{Report Figures: Required Exports}
-The evaluator should export the following figures, which are referenced in \texttt{results.tex}:
+\paragraph{(V4) Likelihood estimation (importance sampling).}
+We estimate $\log p_\theta(x)$ with an importance-weighted estimator:
+\[
+\widehat{\log p_\theta(x)}=
+\log\left(\frac{1}{K_{\mathrm{IS}}}\sum_{k=1}^{K_{\mathrm{IS}}}
+\frac{p_\theta(x\mid z^{(k)})p(z^{(k)})}{q_\phi(z^{(k)}\mid x)}\right),
+\quad z^{(k)}\sim q_\phi(z\mid x).
+\]
+We explicitly report $K_{\mathrm{IS}}$ and use the same estimator across models for fair comparison.
+
+\paragraph{(V5) Qualitative samples and traversals.}
+We provide generated samples from $p(z)$ and latent traversals (and PCA-based traversals) to assess whether learned directions correspond to meaningful factors of variation.
+
+\paragraph{(V6) Pseudo-input visualization.}
+We visualize pseudo-inputs $\{u_k\}$ and interpret whether they represent diverse modes of the data distribution, consistent with a multimodal learned prior.
+
+\subsection{GAN Training Metrics}
+\paragraph{(G1) Critic and generator losses.}
+We plot $-\mathbb{E}[D(x_{\mathrm{real}},y)]+\mathbb{E}[D(x_{\mathrm{fake}},y)]$ (Wasserstein term), total critic loss (including GP, drift, embedding regularization), and generator loss $-\mathbb{E}[D(x_{\mathrm{fake}},y)]$.
+
+\paragraph{(G2) Regularization terms.}
+We plot gradient penalty magnitude, drift penalty, and embedding regularization across training steps.
+
+\paragraph{(G3) Fixed-noise sample grids.}
+We export grids at steps $\{0,1000,2000,3000,4000\}$ using fixed noise and fixed labels to ensure comparable qualitative assessment across checkpoints.
+
+\subsection{Augmentation Evaluation (Classifier-Based)}
+\paragraph{(A1) Baseline vs augmented training.}
+We train the same classifier architecture under:
 \begin{itemize}
-  \item \texttt{overlay\_grid.png}: qualitative overlay inspection.
-  \item \texttt{reproj\_error\_hist.png}: distribution of per-image MRE (detects heavy tails and multimodality).
-  \item \texttt{runtime\_breakdown.png}: stage-wise profiling (identifies bottlenecks).
-  \item \texttt{ablation\_plot.png}: sensitivity vs.\ parameters (identifies stable operating regime).
-  \item \texttt{failure\_case\_1.png}, \texttt{failure\_case\_2.png}: worst cases or representative failures (boundary of validity).
+  \item real-only (limited-data) training,
+  \item real + GAN-generated synthetic augmentation.
 \end{itemize}
+Evaluation uses the untouched FashionMNIST test set.
 
-\subsection{Ablations (Minimum Scientific Set)}
-Ablations should isolate causal effects:
+\paragraph{(A2) Performance reporting.}
+We report:
 \begin{itemize}
-  \item ORB \texttt{nfeatures} $\in \{500, 1000, 2000, 4000\}$,
-  \item RANSAC threshold $\tau \in \{2,3,5,8\}$ pixels,
-  \item cross-check on/off,
-  \item optional CLAHE on/off.
+  \item overall test accuracy,
+  \item class-wise accuracy (or per-class error rate),
+  \item confusion matrix (optional but recommended for diagnosing boundary shifts).
 \end{itemize}
-A scientifically strong conclusion emphasizes regions where performance is stable rather than single-point maxima.
+Any improvement is interpreted in light of label-conditional sample quality and coverage, and limitations are documented when augmentation introduces class confusion.
+
+

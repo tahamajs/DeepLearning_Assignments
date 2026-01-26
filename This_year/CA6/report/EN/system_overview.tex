@@ -3,35 +3,51 @@
 % =========================
 
 \subsection{Pipeline Summary}
-The system aligns a template to a photograph using a standard feature-based registration pipeline:
+The alignment system described in this report follows a standard feature-based registration pipeline, which processes the template and photograph in a sequence of deterministic stages to achieve the desired template-to-photo overlay. The overall steps are as follows:
+
 \begin{enumerate}
-  \item Preprocess $\mathcal{I}_T$ and $\mathcal{I}_Q$ (grayscale conversion; optional contrast normalization).
-  \item Detect and describe keypoints with ORB \cite{Rublee2011ORB}.
-  \item Match descriptors (Hamming distance) and filter matches (cross-check and distance thresholding).
-  \item Estimate homography $\mathbf{H}$ using RANSAC to suppress outliers \cite{FischlerBolles1981}.
-  \item Warp template into photo frame via $\mathbf{H}$ and render overlay for inspection.
-  \item Export metrics, plots, and worst-case examples for scientific evaluation.
+  \item \textbf{Preprocessing of Images:} Both the template image ($\mathcal{I}_T$) and the query photograph ($\mathcal{I}_Q$) are preprocessed. This typically involves converting the images to grayscale for simplicity and ensuring they are normalized for consistent feature extraction. In some cases, contrast normalization (e.g., CLAHE) is applied to enhance keypoint detectability, especially when dealing with low-contrast images.
+  \item \textbf{Keypoint Detection and Description:} Local features are detected using the Oriented FAST and Rotated BRIEF (ORB) algorithm \citep{Rublee2011ORB}. ORB is chosen for its computational efficiency and its robustness to rotation and scale variations in the images. The detected keypoints are described using binary descriptors, which are efficient for matching and computationally lightweight.
+  \item \textbf{Descriptor Matching and Filtering:} Once the descriptors are extracted, they are matched between the template and the query image. Hamming distance is used to measure the similarity between descriptors. A cross-checking procedure is applied to reduce incorrect matches, and a distance threshold is used to filter out weak matches, ensuring only the most reliable correspondences are retained.
+  \item \textbf{Homography Estimation via RANSAC:} The next step is to estimate the homography $\mathbf{H}$, which models the projective transformation between the template and the query photograph. The homography is computed using RANSAC \citep{FischlerBolles1981}, a robust estimator that minimizes the effect of outlier matches by iteratively fitting the model to the data and retaining only the inliers that are consistent with the estimated homography.
+  \item \textbf{Template Warping and Overlay Generation:} After estimating the homography, the template is warped into the coordinate frame of the photograph using the computed homography $\mathbf{H}$. The warped template is then blended with the query photograph to create the final overlay image for inspection.
+  \item \textbf{Metrics Export and Analysis:} Quantitative performance metrics, such as reprojection error, success rate, and runtime, are computed and exported. Additionally, failure-case examples are identified and stored to provide insights into boundary conditions and potential areas for improvement in the system.
 \end{enumerate}
 
 \subsection{Repository Layout (Expected)}
-The report assumes the following folder layout (paths are relative to project root):
+To maintain organization and clarity, the repository is structured with clear directory divisions for each component. Below is the expected folder layout, which helps manage data, scripts, and results:
+
 \begin{verbatim}
 report/
-  main.tex
-  *.tex
-  references.bib
+  main.tex          % Main report LaTeX file
+  *.tex             % Other LaTeX files (e.g., for individual sections)
+  references.bib    % BibTeX file containing references
 src/
-  (your python modules)
+  (your python modules) % Python scripts for the alignment pipeline
 data/
-  templates/
-  photos/
-  annotations/   (optional)
+  templates/        % Folder containing the template images
+  photos/           % Folder containing the query photographs
+  annotations/      % (optional) Folder for ground-truth point correspondences or masks
 results/
-  overlays/
-  figures/
-  metrics/
-  matches/       (optional debug outputs)
+  overlays/         % Folder for saving overlay images (template overlaid on query images)
+  figures/          % Folder for figures used in the report (e.g., error distributions, runtime)
+  metrics/          % Folder for quantitative metrics (CSV/JSON files)
+  matches/          % (optional) Folder for debug outputs showing raw matches or intermediate results
 \end{verbatim}
 
+This structure ensures that each component of the project—data, code, and results—are clearly separated, facilitating both reproducibility and further experimentation.
+
 \subsection{Why Feature-Based Registration}
-Feature-based registration is computationally efficient and works without training data. Under moderate viewpoint changes and sufficient texture/structure, ORB+RANSAC yields robust alignment at low latency \cite{Rublee2011ORB,FischlerBolles1981}.
+Feature-based registration is a widely adopted method for aligning images, particularly when dealing with planar scenes or objects where the relationship between the template and the query image can be approximated by a projective transformation (homography). This approach has several advantages:
+
+\begin{itemize}
+  \item \textbf{Computational Efficiency:} Feature-based methods like ORB provide a good balance between accuracy and computational efficiency. ORB’s binary descriptors are lightweight and allow for fast matching, which is essential for real-time applications or large-scale datasets.
+  \item \textbf{No Training Data Required:} Unlike deep learning-based methods, feature-based registration does not require large datasets for training. This makes it a particularly appealing choice when labeled data is scarce or when the method needs to be applied to a wide variety of images without re-training.
+  \item \textbf{Robustness to Moderate Viewpoint Changes:} ORB features are invariant to rotation and scale, making the method robust to moderate viewpoint changes and ensuring that keypoints remain detectable even when the template and photograph are viewed from different angles or distances.
+  \item \textbf{Low Latency:} The method operates with low latency, making it suitable for applications that require fast processing, such as interactive inspection systems or on-the-fly part verification during assembly lines.
+\end{itemize}
+
+Feature-based registration methods are particularly effective when there is sufficient texture or structure in the images for feature detection. Under moderate viewpoint changes, these methods can yield high-quality alignments with low computational overhead \citep{Rublee2011ORB,FischlerBolles1981}. However, they may struggle in the presence of repetitive textures, glare, or occlusion, which can be mitigated by applying appropriate preprocessing and matching strategies.
+
+By focusing on feature-based methods, this work provides a solution that is both efficient and flexible, making it applicable to a wide range of practical scenarios in industrial inspection, robotic assembly, and other areas requiring template-to-photo alignment.
+

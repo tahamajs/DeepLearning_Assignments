@@ -1,388 +1,222 @@
 % =========================
-% implementation.tex
+% report/implementation.tex  (REPLACEMENT FOR VAE + cWGAN-GP REPORT)
+% NOTE: main.tex already contains \section{Implementation}; do NOT add another \section here.
 % =========================
-% Drop this file into your LaTeX project and include it with:
-%   \input{implementation}
-%
-% This "Implementation" section is written to be self-contained and compilable
-% even if some images/code files are not present yet (it will show placeholders).
-
-\section{Implementation}
 \label{sec:implementation}
 
 \subsection{Objective and Scope}
-\label{subsec:objective_scope}
-This section documents the complete implementation of the proposed computer-vision alignment and overlay system. The system takes (i) a \textit{reference template} (e.g., a part blueprint, CAD-derived 2D drawing, or annotated map) and (ii) a \textit{query photograph} of the physical part, and produces a geometrically consistent overlay of the template on the photograph. The implementation is structured to be reproducible, auditable, and measurable, with explicit evaluation outputs (figures and tables) generated directly by the accompanying Python scripts.
+This section documents a complete, reproducible implementation of:
+(i) baseline and referenced VAEs (including enhanced-capacity objective and hierarchical latent architecture) trained on Dynamic MNIST, and
+(ii) a conditional WGAN-GP with attention and spectral normalization trained on FashionMNIST for data augmentation, followed by classifier-based evaluation.
 
-\subsection{System Architecture}
-\label{subsec:architecture}
-The pipeline is implemented as a sequence of deterministic stages:
-\begin{enumerate}
-  \item \textbf{Template preparation:} standardize template scale, resolution, and keypoint detectability.
-  \item \textbf{Image preprocessing:} normalize illumination/contrast; optionally restrict to a region of interest (ROI).
-  \item \textbf{Feature extraction:} detect and describe local features (ORB by default; optional SIFT if licensed/available).
-  \item \textbf{Feature matching:} compute descriptor correspondences; filter outliers.
-  \item \textbf{Geometric estimation:} robustly estimate a planar projective transform (homography) via RANSAC.
-  \item \textbf{Warping and overlay:} warp the template into the camera view and blend it with controllable transparency.
-  \item \textbf{Evaluation:} compute quantitative metrics (alignment error, IoU where applicable, runtime), and save plots.
-\end{enumerate}
-The design follows standard multi-view geometry and robust estimation principles \cite{HartleyZisserman2004,FischlerBolles1981}, with widely-used feature-based registration methods \cite{Rublee2011ORB,Lowe2004SIFT}.
+All experiments produce audit-ready artifacts: training curves (loss components), generated samples at fixed checkpoints, latent diagnostics (posterior statistics, activity measures, traversals/PCA), and classifier metrics under real-only and augmented regimes.
 
 \subsection{Repository Layout and Script Responsibilities}
-\label{subsec:repo_layout}
-The implementation assumes the following repository structure (you can rename paths if needed, but keep the logic consistent):
+A clean separation of concerns is used to ensure traceability:
 \begin{verbatim}
 project_root/
   src/
-    01_prepare_templates.py
-    02_preprocess_images.py
-    03_align_and_overlay.py
-    04_evaluate_alignment.py
-    05_benchmark_runtime.py
+    vae/
+      01_train_baseline_vae.py
+      02_train_proposed_vae.py
+      03_eval_latent_diagnostics.py
+      04_estimate_likelihood.py
+      05_visualize_pseudo_inputs.py
+    gan/
+      01_build_splits.py
+      02_train_cwgan_gp.py
+      03_generate_augmented_set.py
+      04_train_classifier.py
+      05_compare_results.py
   data/
-    templates/
-    photos/
-    annotations/   (optional; evaluation ground truth)
+    mnist_dynamic/      (or generated on-the-fly from MNIST with dynamic binarization)
+    fashionmnist/
+    splits/             (indices for non-overlapping subsets)
   results/
-    overlays/
-    metrics/
-    figures/
+    vae/
+      curves/
+      samples/
+      latents/
+      pseudo_inputs/
+      likelihood/
+    gan/
+      curves/
+      samples/
+      augmented_data/
+      classifier/
   report/
+    notation.tex
     implementation.tex
+    experiments.tex
+    evaluation.tex
+    reproducibility.tex
     references.bib
 \end{verbatim}
 
-For scientific traceability, each stage is isolated in its own script so that intermediate artifacts can be inspected.
-
-\subsection{Software Stack and Reproducibility Controls}
-\label{subsec:stack_repro}
+\subsection{Software Stack and Determinism Controls}
 \paragraph{Core dependencies.}
-The system is implemented in Python and relies on:
 \begin{itemize}
-  \item OpenCV for feature detection/matching, homography estimation, and warping \cite{Bradski2000OpenCV}.
-  \item NumPy for numeric operations.
-  \item Matplotlib for evaluation plots.
+  \item PyTorch for model definition, training, and automatic differentiation.
+  \item torchvision for MNIST/FashionMNIST loading and standard transforms.
+  \item NumPy for numerics and dataset index management.
+  \item Matplotlib for report-quality plots.
 \end{itemize}
 
-\paragraph{Determinism.}
-To minimize run-to-run variance:
+\paragraph{Reproducibility controls.}
+All scripts:
 \begin{itemize}
-  \item Fix random seeds in NumPy and any stochastic modules used in preprocessing.
-  \item Use consistent image resizing rules and interpolation methods.
-  \item Store exact configuration values (YAML/JSON) alongside results.
+  \item fix random seeds (Python/NumPy/PyTorch),
+  \item log configurations (YAML/JSON) alongside outputs,
+  \item record device (CPU/GPU), PyTorch version, and commit hash (if applicable),
+  \item store dataset split indices to guarantee non-overlapping subsets.
 \end{itemize}
 
-\paragraph{Output contract.}
-Every run writes:
-\begin{enumerate}
-  \item warped overlays (PNG) under \texttt{results/overlays/}
-  \item metrics (CSV/JSON) under \texttt{results/metrics/}
-  \item evaluation figures (PNG/PDF) under \texttt{results/figures/}
-\end{enumerate}
+\subsection{Part I: VAE Implementations (Dynamic MNIST)}
+\subsubsection{Dynamic MNIST data pipeline}
+Dynamic MNIST is implemented via \emph{dynamic binarization}: at each epoch/iteration, grayscale pixel intensities (in $[0,1]$) are treated as Bernoulli parameters and binarized by sampling. This prevents overfitting to a fixed binarization and is standard for likelihood-based comparisons.
 
-\subsection{Data Preparation}
-\label{subsec:data_prep}
+\subsubsection{Baseline VAE}
+\paragraph{Model parameterization.}
+We use an encoder $q_\phi(z\mid x)=\mathcal{N}(\mu_\phi(x),\mathrm{diag}(\sigma_\phi^2(x)))$ and a Bernoulli decoder $p_\theta(x\mid z)$ parameterized by a neural network producing logits (or probabilities after sigmoid).
 
-\subsubsection{Template Standardization}
-\label{subsubsec:template_standard}
-Templates can vary in line thickness, contrast, and scale. The script \texttt{src/01\_prepare\_templates.py} standardizes:
-\begin{itemize}
-  \item \textbf{Resolution:} enforce a fixed maximum dimension (e.g., 1024 px) while preserving aspect ratio.
-  \item \textbf{Contrast:} normalize to improve keypoint stability (e.g., CLAHE for line drawings when needed).
-  \item \textbf{Binarization (optional):} for high-contrast line art, adaptive thresholding can improve keypoint repeatability.
-\end{itemize}
-
-\subsubsection{Photograph Preprocessing}
-\label{subsubsec:photo_preprocess}
-Photographs contain illumination variation, specular highlights, and background clutter. The script \texttt{src/02\_preprocess\_images.py} applies:
-\begin{itemize}
-  \item \textbf{Resize policy:} reduce the longest side to a fixed value to control runtime.
-  \item \textbf{Illumination normalization:} convert to grayscale; apply gentle denoising; optionally CLAHE.
-  \item \textbf{ROI restriction (optional):} if a user provides a bounding box or a coarse detector is available, restrict matching to the part region to reduce false matches.
-\end{itemize}
-
-\subsection{Geometric Alignment and Overlay}
-\label{subsec:alignment_overlay}
-
-\subsubsection{Feature Extraction}
-\label{subsubsec:features}
-Default feature extractor: ORB (Oriented FAST and Rotated BRIEF) \cite{Rublee2011ORB}. ORB is used because it is computationally efficient and robust for many industrial textures.
-
-Let $\mathcal{I}_T$ denote the template image and $\mathcal{I}_Q$ the query photograph (both preprocessed).
-Feature extraction produces:
+\paragraph{Objective and logging.}
+The baseline optimizes:
 \[
-\{(\mathbf{x}_i^T, \mathbf{d}_i^T)\}_{i=1}^{N_T},\qquad
-\{(\mathbf{x}_j^Q, \mathbf{d}_j^Q)\}_{j=1}^{N_Q}
+\mathcal{L}_{\mathrm{ELBO}}(x)=
+\mathbb{E}_{q_\phi(z\mid x)}[\log p_\theta(x\mid z)]
+-
+\mathrm{KL}(q_\phi(z\mid x)\|p(z)).
 \]
-where $\mathbf{x}$ are keypoint locations in pixel coordinates and $\mathbf{d}$ are binary descriptors.
+We log $\mathcal{L}_{\mathrm{rec}}$ and $\mathcal{L}_{\mathrm{KL}}$ separately per step/epoch, along with total loss.
 
-\subsubsection{Descriptor Matching and Outlier Filtering}
-\label{subsubsec:matching}
-Matching is performed using Hamming distance for ORB descriptors. Candidate matches are filtered using:
-\begin{itemize}
-  \item \textbf{Cross-check (mutual nearest neighbors):} reduces many-to-one mismatches.
-  \item \textbf{Distance thresholding:} remove weak matches by discarding those above a percentile threshold.
-  \item \textbf{Geometric consistency via RANSAC:} final outlier removal occurs during homography estimation.
-\end{itemize}
-
-\subsubsection{Homography Estimation with RANSAC}
-\label{subsubsec:homography}
-Assuming the template surface is approximately planar relative to the camera view, alignment is modeled by a homography $\mathbf{H}\in\mathbb{R}^{3\times 3}$:
+\subsubsection{Proposed VAE: enhanced-capacity objective and hierarchical structure}
+\paragraph{Enhanced-capacity objective (learned mixture prior).}
+We implement the paper’s modification by replacing $p(z)$ with a flexible prior $p_\lambda(z)$ induced by pseudo-inputs $\{u_k\}$:
 \[
-\tilde{\mathbf{x}}^Q \sim \mathbf{H}\tilde{\mathbf{x}}^T,
+p_\lambda(z)=\frac{1}{K}\sum_{k=1}^K q_\phi(z\mid u_k),
+\qquad
+\mathcal{L}(x)=
+\mathbb{E}_{q_\phi(z\mid x)}[\log p_\theta(x\mid z)]
+-
+\mathrm{KL}(q_\phi(z\mid x)\|p_\lambda(z)).
 \]
-where $\tilde{\mathbf{x}}=[x,y,1]^T$ are homogeneous coordinates and $\sim$ indicates equality up to scale \cite{HartleyZisserman2004}.
+Pseudo-inputs are learned jointly with $\theta,\phi$ and visualized during training.
 
-Because feature matches contain outliers, $\mathbf{H}$ is estimated using RANSAC \cite{FischlerBolles1981}. RANSAC repeatedly:
-\begin{enumerate}
-  \item samples minimal match subsets,
-  \item estimates $\mathbf{H}$ from the subset,
-  \item counts inliers under a reprojection threshold $\tau$ (pixels),
-  \item keeps the model with the largest inlier set.
-\end{enumerate}
-
-\paragraph{Reprojection error.}
-Given a correspondence $(\mathbf{x}^T,\mathbf{x}^Q)$:
+\paragraph{Hierarchical latent implementation.}
+We implement a two-level hierarchy ($z_2\rightarrow z_1\rightarrow x$) as specified in the assignment/paper:
 \[
-e = \left\|\mathbf{x}^Q - \pi(\mathbf{H}\tilde{\mathbf{x}}^T)\right\|_2,
+p_\theta(x,z_1,z_2)=p_\theta(x\mid z_1)\,p_\theta(z_1\mid z_2)\,p(z_2),
+\quad
+q_\phi(z_1,z_2\mid x)=q_\phi(z_2\mid x)\,q_\phi(z_1\mid x,z_2).
 \]
-where $\pi([u,v,w]^T) = [u/w, v/w]^T$.
+We report KL terms per level to analyze latent utilization and posterior collapse behavior.
 
-\subsubsection{Warping and Alpha Blending}
-\label{subsubsec:warping}
-After estimating $\mathbf{H}$, the template is warped into the query image coordinate system using a projective warp. The overlay is blended using alpha compositing:
+\subsubsection{Latent diagnostics and posterior collapse analysis}
+We compute:
+\begin{itemize}
+  \item posterior mean/variance summaries across the dataset,
+  \item per-dimension KL contributions and the number of \emph{active units},
+  \item PCA on latent codes and controlled latent traversals,
+  \item pseudo-input visualizations (inputs and their induced latent modes),
+  \item likelihood estimates using importance sampling (IWAE-style).
+\end{itemize}
+
+\subsection{Part II: Conditional WGAN-GP for Augmentation (FashionMNIST)}
+\subsubsection{Non-overlapping data splits}
+We construct two disjoint subsets:
+(i) a GAN subset for learning $p(x\mid y)$, and
+(ii) a classifier subset for downstream evaluation.
+Per-class sampling is implemented exactly as required (e.g., $N$ per class) and split indices are saved under \texttt{data/splits/}.
+
+\subsubsection{Architectural modules: SN, Self-Attention, Channel Attention}
+\paragraph{Spectral Normalization (SN).}
+We wrap Conv2d/ConvTranspose2d layers with SN to control the spectral norm of weights, improving critic stability.
+
+\paragraph{Self-Attention (SA).}
+SA modules follow the assignment’s tensor naming and shapes ($f,g,h,v$), compute attention maps of size $(B,N,N)$ with $N=HW$, and apply a residual connection $y=\gamma o + x$ with learnable scalar $\gamma$.
+
+\paragraph{Channel Attention (CA).}
+CA uses global average pooling, an MLP (two FC layers with ReLU), and sigmoid gating to recalibrate feature channels.
+
+\subsubsection{Conditional generator and projection discriminator}
+\paragraph{Conditional generator.}
+Class embeddings are concatenated with noise: $\tilde{z}=[z; e_G(y)]$, then mapped through the specified upsampling blocks to generate $x_{\mathrm{fake}}$.
+
+\paragraph{Projection discriminator.}
+The critic computes
 \[
-\mathcal{I}_{\text{out}} = \alpha \cdot \mathcal{I}_{\text{warp}} + (1-\alpha)\cdot \mathcal{I}_Q,
+D_\omega(x,y)=s_\omega(\phi_\omega(x))+\langle \phi_\omega(x), e_D(y)\rangle,
 \]
-with $\alpha\in[0,1]$ chosen to preserve visibility of the underlying photograph while clearly showing the template boundaries.
+ensuring label conditioning via inner products in feature space.
 
-\subsubsection{Optional: Coarse Detection or Segmentation Gate}
-\label{subsubsec:optional_detection}
-If background clutter causes frequent mismatches, a coarse detector/segmenter can be used to restrict matching to the part ROI. This is not required for the core method, but it can materially improve robustness in uncontrolled scenes.
-
-\subsection{Evaluation Protocol}
-\label{subsec:evaluation_protocol}
-
-\subsubsection{Ground Truth Definition}
-\label{subsubsec:gt}
-Evaluation requires a ground truth geometric mapping or, at minimum, ground truth reference points:
+\subsubsection{WGAN-GP losses and training loop}
+\paragraph{Loss terms.}
+We implement the assignment’s exact WGAN-GP loss with:
 \begin{itemize}
-  \item \textbf{Corner-point ground truth (recommended):} annotate $K\ge4$ corresponding points between template and photo.
-  \item \textbf{Polygon/Mask ground truth (optional):} annotate a template region and its corresponding region in the photo for IoU.
+  \item Wasserstein term,
+  \item gradient penalty ($\lambda_{\mathrm{GP}}=10$),
+  \item drift penalty ($0.001$),
+  \item embedding $L_2$ penalty ($0.001$).
 \end{itemize}
-Annotations are stored under \texttt{data/annotations/} in JSON.
 
-\subsubsection{Metrics}
-\label{subsubsec:metrics}
-The script \texttt{src/04\_evaluate\_alignment.py} computes the following metrics:
+\paragraph{Optimization protocol.}
+We follow the specified hyperparameters:
+Adam with $\mathrm{LR}(G)=2\times10^{-4}$, $\mathrm{LR}(D)=4\times10^{-4}$, betas $(0.0,0.9)$; scheduler $\gamma=0.95$ every 100 steps; $N_{\mathrm{critic}}=5$ critic steps per generator step; fixed noise/labels for checkpoint grids at steps $\{0,1000,2000,3000,4000\}$.
 
-\paragraph{(M1) Mean reprojection error (pixels).}
-If the ground truth provides $K$ points $\{\mathbf{p}_k^T\leftrightarrow\mathbf{p}_k^Q\}$:
+\subsubsection{Augmentation and classifier evaluation}
+We generate a controlled number of synthetic samples per class from the trained generator, build an augmented training set (real + synthetic), and train the same classifier architecture under both regimes. Evaluation is performed on the unchanged FashionMNIST test set. We report overall accuracy and class-wise performance, supported by confusion matrices and per-class error rates where relevant.
+
+
+
+% =========================
+% report/experiments.tex  (REPLACEMENT FOR VAE + cWGAN-GP REPORT)
+% NOTE: main.tex already has a Data/Protocol section; keep this file at \subsection level.
+% =========================
+
+\subsection{Datasets}
+\paragraph{Dynamic MNIST.}
+Dynamic MNIST is derived from MNIST by sampling a binarized image at each iteration using pixel intensities as Bernoulli parameters. This yields a stochastic training set that prevents models from overfitting a fixed binarization and is standard for likelihood-based evaluation.
+
+\paragraph{FashionMNIST (limited-data regime).}
+FashionMNIST is used for conditional generation and augmentation. All images are normalized using:
 \[
-\text{MRE} = \frac{1}{K}\sum_{k=1}^{K}\left\|\mathbf{p}_k^Q - \pi(\mathbf{H}\tilde{\mathbf{p}}_k^T)\right\|_2.
+x \leftarrow \frac{x-0.5}{0.5},
 \]
+matching the assignment’s transform specification.
 
-\paragraph{(M2) Median reprojection error (pixels).}
-More robust to occasional annotation noise/outliers:
-\[
-\text{MedRE} = \operatorname{median}_{k}\left(\left\|\mathbf{p}_k^Q - \pi(\mathbf{H}\tilde{\mathbf{p}}_k^T)\right\|_2\right).
-\]
+\subsection{Train/Validation/Test Protocol}
+\paragraph{VAE.}
+VAEs are trained on the Dynamic MNIST training split. Where needed, a validation subset is used for early diagnostics (without altering test evaluation). Final reporting uses held-out test evaluation for likelihood estimation and latent analysis.
 
-\paragraph{(M3) Success rate under threshold.}
-Define a success threshold $\delta$ (e.g., $\delta=5$ px for high-resolution images):
-\[
-\text{Success}(\delta) = \mathbb{I}(\text{MRE} < \delta).
-\]
-Aggregate across images to compute the fraction of successful alignments.
-
-\paragraph{(M4) Intersection-over-Union (IoU) (optional).}
-If masks are provided, warp the template mask and compare to the photo mask:
-\[
-\text{IoU} = \frac{|A\cap B|}{|A\cup B|}.
-\]
-
-\paragraph{(M5) Runtime and throughput.}
-The script \texttt{src/05\_benchmark\_runtime.py} measures:
+\paragraph{GAN augmentation.}
+The FashionMNIST training set is split into two \emph{non-overlapping} subsets:
 \begin{itemize}
-  \item per-image total runtime (ms),
-  \item stage-wise runtime breakdown (feature extraction, matching, RANSAC, warp),
-  \item throughput (frames per second) under fixed resolution.
+  \item GAN subset: used exclusively to train the conditional WGAN-GP.
+  \item Classifier subset: used to train the downstream classifier (baseline and augmented).
+\end{itemize}
+The split is stratified by class and uses the exact per-class sampling required by the assignment. Split indices are saved for reproducibility.
+
+\subsection{Experimental Settings}
+\paragraph{VAE experiments.}
+We run:
+\begin{itemize}
+  \item baseline VAE with low-dimensional $d$,
+  \item proposed model (enhanced objective + hierarchy) with the same $d$,
+  \item proposed model with high-dimensional latent (e.g., $d=40$ as required).
+\end{itemize}
+For each run we export: training curves (reconstruction/KL/total), generated samples, posterior statistics, active units, PCA/traversals, pseudo-input visualizations, and likelihood estimates.
+
+\paragraph{GAN experiments.}
+We train the conditional WGAN-GP for $\mathrm{RUN}=4000$ steps with $N_{\mathrm{critic}}=5$ and log:
+critic loss, generator loss, Wasserstein estimate, gradient penalty, drift term, and embedding regularization. Samples are saved at steps $\{0,1000,2000,3000,4000\}$ using fixed noise and fixed labels.
+
+\subsection{Artifacts and Output Contract}
+All experiments write:
+\begin{itemize}
+  \item plots under \texttt{results/*/curves/},
+  \item samples/grids under \texttt{results/*/samples/},
+  \item latent diagnostics under \texttt{results/vae/latents/},
+  \item pseudo-input visualizations under \texttt{results/vae/pseudo\_inputs/},
+  \item classifier metrics under \texttt{results/gan/classifier/}.
 \end{itemize}
 
-\subsubsection{Experimental Controls}
-\label{subsubsec:controls}
-All evaluations should specify:
-\begin{itemize}
-  \item image resolution used for matching,
-  \item ORB parameters (number of features, pyramid levels),
-  \item RANSAC reprojection threshold $\tau$ and max iterations,
-  \item match filtering rules (cross-check, distance percentiles),
-  \item hardware and OS details (for runtime comparability).
-\end{itemize}
-
-\subsection{Results: Figures and Quantitative Summaries}
-\label{subsec:results}
-
-% % ---------- Helper macros to avoid compile errors if files are missing ----------
-% \newcommand{\ResultGraphic}[3]{
-%   \begin{figure}[t]
-%     \centering
-%     \IfFileExists{#1}{%
-%       \includegraphics[width=#2]{#1}%
-%     }{%
-%       \fbox{\parbox{0.9\linewidth}{\textbf{Missing figure:} \texttt{#1}\\
-%       Place the file at this path or update the filename in \texttt{implementation.tex}.}}%
-%     }%
-%     \caption{#3}
-%     \label{fig:#1}
-%   \end{figure}
-% }
-
-% \newcommand{\ResultGraphicTwo}[6]{%
-%   \begin{figure}[t]
-%     \centering
-%     \begin{subfigure}{0.48\linewidth}
-%       \centering
-%       \IfFileExists{#1}{\includegraphics[width=\linewidth]{#1}}{\fbox{\parbox{0.9\linewidth}{Missing: \texttt{#1}}}}
-%       \caption{#3}
-%     \end{subfigure}\hfill
-%     \begin{subfigure}{0.48\linewidth}
-%       \centering
-%       \IfFileExists{#2}{\includegraphics[width=\linewidth]{#2}}{\fbox{\parbox{0.9\linewidth}{Missing: \texttt{#2}}}}
-%       \caption{#4}
-%     \end{subfigure}
-%     \caption{#5}
-%     \label{fig:#6}
-%   \end{figure}
-% }
-
-\paragraph{Qualitative overlays (visual verification).}
-Visual inspection is essential because small geometric errors can be obvious to humans even when aggregate metrics look acceptable. The evaluation script saves overlay grids showing the template projected onto representative photographs.
-
-% \ResultGraphic{results/figures/overlay_grid.png}{0.95\linewidth}{Representative qualitative results. Each panel shows the query photograph with the warped template overlay (alpha blending). This figure is generated automatically by \texttt{src/04\_evaluate\_alignment.py}.}
-
-\paragraph{Error distribution (reprojection error).}
-The distribution of reprojection errors reveals whether the method fails rarely-but-catastrophically or degrades smoothly under challenging conditions.
-
-% \ResultGraphic{results/figures/reproj_error_hist.png}{0.85\linewidth}{Histogram of mean reprojection error (pixels) across the evaluation set. A sharply concentrated distribution indicates stable geometric estimation; a heavy tail indicates occasional failure cases requiring mitigation (e.g., ROI gating, stricter match filtering).}
-
-\paragraph{Runtime profiling.}
-Runtime is reported both as total per-image latency and as a stage-wise breakdown, enabling targeted optimization.
-
-% \ResultGraphic{results/figures/runtime_breakdown.png}{0.9\linewidth}{Stage-wise runtime breakdown (feature extraction, matching, RANSAC, warp, overlay). This figure is generated by \texttt{src/05\_benchmark\_runtime.py} using repeated runs to reduce measurement noise.}
-
-\paragraph{Ablation study (robustness to parameter choices).}
-Ablations quantify the sensitivity of results to key parameters:
-\begin{itemize}
-  \item ORB number of features ($n_{\text{feat}}$),
-  \item RANSAC threshold ($\tau$),
-  \item match filtering strategy (cross-check on/off).
-\end{itemize}
-
-% \ResultGraphic{results/figures/ablation_plot.png}{0.9\linewidth}{Ablation results showing how alignment error and success rate vary with key parameters. The objective is to identify a stable operating region (low error, high success) rather than a single overfit setting.}
-
-\paragraph{Failure analysis (diagnostic examples).}
-Failure cases are necessary for scientific completeness because they explain boundary conditions of the method.
-
-% \ResultGraphicTwo%
-% {results/figures/failure_case_1.png}%
-% {results/figures/failure_case_2.png}%
-% {Example 1: repetitive texture / ambiguous features}%
-% {Example 2: strong glare / low contrast}%
-% {Representative failure cases. These cases motivate mitigation strategies such as ROI restriction, improved illumination normalization, or hybrid feature+detector pipelines.}%
-% {failure_cases}
-
-\subsection{Answers to the Evaluation Questions (Complete, Explanatory)}
-\label{subsec:qa}
-
-% You requested “full long answer of each question”.
-% Below are comprehensive, report-ready answers to the standard scientific evaluation questions
-% for this type of alignment/overlay system.
-
-\subsubsection*{Q1: How does the system compute the geometric alignment between template and photograph?}
-The system models the mapping from template pixel coordinates to photograph pixel coordinates using a planar projective transformation (homography) $\mathbf{H}$. This is appropriate when the template represents a planar surface or when the part face being observed is approximately planar relative to the camera. The homography is estimated from feature correspondences between the template image and the photograph. Specifically, ORB detects repeatable keypoints and produces binary descriptors; descriptor matching proposes correspondences; and RANSAC robustly estimates $\mathbf{H}$ by rejecting outlier matches. This combination is a standard, well-validated approach in computer vision for planar registration \cite{HartleyZisserman2004,FischlerBolles1981,Rublee2011ORB}.
-
-\subsubsection*{Q2: Why were ORB features selected, and under what conditions should alternatives be used?}
-ORB is selected because it is computationally efficient and typically performs well in real-time or near-real-time constraints, especially on CPU-only deployments \cite{Rublee2011ORB}. It also uses Hamming distance, enabling fast matching. However, ORB can be less stable than SIFT under extreme viewpoint or illumination changes. If the evaluation shows a high failure rate under such conditions (e.g., large perspective changes, motion blur, strong specular reflections), SIFT-like features (where available) or a hybrid approach (coarse detection + local refinement) may improve reliability \cite{Lowe2004SIFT}. The ablation plots and failure-case figures provide empirical evidence for whether ORB alone is sufficient for the target operating environment.
-
-\subsubsection*{Q3: What does RANSAC contribute, and how are its parameters justified?}
-Feature matching inevitably produces incorrect correspondences due to repeated patterns, background clutter, and descriptor collisions. RANSAC addresses this by fitting the model using minimal subsets and selecting the homography that yields the largest inlier set under a reprojection error threshold $\tau$ \cite{FischlerBolles1981}. The threshold $\tau$ is chosen in pixel units based on expected noise sources:
-\begin{itemize}
-  \item keypoint localization error (increases with blur/low contrast),
-  \item small deviations from planarity,
-  \item interpolation effects after resizing.
-\end{itemize}
-The ablation study explicitly varies $\tau$ to demonstrate a stable region where success rate remains high while mean error remains low. Scientifically, parameter justification is therefore empirical and supported by measured sensitivity rather than arbitrary choice.
-
-\subsubsection*{Q4: How are results quantified, and why are these metrics scientifically appropriate?}
-The primary metric is mean reprojection error (MRE), measured in pixels at the evaluation resolution. MRE directly measures geometric consistency between ground-truth correspondences and the estimated homography, and is standard for registration tasks. Median reprojection error (MedRE) complements MRE by reducing sensitivity to occasional annotation errors. Where region masks exist, IoU quantifies overlap quality in a manner interpretable for downstream use (e.g., whether the overlay sufficiently covers the correct part region). Runtime metrics are essential for feasibility in deployment settings and are measured with repeated runs to reduce timing variance.
-
-\subsubsection*{Q5: How should the qualitative overlays be interpreted alongside quantitative metrics?}
-Qualitative overlays are not decorative; they serve as a validity check for whether the estimated mapping is usable in practice. Two runs can have similar average error but differ substantially in perceptual alignment if errors concentrate along critical edges or if the overlay drifts in visually salient regions. Therefore, the report pairs overlay grids with error histograms:
-\begin{itemize}
-  \item If overlays look correct and errors are tightly distributed, the method is stable.
-  \item If overlays fail occasionally and the error distribution has a heavy tail, failures are sporadic and require robustification.
-  \item If overlays are consistently misaligned, the modeling assumption (e.g., planarity) or preprocessing may be invalid for the dataset.
-\end{itemize}
-
-\subsubsection*{Q6: What are the dominant failure modes, and what mitigations are technically justified?}
-Based on common feature-based alignment behavior and the saved failure examples, dominant failure modes typically include:
-\begin{itemize}
-  \item \textbf{Repetitive patterns:} produce ambiguous matches and unstable homographies.
-  \item \textbf{Specular highlights / glare:} reduce feature repeatability and descriptor stability.
-  \item \textbf{Strong perspective or partial occlusion:} reduce inlier count below what RANSAC needs for stable estimation.
-  \item \textbf{Background clutter:} creates spurious matches outside the part.
-\end{itemize}
-Mitigations are justified when they measurably improve metrics and reduce failure-tail probability:
-\begin{itemize}
-  \item ROI gating using a coarse detector/segmentation to suppress background matches,
-  \item stricter match filtering (cross-check, ratio-like heuristics where applicable),
-  \item improved illumination normalization (CLAHE, glare reduction where feasible),
-  \item multi-scale matching and template variants (if scale varies widely).
-\end{itemize}
-These mitigations are not speculative; they should be activated only if the ablation and failure analysis figures demonstrate improvement.
-
-\subsubsection*{Q7: What do the runtime results imply for deployment feasibility?}
-Runtime breakdown identifies the main compute bottleneck (often feature extraction or matching). If the benchmark shows that the total per-image latency is within the operational constraint (e.g., interactive inspection), the CPU-only approach is adequate. If not, optimization targets are clear:
-\begin{itemize}
-  \item reduce resolution while monitoring metric degradation,
-  \item reduce number of features while staying in the stable ablation region,
-  \item precompute template descriptors,
-  \item adopt approximate nearest neighbor matching where appropriate.
-\end{itemize}
-The report includes runtime plots so that feasibility conclusions are grounded in measured evidence, not assumptions.
-
-\subsection{Code Inclusion (Optional, Safe Compilation)}
-\label{subsec:code_inclusion}
-If you want the report to embed the exact source files, use \texttt{listings} and \texttt{\textbackslash IfFileExists} so compilation does not fail when files are moved.
-
-\begin{lstlisting}[language={[LaTeX]TeX},caption={Example: safely include Python source if present.}]
-\IfFileExists{src/03_align_and_overlay.py}{
-  \lstinputlisting[language=Python]{src/03_align_and_overlay.py}
-}{
-  \noindent\textit{Source file not found: src/03_align_and_overlay.py}
-}
-\end{lstlisting}
-
-\subsection{Reproducibility Instructions (Report-Ready)}
-\label{subsec:repro_steps}
-To reproduce the figures referenced above, run:
-\begin{verbatim}
-python src/01_prepare_templates.py
-python src/02_preprocess_images.py
-python src/03_align_and_overlay.py
-python src/04_evaluate_alignment.py
-python src/05_benchmark_runtime.py
-\end{verbatim}
-After execution, verify that \texttt{results/figures/} contains at least:
-\begin{verbatim}
-overlay_grid.png
-reproj_error_hist.png
-runtime_breakdown.png
-ablation_plot.png
-failure_case_1.png
-failure_case_2.png
-\end{verbatim}
-These filenames are referenced directly by this LaTeX file. If your code outputs different names, either rename the files or update the \texttt{\textbackslash ResultGraphic} calls accordingly.
-
-% End of implementation.tex

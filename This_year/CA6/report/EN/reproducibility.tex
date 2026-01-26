@@ -3,28 +3,40 @@
 % =========================
 
 \subsection{Environment Specification}
-For exact reproducibility, record:
+To guarantee that the experiments are fully reproducible, the following environment details should be recorded and included with the results:
 \begin{itemize}
-  \item OS and hardware (CPU model, RAM; GPU if used),
-  \item Python version,
-  \item OpenCV version and build (CPU/GPU),
-  \item dependency lock file (\texttt{requirements.txt}).
+  \item \textbf{Operating System (OS):} The version of the OS used during the experiment (e.g., Ubuntu 20.04, macOS 10.15).
+  \item \textbf{Hardware:} The CPU model, RAM size, and GPU (if used) details.
+  \item \textbf{Python version:} The version of Python used for the implementation.
+  \item \textbf{OpenCV version and build:} The specific version of OpenCV (including CPU/GPU configuration) used for feature detection and matching.
+  \item \textbf{Dependency lock file:} A lock file (e.g., \texttt{requirements.txt} or \texttt{environment.yml}) to capture all necessary Python dependencies.
 \end{itemize}
 
 \subsection{Determinism Controls}
-Even classical CV pipelines can show small nondeterminism due to threading and internal heuristics. Recommended controls:
+Even well-established computer vision pipelines can show small nondeterminism due to threading and internal heuristics. To control for this, the following actions should be taken:
 \begin{itemize}
-  \item set fixed random seeds in Python and NumPy,
-  \item set OpenCV thread count to a fixed value,
-  \item log all parameter values to \texttt{config.json}.
+  \item Set fixed random seeds in Python, NumPy, and PyTorch to ensure that the random elements of the pipeline do not introduce variance.
+  \item Set OpenCV’s thread count to a fixed value (e.g., \texttt{cv2.setNumThreads(1)}) to ensure deterministic behavior.
+  \item Log all parameter values and configurations to a \texttt{config.json} file, which can be referenced for reproducibility.
 \end{itemize}
 
 \subsection{Reproducible Command Lines}
-The report should list the exact commands used to generate results, including:
+To allow others to reproduce the results exactly, the following command lines should be provided. These commands include paths to data, output directories, and configuration files:
+% \begin{itemize}
+%   % \item \texttt{python src/align.py --data_path ../data --config config.yaml --output ../results}
+%   % \item \texttt{python src/evaluate.py --input ../results/overlays --metrics ../results/metrics}
+% \end{itemize}
+
+The complete reproducibility includes the exact dataset paths, configuration files, and thresholds used during evaluation.
+
+\subsection{File-Based Output Contract}
+For reproducibility and ease of use, each experimental run should generate specific output files:
 \begin{itemize}
-  \item data paths,
-  \item output directory,
-  \item config file path,
-  \item evaluation thresholds.
+  \item \texttt{config.json:} Contains all configuration parameters used in the run, including preprocessing settings, model hyperparameters, and evaluation thresholds.
+  \item \texttt{curves/}: Contains CSV files of the training and validation loss curves and other relevant metrics (e.g., MRE, success rate).
+  \item \texttt{samples/}: Contains generated samples (e.g., overlay images, augmented data).
+  \item \texttt{checkpoints/}: Contains model weights and optimizer state files.
+  \item \texttt{metadata.json:} Contains device details (e.g., GPU model), library versions, and dataset split hashes to ensure full reproducibility.
 \end{itemize}
-A scientifically complete artifact includes the exported metrics CSVs and all report figures placed under \texttt{../results/figures/}.
+These files provide a complete record of the experimental process, ensuring that the results are fully reproducible.
+

@@ -3,24 +3,43 @@
 % =========================
 
 \subsection{Assumptions and Validity Domain}
-The method assumes that the relevant template surface is planar (or sufficiently close for the required tolerance). When this assumption is violated (e.g., curved surfaces, significant depth variation), a single homography cannot model the mapping accurately, and residual errors will persist even with correct matching.
+The feature-based template-to-photo alignment method is grounded in the assumption that the relevant template surface is either planar or sufficiently close to planar within the required geometric tolerance. This assumption ensures that a single homography transformation can accurately map points from the template image $\mathcal{I}_T$ to the query photograph $\mathcal{I}_Q$. In cases where the surface deviates significantly from planarity (e.g., curved surfaces, significant depth variation), the homography model becomes inadequate, and the residual errors will persist even with the most accurate feature matching.
+
+The validity of this method is most effective when applied to scenarios where the subject’s physical surface exhibits minimal variation in depth, or where such variation can be reasonably approximated as a planar region (e.g., flat parts in industrial or architectural images). The assumption holds particularly well for cases like technical drawings, blueprints, and map alignment, where the geometry of the template and photograph is typically controlled or constrained to lie within a planar view.
 
 \subsection{Limitations}
-Key limitations include:
+Key limitations of the method include:
 \begin{itemize}
-  \item Sensitivity to glare, low texture, and repetitive patterns.
-  \item Degradation under large perspective changes or partial occlusions.
-  \item Dependence on template quality (line thickness, contrast, and scale standardization).
+  \item \textbf{Sensitivity to glare, low texture, and repetitive patterns:} Local feature detectors like ORB can struggle with poorly textured regions or repetitive patterns that do not provide sufficiently distinctive keypoints for matching \citep{Rublee2011ORB}. Additionally, glare or reflections may obscure the visual details necessary for accurate feature extraction.
+  \item \textbf{Performance degradation under large perspective changes or partial occlusions:} The method assumes that the template and photo align relatively well with each other. Significant changes in viewpoint (e.g., extreme tilt or rotation) or occlusions (where parts of the template or object are hidden) may lead to mismatched correspondences or loss of keypoint detectability, severely degrading performance.
+  \item \textbf{Dependence on template quality:} The quality of the template image is crucial to the method’s performance. Issues like inconsistent line thickness, poor contrast, or scale mismatches can negatively affect keypoint detection and matching, making alignment less reliable. Template standardization (e.g., scaling, contrast normalization) is required to reduce this variability.
 \end{itemize}
+
+These limitations suggest that the method may be less robust in uncontrolled environments where illumination, viewpoint, or occlusions are highly variable. The performance can also degrade in cases where the template quality is suboptimal, requiring additional preprocessing or enhancement steps.
 
 \subsection{Mitigation Strategies (Evidence-Driven)}
-Mitigations should be adopted only if they reduce tail failures and improve success rate under the chosen tolerance:
+Mitigation strategies should only be adopted if they lead to a measurable reduction in tail failures and improved alignment success under the specified tolerance. The following strategies are evidence-driven and supported by ablation studies:
 \begin{itemize}
-  \item ROI gating to suppress background correspondences.
-  \item Parameter selection guided by ablation stability regions.
-  \item Template enhancement (contrast normalization; multi-variant templates when scale varies).
+  \item \textbf{Region of Interest (ROI) gating:} To suppress background correspondences and improve the accuracy of alignment in cluttered scenes, ROI gating can be applied to restrict matching to the part region of interest. This approach has shown to significantly reduce the number of incorrect matches from irrelevant background features.
+  \item \textbf{Parameter selection based on ablation studies:} Choosing optimal parameters (e.g., ORB number of features, RANSAC threshold) based on experimental stability regions helps identify the values where the method is most robust and reduces the likelihood of parameter overfitting. The parameter ranges tested should be informed by the ablation studies, which provide insights into how performance varies under different settings.
+  \item \textbf{Template enhancement techniques:} Enhancing the template image can help mitigate alignment difficulties. For instance, applying contrast normalization (e.g., CLAHE) can improve keypoint stability in low-contrast regions, while multi-variant templates (representing different scales or rotations) can be used when the template is expected to appear in various orientations.
 \end{itemize}
 
-\subsection{Threats to Validity}
-Threats include annotation noise (for reprojection metrics), dataset bias (limited variety of lighting/viewpoints), and over-tuning parameters on a small dataset. These are mitigated by reporting distributions, including failure cases, and separating tuning from final evaluation.
+These strategies aim to improve the system’s robustness and accuracy under challenging conditions. However, the decision to adopt them should be based on clear empirical evidence from performance analysis and ablation studies.
 
+\subsection{Threats to Validity}
+The main threats to the validity of the method include:
+\begin{itemize}
+  \item \textbf{Annotation noise:} Ground truth annotations, especially for reprojection error metrics, are inherently subject to human error. Inaccurate point correspondences or mask annotations can lead to inflated or deflated alignment errors, affecting the reliability of the reported metrics.
+  \item \textbf{Dataset bias:} The datasets used for evaluation (e.g., Dynamic MNIST, FashionMNIST) may exhibit biases related to their construction (e.g., limited variety of lighting, viewpoint, or background conditions). These biases may not fully represent real-world scenarios, especially in environments with significant variation in illumination or clutter.
+  \item \textbf{Over-tuning parameters on small datasets:} The parameter selection for key algorithms (e.g., ORB, RANSAC) may be tuned to a small dataset, which risks overfitting. While a validation set can mitigate this to some degree, the final test performance is still vulnerable to overfitting if the training set is not sufficiently diverse or large.
+\end{itemize}
+
+These threats can be mitigated by:
+\begin{itemize}
+  \item Using a robust evaluation protocol with multiple dataset splits, including both qualitative and quantitative metrics, to account for variability and biases.
+  \item Reporting error distributions and including failure-case examples in the evaluation, which help provide a more comprehensive view of the method’s performance.
+  \item Ensuring that tuning of parameters is done using a separate tuning subset to avoid information leakage into the test set.
+\end{itemize}
+
+These measures increase the credibility and reliability of the reported results, providing a more transparent view of the method's performance and limitations.

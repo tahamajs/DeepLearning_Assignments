@@ -1,0 +1,18 @@
+
+Generative modeling has two dominant paradigms relevant to this report: likelihood-based latent-variable models (VAEs) and adversarial models (GANs). Both have extensive literature on objectives, stability, and failure modes, particularly under limited data or highly expressive decoders.
+
+\subsection{Variational Autoencoders and objective design}
+VAEs optimize a variational lower bound on $\log p_\theta(x)$, enabling scalable amortized inference via an encoder network \citep{kingma2014vae,rezende2014stochastic}. While VAEs provide a principled likelihood-based framework, empirical work has documented limitations including blurry samples (under simple likelihoods) and \emph{posterior collapse}, where the KL term approaches zero and the latent variable becomes uninformative, especially with expressive decoders.
+
+A major line of research improves VAE performance by changing the objective or increasing representational capacity. Importance-weighted objectives provide tighter bounds and can improve training and evaluation by using multiple importance samples \citep{burda2016iwae}. Other approaches alter priors (e.g., richer latent distributions) or introduce hierarchical latents, enabling multimodal structure and better latent utilization. The referenced method in this assignment follows this direction by introducing a modified loss/prior mechanism and a hierarchical architecture, with the explicit goal of increasing capacity and mitigating collapse-like behavior.
+
+\subsection{Likelihood estimation for latent-variable models}
+Exact likelihood computation for latent-variable models is generally intractable due to the integral over $z$. Importance sampling (IWAE-style estimators) is a standard approach for estimating $\log p_\theta(x)$ in a controlled and comparable way across models \citep{burda2016iwae}. This report uses a consistent estimator and sample budget across VAE variants to ensure fair comparisons.
+
+\subsection{Conditional GANs, stability, and augmentation}
+GANs generate samples by adversarial training and often yield sharper samples than likelihood-based models, but training can be unstable and sensitive to architecture and regularization. Wasserstein GAN objectives improve gradient behavior by approximating Earth Mover distance, and WGAN-GP enforces the Lipschitz constraint via a gradient penalty, substantially improving stability in practice \citep{gulrajani2017improved}. Spectral normalization further stabilizes training by constraining the discriminator’s operator norm \citep{miyato2018sn}.
+
+For conditional generation, projection discriminators incorporate label conditioning through inner products in feature space, improving class-conditional fidelity and stability relative to naive concatenation \citep{miyato2018projection}. Attention mechanisms have also proven effective in generative modeling by enabling long-range spatial interactions (self-attention) and adaptive channel reweighting (channel attention, commonly formalized as squeeze-and-excitation) \citep{zhang2019sagan,hu2018senet}.
+
+Finally, data augmentation is a standard remedy for limited training data in supervised learning. In this report, GAN-based augmentation is evaluated by a controlled comparison between classifiers trained on the same limited real subset with and without synthetic samples, with all other training factors held fixed.
+

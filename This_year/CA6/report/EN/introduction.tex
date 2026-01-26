@@ -3,16 +3,29 @@
 % =========================
 
 \subsection{Problem Statement}
-Given a reference template image $\mathcal{I}_T$ representing a part map (drawing, CAD-derived view, or annotated layout) and a query photograph $\mathcal{I}_Q$ containing the physical part, the objective is to compute a geometric mapping that projects the template into the photograph coordinate frame. The final output is an overlay image enabling visual inspection and/or downstream measurement tasks.
+In this report, we address the problem of template-to-photo alignment, where the goal is to geometrically align a 2D reference template image, denoted as $\mathcal{I}_T$, to a photograph $\mathcal{I}_Q$ of the corresponding physical part. The reference template $\mathcal{I}_T$ could represent any annotated 2D object (e.g., a CAD-derived drawing, a part map, or a blueprint), while $\mathcal{I}_Q$ is the photograph that contains the physical part whose geometric correspondence with the template we need to find.
+
+The central challenge lies in computing an accurate geometric mapping between the two images, using a technique that can robustly handle differences in viewpoint, illumination, and background clutter. The final output is a visual overlay that maps the template onto the photograph, enabling visual inspection and/or facilitating downstream measurement tasks such as part alignment, dimensioning, or quality control.
 
 \subsection{Motivation}
-Accurate template-to-photo alignment is a standard requirement in industrial inspection, assembly verification, and documentation workflows. A practical solution must (i) tolerate moderate viewpoint changes, illumination variation, and background clutter, (ii) provide measurable quality indicators, and (iii) operate under constrained compute resources.
+Template-to-photo alignment is a fundamental task in various industrial and engineering applications. For example, in automated quality control, part inspection, and assembly verification, being able to precisely align digital templates (e.g., CAD files or part blueprints) with real-world photographs enables automated systems to assess whether physical components match their specifications. However, this task is complicated by several real-world factors such as changes in viewpoint, lighting conditions, and cluttered backgrounds.
+
+A practical solution to this problem must achieve the following:
+\begin{itemize}
+  \item \textbf{Robustness to variation:} The system should handle moderate changes in viewpoint, illumination variation, and background clutter. It should also cope with partial occlusions and distortions that are common in real-world environments.
+  \item \textbf{Accuracy and precision:} The alignment must be precise enough to support downstream measurement tasks, such as detecting dimensional deviations or ensuring the part fits within specified tolerances.
+  \item \textbf{Compute efficiency:} The method must operate efficiently under constrained compute resources. For industrial deployment, it is important that the system can run in real-time or near real-time, with minimal computational overhead.
+  \item \textbf{Measurable performance metrics:} The system should provide quantifiable metrics such as alignment error and success rate, allowing for objective performance evaluation.
+\end{itemize}
 
 \subsection{Contributions}
-This work provides:
+This work presents a novel, feature-based alignment method that satisfies the aforementioned requirements and demonstrates its applicability in template-to-photo alignment tasks. The contributions of this work are as follows:
 \begin{itemize}
-  \item a complete, modular implementation with stage-wise outputs;
-  \item a robust alignment method based on feature matching and homography estimation;
-  \item an evaluation protocol with quantitative and qualitative analyses;
-  \item reproducibility artifacts (metrics CSVs and generated figures) directly referenced in the report.
+  \item \textbf{A complete, modular implementation:} We provide a full implementation of the alignment pipeline with well-defined stages and outputs. The system is built with reproducibility in mind, ensuring that all results can be independently verified.
+  \item \textbf{A robust alignment method:} The proposed method leverages feature matching and homography estimation to compute the geometric transformation between the template and photograph. It is designed to be robust to noise, variations in lighting, and partial occlusions.
+  \item \textbf{Evaluation protocol:} We define a rigorous evaluation protocol with both quantitative and qualitative analyses. We use well-established metrics such as mean/median reprojection error and success rate, and we provide failure-case diagnostics to analyze the limits of the system.
+  \item \textbf{Reproducibility artifacts:} All results, including metrics CSVs and generated figures, are available for download, enabling others to reproduce the reported findings and build upon this work. The full source code and dataset split details are included for transparency.
 \end{itemize}
+
+This report not only contributes to the field of image alignment but also provides insights into the challenges and solutions that arise when aligning template images to real-world photographs under varying conditions.
+

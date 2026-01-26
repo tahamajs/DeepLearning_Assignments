@@ -3,18 +3,23 @@
 % =========================
 
 \subsection{Recommended Metrics File Formats}
-\paragraph{Dataset summary.}
-Export \texttt{../results/metrics/summary.csv} with columns such as:
+For reproducibility and traceability, the output of all evaluation scripts should be logged in well-defined formats. The dataset summary should include the following key metrics:
 \begin{itemize}
-  \item \texttt{metric}, \texttt{value}
+  \item \texttt{metric}, \texttt{value} pairs for each run,
+  \item \texttt{N}, \texttt{MRE\_mean}, \texttt{MRE\_median}, \texttt{success\_rate\_5px}, \texttt{runtime\_median\_ms}, \texttt{runtime\_p95\_ms} for overall evaluation summary.
 \end{itemize}
-or a wide format such as:
-\begin{itemize}
-  \item \texttt{N}, \texttt{MRE\_mean}, \texttt{MRE\_median}, \texttt{success\_rate\_5px}, \texttt{runtime\_median\_ms}, \texttt{runtime\_p95\_ms}
-\end{itemize}
+An example summary format could be as follows:
+\begin{verbatim}
+metric,value
+MRE_mean,0.35
+MRE_median,0.30
+success_rate_5px,0.90
+runtime_median_ms,150
+runtime_p95_ms,200
+\end{verbatim}
 
 \subsection{Annotation Schema (Point Correspondences)}
-A typical JSON schema for ground-truth point correspondences is:
+Ground-truth point correspondences should follow a standardized JSON schema, ensuring consistency across experiments and datasets:
 \begin{verbatim}
 {
   "image_id": "photo_001.jpg",
@@ -23,15 +28,16 @@ A typical JSON schema for ground-truth point correspondences is:
   "points_photo":    [[u1,v1],[u2,v2],[u3,v3],[u4,v4]]
 }
 \end{verbatim}
-For stable homography estimation, use at least four non-collinear point pairs; more points improve robustness of evaluation.
+For stable homography estimation, at least four non-collinear point pairs are required. Additional points may be used to increase robustness, especially when noisy correspondences or complex scenes are involved.
 
 \subsection{Parameter Logging}
-For scientific reproducibility, each run should export a configuration JSON (e.g., \texttt{../results/metrics/config.json}) containing:
+For full scientific reproducibility, every experimental run should export a configuration JSON file (e.g., \texttt{../results/metrics/config.json}) containing the following key parameters:
 \begin{itemize}
-  \item image resize policy,
-  \item ORB parameters,
-  \item matching rules,
-  \item RANSAC threshold and max iterations,
-  \item alpha blending value.
+  \item \textbf{image resize policy,} specifying the maximum image dimension used for matching.
+  \item \textbf{ORB parameters,} including the number of features, pyramid levels, and scale factor.
+  \item \textbf{Matching rules,} such as cross-checking and distance thresholding.
+  \item \textbf{RANSAC threshold and maximum iterations,} which control outlier rejection.
+  \item \textbf{Alpha blending value,} for overlay visualization.
 \end{itemize}
 
+These logs will allow full traceability and reproducibility of results, ensuring that other researchers can replicate and build upon the work presented in this report.

@@ -1,26 +1,79 @@
 % =========================
 % report/notation.tex
 % =========================
-
-This section defines symbols and terminology used throughout the report.
+This section defines symbols and terminology used throughout the report for both components:
+(i) VAEs (baseline and the referenced enhanced-capacity/hierarchical variant) on Dynamic MNIST, and
+(ii) conditional WGAN-GP for data augmentation on FashionMNIST.
 
 \subsection{Symbols}
+
+\paragraph{Data and distributions (VAE).}
 \begin{itemize}
-  \item $\mathcal{I}_T$: template image (reference map/drawing).
-  \item $\mathcal{I}_Q$: query photograph containing the physical part.
-  \item $\tilde{\mathbf{x}}=[x,y,1]^T$: homogeneous coordinate of a 2D point.
-  \item $\mathbf{H}\in\mathbb{R}^{3\times3}$: homography mapping template coordinates to photo coordinates.
-  \item $\pi([u,v,w]^T)=[u/w,\, v/w]^T$: homogeneous-to-Cartesian projection.
-  \item $\tau$: RANSAC reprojection threshold (pixels).
-  \item $\alpha$: overlay blending parameter ($0\le \alpha \le 1$).
+  \item $x \in \{0,1\}^{D}$: observed image (Dynamic MNIST uses dynamic binarization; $D=28\times 28$).
+  \item $z \in \mathbb{R}^{d}$: continuous latent variable; $d$ is the latent dimensionality.
+  \item $p(z)$: latent prior (baseline uses $p(z)=\mathcal{N}(0,I)$).
+  \item $q_\phi(z\mid x)$: encoder / variational posterior parameterized by $\phi$.
+  \item $p_\theta(x\mid z)$: decoder / likelihood parameterized by $\theta$.
+  \item $\mathcal{L}_{\mathrm{ELBO}}(x)$: evidence lower bound (ELBO).
+  \item $\mathrm{KL}(q\|p)$: Kullback--Leibler divergence.
+  \item $\mathcal{L}_{\mathrm{rec}}(x) = -\mathbb{E}_{q_\phi(z\mid x)}[\log p_\theta(x\mid z)]$: reconstruction term (negative expected log-likelihood).
+  \item $\mathcal{L}_{\mathrm{KL}}(x)=\mathrm{KL}\!\bigl(q_\phi(z\mid x)\,\|\,p(z)\bigr)$: KL regularizer term (baseline).
+\end{itemize}
+
+\paragraph{Enhanced-capacity prior / pseudo-inputs (referenced VAE).}
+\begin{itemize}
+  \item $\{u_k\}_{k=1}^K$: pseudo-inputs (learnable parameters in input space or outputs of a pseudo-input network).
+  \item $p_\lambda(z)=\frac{1}{K}\sum_{k=1}^K q_\phi(z\mid u_k)$: learned mixture prior with parameters $\lambda$ (through $\{u_k\}$).
+  \item $\mathcal{L}_{\mathrm{KL}}^{(\mathrm{mix})}(x)=\mathrm{KL}\!\bigl(q_\phi(z\mid x)\,\|\,p_\lambda(z)\bigr)$: KL term against the learned prior.
+\end{itemize}
+
+\paragraph{Hierarchical VAE (two-layer latent).}
+\begin{itemize}
+  \item $z_2 \in \mathbb{R}^{d_2}$: top-level latent variable.
+  \item $z_1 \in \mathbb{R}^{d_1}$: bottom-level latent variable.
+  \item $p_\theta(z_1\mid z_2)$: conditional prior (top-down) in the hierarchical decoder.
+  \item $q_\phi(z_2\mid x)$, $q_\phi(z_1\mid x,z_2)$: hierarchical inference factors.
+\end{itemize}
+
+\paragraph{Likelihood estimation.}
+\begin{itemize}
+  \item $K_{\mathrm{IS}}$: number of importance samples for likelihood estimation.
+  \item $\widehat{\log p_\theta(x)}$: importance-weighted estimate of log-likelihood (IWAE-style).
+\end{itemize}
+
+\paragraph{Conditional WGAN-GP (GAN augmentation).}
+\begin{itemize}
+  \item $y \in \{1,\dots,C\}$: class label ($C=10$ for FashionMNIST).
+  \item $z \sim \mathcal{N}(0,I)$: generator noise vector.
+  \item $G_\psi(z,y)$: conditional generator parameterized by $\psi$.
+  \item $D_\omega(x,y)$: conditional critic/discriminator parameterized by $\omega$ (projection discriminator).
+  \item $e_G(y)\in\mathbb{R}^{d_y}$: generator label embedding; $e_D(y)\in\mathbb{R}^{d_f}$: critic label embedding.
+  \item $\phi_\omega(x)\in\mathbb{R}^{d_f}$: critic feature representation used in projection discrimination.
+  \item $\lambda_{\mathrm{GP}}$: gradient penalty coefficient (assignment specifies $\lambda_{\mathrm{GP}}=10$).
+  \item $\epsilon_{\mathrm{drift}}$: drift penalty coefficient (assignment specifies $0.001$).
+  \item $\lambda_{\mathrm{emb}}$: embedding $L_2$ regularization coefficient (assignment specifies $0.001$).
+  \item $N_{\mathrm{critic}}$: number of critic updates per generator update (assignment specifies $5$).
+  \item $\mathrm{RUN}$: total training steps (assignment specifies $4000$).
 \end{itemize}
 
 \subsection{Abbreviations}
 \begin{itemize}
-  \item ORB: Oriented FAST and Rotated BRIEF \cite{Rublee2011ORB}.
-  \item RANSAC: Random Sample Consensus \cite{FischlerBolles1981}.
-  \item IoU: Intersection over Union (overlap metric for masks).
+  \item VAE: Variational Autoencoder.
+  \item ELBO: Evidence Lower Bound.
+  \item KL: Kullback--Leibler divergence.
+  \item IWAE: Importance Weighted Autoencoder estimator (importance sampling for likelihood).
+  \item cGAN: Conditional GAN.
+  \item WGAN-GP: Wasserstein GAN with Gradient Penalty.
+  \item SN: Spectral Normalization.
+  \item SA: Self-Attention (spatial attention).
+  \item CA: Channel Attention (Squeeze-and-Excitation style).
+  \item PD: Projection Discriminator.
 \end{itemize}
 
-\subsection{Key Assumption}
-The primary geometric assumption is that the relevant part surface in the image is approximately planar, so a single homography $\mathbf{H}$ is a valid model \cite{HartleyZisserman2004}.
+\subsection{Key Modeling Assumptions}
+\begin{itemize}
+  \item \textbf{Dynamic MNIST observation model:} pixels are modeled as conditionally independent Bernoulli variables given latents ($p_\theta(x\mid z)$ Bernoulli), consistent with the dynamic binarization protocol.
+  \item \textbf{Variational inference:} $q_\phi(z\mid x)$ (and its hierarchical factors) are Gaussian with diagonal covariance, enabling reparameterization-based training.
+  \item \textbf{WGAN-GP Lipschitz control:} the critic is approximately 1-Lipschitz via gradient penalty (and SN on selected layers), which is required for the Wasserstein objective to be well-behaved.
+  \item \textbf{Augmentation validity:} synthetic samples are used only to expand the training distribution; generalization is judged exclusively on held-out real test data.
+\end{itemize}

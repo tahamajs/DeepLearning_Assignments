@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import multiprocessing
 import os
 from typing import Dict, Any
 
@@ -42,6 +43,8 @@ def main() -> None:
     args = parse_args()
     os.makedirs(args.out_dir, exist_ok=True)
     set_seed(args.seed)
+    # Set multiprocessing start method to avoid pickling issues
+    multiprocessing.set_start_method('fork', force=True)
     device = get_device(args.device)
 
     train_loader, test_loader = get_mnist_loaders(

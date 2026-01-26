@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.11.7)  26 JAN 2026 04:10
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025/Homebrew) (preloaded format=pdflatex 2025.11.7)  26 JAN 2026 05:14
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1092,276 +1092,252 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 [1
 
 {/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/map/pdftex/updm
-ap/pdftex.map}] (./introduction.tex) (./notation.tex
-
-Package natbib Warning: Citation `Rublee2011ORB' on page 2 undefined on input l
-ine 20.
-
-
-Package natbib Warning: Citation `FischlerBolles1981' on page 2 undefined on in
-put line 21.
-
-
-Package natbib Warning: Citation `HartleyZisserman2004' on page 2 undefined on 
-input line 26.
-
-)
+ap/pdftex.map}] (./introduction.tex
 
 [2{/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/enc/dvips/cm-
-super/cm-super-ts1.enc}] (./system_overview.tex
-
-Package natbib Warning: Citation `Rublee2011ORB' on page 3 undefined on input l
-ine 9.
-
-
-Overfull \hbox (1.18391pt too wide) in paragraph at lines 10--11
-[]\OT1/cmr/m/n/10.95 Match de-scrip-tors (Ham-ming dis-tance) and fil-ter match
-es (cross-check and dis-tance thresh-
- []
-
-
-Package natbib Warning: Citation `FischlerBolles1981' on page 3 undefined on in
-put line 11.
-
-
-Package natbib Warning: Citation `Rublee2011ORB' on page 3 undefined on input l
-ine 37.
-
-
-Package natbib Warning: Citation `FischlerBolles1981' on page 3 undefined on in
-put line 37.
-
-) (./related_work.tex) (./methodology.tex
+super/cm-super-ts1.enc}]) (./notation.tex
 
 [3]
 
-Package natbib Warning: Citation `HartleyZisserman2004' on page 4 undefined on 
-input line 10.
+[4]) (./system_overview.tex
+
+Package natbib Warning: Citation `Rublee2011ORB' on page 5 undefined on input l
+ine 10.
 
 
-Package natbib Warning: Citation `Rublee2011ORB' on page 4 undefined on input l
-ine 13.
+Package natbib Warning: Citation `FischlerBolles1981' on page 5 undefined on in
+put line 12.
 
 
-Package natbib Warning: Citation `FischlerBolles1981' on page 4 undefined on in
-put line 16.
 
-) (./dataset.tex
-
-[4]) (./preprocessing.tex) (./experiments.tex
-Overfull \hbox (56.38895pt too wide) in paragraph at lines 10--11
-[]\OT1/cmr/m/n/10.95 (Optional) An-no-ta-tions: ground-truth point cor-re-spon-
-dences or masks un-der \OT1/cmtt/m/n/10.95 ../data/annotations/\OT1/cmr/m/n/10.
-95 . 
+[5]
+Overfull \hbox (47.16794pt too wide) in paragraph at lines 36--36
+[]  \OT1/cmtt/m/n/10.95 annotations/      % (optional) Folder for ground-truth 
+point correspondences or masks[] 
  []
 
 
-Overfull \hbox (33.24847pt too wide) in paragraph at lines 17--18
- []\OT1/cmr/bx/n/10.95 Mean/Median Re-pro-jec-tion Er-ror (pix-els).[] \OT1/cmr
-/m/n/10.95 Given $\OML/cmm/m/it/10.95 K$ \OT1/cmr/m/n/10.95 ground-truth cor-re
--spon-dences $\OMS/cmsy/m/n/10.95 f\OT1/cmr/m/n/10.95 (\OT1/cmr/bx/n/10.95 p[]\
-OML/cmm/m/it/10.95 ; \OT1/cmr/bx/n/10.95 p[]\OT1/cmr/m/n/10.95 )\OMS/cmsy/m/n/1
-0.95 g$\OT1/cmr/m/n/10.95 : 
+Overfull \hbox (64.414pt too wide) in paragraph at lines 36--36
+[]  \OT1/cmtt/m/n/10.95 overlays/         % Folder for saving overlay images (t
+emplate overlaid on query images)[] 
  []
 
 
-
-[5]) (./implementation.tex
-
-[6]
-
-Package natbib Warning: Citation `HartleyZisserman2004' on page 7 undefined on 
-input line 29.
-
-
-Package natbib Warning: Citation `FischlerBolles1981' on page 7 undefined on in
-put line 29.
-
-
-Package natbib Warning: Citation `Rublee2011ORB' on page 7 undefined on input l
-ine 29.
-
-
-Package natbib Warning: Citation `Lowe2004SIFT' on page 7 undefined on input li
-ne 29.
-
-
-Package natbib Warning: Citation `Bradski2000OpenCV' on page 7 undefined on inp
-ut line 62.
-
-
-
-[7]
-Overfull \hbox (17.72346pt too wide) in paragraph at lines 88--89
-\OT1/cmr/m/n/10.95 Templates can vary in line thick-ness, con-trast, and scale.
- The script \OT1/cmtt/m/n/10.95 src/01[]prepare[]templates.py
+Overfull \hbox (98.90613pt too wide) in paragraph at lines 36--36
+[]  \OT1/cmtt/m/n/10.95 figures/          % Folder for figures used in the repo
+rt (e.g., error distributions, runtime)[] 
  []
 
 
-Package natbib Warning: Citation `Rublee2011ORB' on page 8 undefined on input l
-ine 109.
+Overfull \hbox (127.64957pt too wide) in paragraph at lines 36--36
+[]  \OT1/cmtt/m/n/10.95 matches/          % (optional) Folder for debug outputs
+ showing raw matches or intermediate results[] 
+ []
+
+
+Package natbib Warning: Citation `Rublee2011ORB' on page 6 undefined on input l
+ine 50.
+
+
+Package natbib Warning: Citation `FischlerBolles1981' on page 6 undefined on in
+put line 50.
+
+
+
+[6]) (./related_work.tex
+
+Package natbib Warning: Citation `kingma2014vae' on page 7 undefined on input l
+ine 5.
+
+
+Package natbib Warning: Citation `rezende2014stochastic' on page 7 undefined on
+ input line 5.
+
+
+Package natbib Warning: Citation `burda2016iwae' on page 7 undefined on input l
+ine 7.
+
+
+Package natbib Warning: Citation `burda2016iwae' on page 7 undefined on input l
+ine 10.
+
+
+Package natbib Warning: Citation `gulrajani2017improved' on page 7 undefined on
+ input line 13.
+
+
+Package natbib Warning: Citation `miyato2018sn' on page 7 undefined on input li
+ne 13.
+
+
+Package natbib Warning: Citation `miyato2018projection' on page 7 undefined on 
+input line 15.
+
+
+Package natbib Warning: Citation `zhang2019sagan' on page 7 undefined on input 
+line 15.
+
+
+Package natbib Warning: Citation `hu2018senet' on page 7 undefined on input lin
+e 15.
+
+
+
+[7]) (./methodology.tex
+
+Package natbib Warning: Citation `kingma2014vae' on page 8 undefined on input l
+ine 19.
+
+
+Package natbib Warning: Citation `rezende2014stochastic' on page 8 undefined on
+ input line 19.
 
 
 
 [8]
+Overfull \hbox (24.08823pt too wide) detected at line 73
+\OMS/cmsy/m/n/10.95 L[]\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 x\OT1/cmr/m/n/10
+.95 ) = \U/msb/m/n/10.95 E[] [] \OMS/cmsy/m/n/10.95 ^^@ \U/msb/m/n/10.95 E[] []
+ \OMS/cmsy/m/n/10.95 ^^@ []  [] \OML/cmm/m/it/10.95 ;
+ []
 
-Package natbib Warning: Citation `HartleyZisserman2004' on page 9 undefined on 
-input line 134.
+
+Package natbib Warning: Citation `burda2016iwae' on page 9 undefined on input l
+ine 77.
 
 
-Package natbib Warning: Citation `FischlerBolles1981' on page 9 undefined on in
-put line 136.
+Package natbib Warning: Citation `miyato2018projection' on page 9 undefined on 
+input line 100.
 
 
 
 [9]
-Overfull \hbox (3.82248pt too wide) in paragraph at lines 186--187
- []\OT1/cmr/bx/n/10.95 (M2) Me-dian re-pro-jec-tion er-ror (pix-els).[] \OT1/cm
-r/m/n/10.95 More ro-bust to oc-ca-sional an-no-ta-tion noise/out-
+
+Package natbib Warning: Citation `miyato2018sn' on page 10 undefined on input l
+ine 108.
+
+
+Package natbib Warning: Citation `zhang2019sagan' on page 10 undefined on input
+ line 117.
+
+
+Package natbib Warning: Citation `hu2018senet' on page 10 undefined on input li
+ne 126.
+
+
+Package natbib Warning: Citation `gulrajani2017improved' on page 10 undefined o
+n input line 129.
+
+
+
+[10]) (./dataset.tex
+
+[11]) (./preprocessing.tex
+
+[12]
+
+Package natbib Warning: Citation `kingma2014vae' on page 13 undefined on input 
+line 23.
+
+
+Package natbib Warning: Citation `rezende2014stochastic' on page 13 undefined o
+n input line 23.
+
+
+
+[13]) (./experiments.tex
+
+[14]
+
+[15]) (./implementation.tex
+Overfull \hbox (41.41925pt too wide) in paragraph at lines 54--54
+[]    \OT1/cmtt/m/n/10.95 mnist_dynamic/      (or generated on-the-fly from MNI
+ST with dynamic binarization)[] 
  []
 
 
-
-[10]
-
-Package natbib Warning: Citation `HartleyZisserman2004' on page 11 undefined on
- input line 303.
-
-
-Package natbib Warning: Citation `FischlerBolles1981' on page 11 undefined on i
-nput line 303.
-
-
-Package natbib Warning: Citation `Rublee2011ORB' on page 11 undefined on input 
-line 303.
-
-
-Package natbib Warning: Citation `Rublee2011ORB' on page 11 undefined on input 
-line 306.
-
-
-Package natbib Warning: Citation `Lowe2004SIFT' on page 11 undefined on input l
-ine 306.
-
-
-
-[11]
-
-Package natbib Warning: Citation `FischlerBolles1981' on page 12 undefined on i
-nput line 309.
-
-
-
-[12]
-LaTeX Font Info:    Trying to load font information for OMS+cmtt on input line 
-357.
-LaTeX Font Info:    No file OMScmtt.fd. on input line 357.
-
-
-LaTeX Font Warning: Font shape `OMS/cmtt/m/n' undefined
-(Font)              using `OMS/cmsy/m/n' instead
-(Font)              for symbol `textbackslash' on input line 357.
-
-
-(/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/listings/ls
-tlang1.sty
-File: lstlang1.sty 2024/09/23 1.10c listings language file
-)
-(/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/listings/ls
-tlang2.sty
-File: lstlang2.sty 2024/09/23 1.10c listings language file
-)
-(/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/listings/ls
-tlang3.sty
-File: lstlang3.sty 2024/09/23 1.10c listings language file
-)
-(/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/listings/ls
-tlang1.sty
-File: lstlang1.sty 2024/09/23 1.10c listings language file
-)
-(/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/listings/ls
-tlang2.sty
-File: lstlang2.sty 2024/09/23 1.10c listings language file
-)
-(/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/listings/ls
-tlang3.sty
-File: lstlang3.sty 2024/09/23 1.10c listings language file
-)
-(/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/listings/ls
-tlang1.sty
-File: lstlang1.sty 2024/09/23 1.10c listings language file
-)
-(/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/listings/ls
-tlang2.sty
-File: lstlang2.sty 2024/09/23 1.10c listings language file
-)
-(/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/listings/ls
-tlang3.sty
-File: lstlang3.sty 2024/09/23 1.10c listings language file
-)
-(/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/listings/ls
-tmisc.sty
-File: lstmisc.sty 2024/09/23 1.10c (Carsten Heinz)
-)
-Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 359.
-
-
-[13]) (./evaluation.tex
-
-[14]) (./results.tex
-
-[15]
 
 [16]
 
-[17]) (./discussion.tex
-Overfull \hbox (3.74908pt too wide) in paragraph at lines 21--22
-[]\OT1/cmr/m/n/10.95 Template en-hance-ment (con-trast nor-mal-iza-tion; multi-
-variant tem-plates when scale varies). 
+[17]
+Overfull \hbox (10.13818pt too wide) in paragraph at lines 136--137
+ []\OT1/cmr/bx/n/10.95 Self-Attention (SA).[] \OT1/cmr/m/n/10.95 SA mod-ules fo
+l-low the as-sign-ment's ten-sor nam-ing and shapes ($\OML/cmm/m/it/10.95 f; g;
+ h; v$\OT1/cmr/m/n/10.95 ),
  []
 
-) (./reproducibility.tex
-
-[18]) (./ethics.tex
-
-[19]) (./conclusion.tex) (./acknowledgements.tex
-
-Package natbib Warning: Citation `HartleyZisserman2004' on page 20 undefined on
- input line 4.
 
 
-Package natbib Warning: Citation `FischlerBolles1981' on page 20 undefined on i
-nput line 4.
+[18]
+Overfull \hbox (7.67265pt too wide) in paragraph at lines 163--165
+\OT1/cmr/m/n/10.95 steps per gen-er-a-tor step; fixed noise/la-bels for check-p
+oint grids at steps $\OMS/cmsy/m/n/10.95 f\OT1/cmr/m/n/10.95 0\OML/cmm/m/it/10.
+95 ; \OT1/cmr/m/n/10.95 1000\OML/cmm/m/it/10.95 ; \OT1/cmr/m/n/10.95 2000\OML/c
+mm/m/it/10.95 ; \OT1/cmr/m/n/10.95 3000\OML/cmm/m/it/10.95 ; \OT1/cmr/m/n/10.95
+ 4000\OMS/cmsy/m/n/10.95 g$\OT1/cmr/m/n/10.95 . 
+ []
 
 
-Package natbib Warning: Citation `Rublee2011ORB' on page 20 undefined on input 
-line 4.
 
-) (./appendix.tex
+[19]) (./evaluation.tex
 
 [20]
-Overfull \hbox (100.49118pt too wide) in paragraph at lines 29--30
-\OT1/cmr/m/n/10.95 For sci-en-tific re-pro-ducibil-ity, each run should ex-port
- a con-fig-u-ra-tion JSON (e.g., \OT1/cmtt/m/n/10.95 ../results/metrics/config.
-json\OT1/cmr/m/n/10.95 )
+
+[21]) (./results.tex
+Overfull \hbox (46.2906pt too wide) in paragraph at lines 11--12
+\OT1/cmr/m/n/10.95 ror dis-tri-bu-tions, run-time break-downs, and ab-la-tion s
+tud-ies, are saved un-der \OT1/cmtt/m/n/10.95 ../results/figures/\OT1/cmr/m/n/1
+0.95 .
  []
 
-)
+
+
+[22]
+
+[23]
+
+[24]) (./discussion.tex
+
+[25]
+
+Package natbib Warning: Citation `Rublee2011ORB' on page 26 undefined on input 
+line 13.
+
+
+
+[26]) (./reproducibility.tex
+
+[27]) (./conclusion.tex
+
+[28]) (./acknowledgements.tex
+
+Package natbib Warning: Citation `HartleyZisserman2004' on page 29 undefined on
+ input line 7.
+
+
+Package natbib Warning: Citation `FischlerBolles1981' on page 29 undefined on i
+nput line 7.
+
+
+Package natbib Warning: Citation `Rublee2011ORB' on page 29 undefined on input 
+line 7.
+
+
+
+[29]) (./appendix.tex
+
+[30])
 No file main.bbl.
 
 Package natbib Warning: There were undefined citations.
 
 
 
-[21] (./main.aux)
+[31] (./main.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
  ***********
-
-
-LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 
 Package rerunfilecheck Warning: File `main.out' has changed.
@@ -1369,17 +1345,17 @@ Package rerunfilecheck Warning: File `main.out' has changed.
 (rerunfilecheck)                or use package `bookmark'.
 
 Package rerunfilecheck Info: Checksums for `main.out':
-(rerunfilecheck)             Before: C4E468BC29FBF67B5B47D2A0DC0DEA3E;12437
-(rerunfilecheck)             After:  D786765D0D1288EC466066311A991792;15801.
+(rerunfilecheck)             Before: 0BB7DED11933436D8843C9FEFB7FE0F0;16908
+(rerunfilecheck)             After:  8C20C2DBF5DA09C2EF125026543F9237;18445.
  ) 
 Here is how much of TeX's memory you used:
- 41790 strings out of 473190
- 987811 string characters out of 5704335
- 1622897 words of memory out of 5000000
- 64256 multiletter control sequences out of 15000+600000
- 568501 words of font info for 72 fonts, out of 8000000 for 9000
+ 40289 strings out of 473190
+ 967020 string characters out of 5704335
+ 1561384 words of memory out of 5000000
+ 62756 multiletter control sequences out of 15000+600000
+ 568333 words of font info for 71 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 114i,8n,115p,838b,2352s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 114i,8n,115p,724b,1172s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/public/
 amsfonts/cm/cmbx10.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dis
 t/fonts/type1/public/amsfonts/cm/cmbx12.pfb></opt/homebrew/Cellar/texlive/20250
@@ -1392,19 +1368,20 @@ blic/amsfonts/cm/cmmi6.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf
 ew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/public/amsfonts/cm/cm
 r12.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/p
 ublic/amsfonts/cm/cmr17.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texm
-f-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></opt/homebrew/Cellar/texlive/20
-250308_2/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></opt/homeb
-rew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/public/amsfonts/cm/c
-msy8.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmti10.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/te
-xmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></opt/homebrew/Cellar/texliv
-e/20250308_2/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></
-opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/public/cm-s
-uper/sfrm1095.pfb>
-Output written on main.pdf (21 pages, 256076 bytes).
+f-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></opt/homebrew/Cellar/texlive/20
+250308_2/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></opt/homebre
+w/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/public/amsfonts/cm/cms
+y10.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmsy8.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></opt/homebrew/Cellar/texlive/
+20250308_2/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></opt/hom
+ebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/type1/public/amsfonts/sy
+mbols/msbm10.pfb></opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/font
+s/type1/public/cm-super/sfrm1095.pfb>
+Output written on main.pdf (31 pages, 327930 bytes).
 PDF statistics:
- 581 PDF objects out of 1000 (max. 8388607)
- 520 compressed objects within 6 object streams
- 184 named destinations out of 1000 (max. 500000)
- 533 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 692 PDF objects out of 1000 (max. 8388607)
+ 618 compressed objects within 7 object streams
+ 208 named destinations out of 1000 (max. 500000)
+ 653 words of extra memory for PDF output out of 10000 (max. 10000000)
 

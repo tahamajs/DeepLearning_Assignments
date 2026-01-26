@@ -1,43 +1,51 @@
-% =========================
-% report/experiments.tex
-% =========================
-
 \subsection{Datasets and Inputs}
-The experimental dataset consists of:
+The experimental dataset used in this study consists of pairs of images: the template image $\mathcal{I}_T$ (reference map or part layout) and the query photograph $\mathcal{I}_Q$ (photograph of the physical part). The dataset for evaluating the template-to-photo alignment method includes the following:
 \begin{itemize}
-  \item Templates: standardized drawings under \texttt{../data/templates/}.
-  \item Photographs: query images under \texttt{../data/photos/}.
-  \item (Optional) Annotations: ground-truth point correspondences or masks under \texttt{../data/annotations/}.
+  \item \textbf{Templates:} Standardized drawings or blueprints stored under \texttt{../data/templates/}. These include a variety of technical drawings, CAD-derived views, and annotated maps that serve as reference templates for the alignment task.
+  \item \textbf{Photographs:} Query images that contain photographs of the corresponding physical parts stored under \texttt{../data/photos/}. These images are taken under various conditions (e.g., lighting, background clutter, and viewpoint variation).
+  \item \textbf{(Optional) Annotations:} Ground-truth point correspondences or masks for evaluation are stored under \texttt{../data/annotations/}. These annotations are used to evaluate the alignment accuracy quantitatively by comparing the predicted correspondences to the true ones.
 \end{itemize}
+
+These datasets provide a wide range of real-world conditions, making them suitable for testing the robustness and accuracy of the alignment method.
 
 \subsection{Evaluation Metrics}
-The evaluation scripts compute:
+The evaluation metrics used to assess the performance of the alignment system include both quantitative and qualitative measures.
 
 \paragraph{Mean/Median Reprojection Error (pixels).}
-Given $K$ ground-truth correspondences $\{(\mathbf{p}_k^T,\mathbf{p}_k^Q)\}$:
+The reprojection error measures the difference between the projected coordinates of the template points and the actual coordinates of the matched points in the photograph. Given $K$ ground-truth point correspondences $\{(\mathbf{p}_k^T,\mathbf{p}_k^Q)\}$, the mean and median reprojection errors are computed as follows:
 \[
-\text{MRE} = \frac{1}{K}\sum_{k=1}^{K}\left\|\mathbf{p}_k^Q - \pi(\mathbf{H}\tilde{\mathbf{p}}_k^T)\right\|_2,\quad
-\text{MedRE} = \operatorname{median}_{k}(e_k).
+\text{MRE} = \frac{1}{K}\sum_{k=1}^{K}\left\|\mathbf{p}_k^Q - \pi(\mathbf{H}\tilde{\mathbf{p}}_k^T)\right\|_2,
 \]
+where $\pi$ denotes the projection operation (homogeneous to Cartesian), and $\mathbf{H}$ is the estimated homography. The median reprojection error is defined as:
+\[
+\text{MedRE} = \operatorname{median}_{k}(e_k),
+\]
+where $e_k$ is the individual reprojection error for each point correspondence.
 
 \paragraph{Success Rate.}
-Define a threshold $\delta$:
+The success rate quantifies the fraction of alignments that are considered successful based on a threshold $\delta$ (e.g., $5$ pixels). If the mean reprojection error is below the threshold, the alignment is deemed successful:
 \[
-\text{Success}(\delta)=\mathbb{I}(\text{MRE}<\delta).
+\text{Success}(\delta) = \mathbb{I}(\text{MRE} < \delta),
 \]
-The success rate is averaged over the dataset.
+where $\mathbb{I}$ is the indicator function. The success rate is averaged over the dataset to assess the overall performance of the alignment method.
 
 \paragraph{Optional IoU.}
-When masks are available, IoU is computed between the warped template mask and the photo mask.
+If masks are available for both the template and the photograph, the Intersection over Union (IoU) metric is computed. The IoU measures the overlap between the warped template mask and the photograph mask:
+\[
+\text{IoU} = \frac{|A \cap B|}{|A \cup B|},
+\]
+where $A$ and $B$ are the binary masks of the template and photograph, respectively.
 
 \paragraph{Runtime.}
-Per-image latency and stage-wise breakdown are measured under fixed resolution and fixed parameter settings.
+The per-image latency and stage-wise runtime breakdown are measured to assess the computational efficiency of the system. These measurements include the time spent on feature extraction, matching, RANSAC estimation, and image warping. The runtime is reported in milliseconds per image, with stage-wise breakdowns to identify potential bottlenecks in the pipeline.
 
 \subsection{Parameter Settings (Recorded for Reproducibility)}
-All runs should report:
+For full reproducibility, it is essential to log and report the parameters used in each run. The following settings should be recorded:
 \begin{itemize}
-  \item max image dimension used for matching;
-  \item ORB parameters (e.g., \texttt{nfeatures}, pyramid levels);
-  \item RANSAC threshold $\tau$ and maximum iterations;
-  \item match filtering method (cross-check on/off; distance percentile).
+  \item \textbf{Max image dimension for matching:} The maximum dimension used for resizing images before processing (e.g., the longest side of the image).
+  \item \textbf{ORB parameters:} Parameters used in the ORB feature extraction, such as the number of features (\texttt{nfeatures}), pyramid levels, and scale factor.
+  \item \textbf{RANSAC threshold and max iterations:} The threshold for RANSAC inliers and the maximum number of RANSAC iterations.
+  \item \textbf{Match filtering method:} Whether cross-checking and distance percentile filtering were used during feature matching.
 \end{itemize}
+
+These parameters ensure that the results can be precisely replicated, making the study scientifically reproducible.

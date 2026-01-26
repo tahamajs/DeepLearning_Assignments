@@ -2,4 +2,20 @@
 % report/conclusion.tex
 % =========================
 
-This work implemented and evaluated a feature-based template-to-photo alignment and overlay system grounded in established multi-view geometry and robust estimation. The pipeline produces reproducible overlays, quantitative alignment metrics, and runtime profiles, enabling scientific assessment of both geometric correctness and operational feasibility. The results section demonstrates how qualitative overlays, error distributions, ablation stability, and failure-case diagnostics together characterize performance and boundary conditions. Future extensions should focus on improving robustness under glare and clutter (e.g., ROI gating or hybrid pipelines) and addressing non-planar targets where a single homography is insufficient.
+This work implemented and evaluated a feature-based template-to-photo alignment and overlay system based on established principles of multi-view geometry and robust estimation. The method is designed to produce geometrically consistent overlays and quantitative alignment metrics that enable a comprehensive assessment of both geometric correctness and operational feasibility.
+
+The results demonstrate that the system effectively handles the alignment of template images to query photographs, providing reproducible overlays, error distributions, and performance stability diagnostics. The analysis shows that the method performs well under controlled conditions but is sensitive to glare, low-texture regions, and large perspective changes. Additionally, the choice of template quality and preprocessing techniques significantly impacts the system's robustness.
+
+The evaluation section highlights the performance under various experimental settings, including the impact of different preprocessing parameters, the stability of the method under parameter variation, and the effectiveness of proposed mitigation strategies like ROI gating and template enhancement. These results provide a clear understanding of the boundary conditions under which the method operates effectively.
+
+Future work should focus on improving the system's robustness in uncontrolled environments with high illumination variation and background clutter. Additionally, the method could be extended to non-planar targets, where the homography model is insufficient, by exploring more complex geometric models or hybrid methods that can handle depth variation more accurately.
+
+\subsection{Future Directions}
+Several directions for future work could enhance the applicability and robustness of the alignment system:
+\begin{itemize}
+  \item \textbf{Non-planar surfaces:} Extending the model to handle non-planar surfaces, such as curved objects or parts with significant depth variation, would require alternative geometric models (e.g., projective geometry models with more parameters).
+  \item \textbf{Cluttered environments:} Improvements in feature matching and outlier rejection are needed for highly cluttered environments. This could involve integrating semantic segmentation or object detection techniques to better isolate the region of interest.
+  \item \textbf{Real-time performance:} For deployment in real-time applications, further optimizations in speed, such as approximate nearest neighbor search or more efficient keypoint detection algorithms, should be explored.
+\end{itemize}
+
+These directions will ensure that the method can handle a broader range of practical scenarios, improving its utility in real-world applications like industrial inspection, medical imaging, and autonomous navigation.

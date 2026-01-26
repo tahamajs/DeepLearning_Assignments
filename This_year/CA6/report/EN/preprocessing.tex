@@ -1,22 +1,71 @@
 % =========================
-% report/preprocessing.tex
+% report/preprocessing.tex  (REPLACEMENT FOR VAE + cWGAN-GP REPORT)
 % =========================
 
 \subsection{Preprocessing Goals}
-Preprocessing aims to reduce nuisance variability and stabilize feature repeatability:
+Preprocessing is designed to (i) match the probabilistic assumptions of each generative model, (ii) remove avoidable nuisance variation, and (iii) ensure that comparisons across models are scientifically fair (identical data transformations, consistent splits, and identical evaluation pipelines).
+
+Concretely, the preprocessing pipeline must satisfy the following:
 \begin{itemize}
-  \item normalize image scale (bounded max dimension),
-  \item convert to grayscale for feature extraction,
-  \item optionally increase local contrast to mitigate low-texture regions.
+  \item \textbf{Likelihood consistency (VAE):} the input representation must match the decoder likelihood family (Bernoulli for Dynamic MNIST).
+  \item \textbf{Scale consistency (GAN):} real images must be normalized to the same numeric range as the generator output (typically $[-1,1]$ with $\tanh$ output).
+  \item \textbf{Split integrity (augmentation study):} the GAN training subset and the classifier training subset must be disjoint, with indices logged and reused.
+  \item \textbf{Reproducibility:} all stochastic elements (dynamic binarization, sampling indices) must be controlled via fixed seeds and saved split files.
 \end{itemize}
 
-\subsection{Standard Steps}
-Let $\mathcal{I}$ be either template or photo:
-\begin{enumerate}
-  \item Resize such that $\max(\text{width},\text{height}) \le M$ pixels (to control runtime).
-  \item Convert to grayscale.
-  \item Optional: apply CLAHE (Contrast Limited Adaptive Histogram Equalization) when glare/low contrast dominates failures.
-\end{enumerate}
+\subsection{Preprocessing for Dynamic MNIST (VAE)}
+\subsubsection{Dynamic binarization protocol}
+Dynamic MNIST is formed from grayscale MNIST by sampling a Bernoulli variable independently at each pixel using the grayscale intensity as the Bernoulli parameter. If $x^{\mathrm{gray}}\in[0,1]^D$ is the original normalized grayscale image, then each training presentation uses:
+\[
+x_i \sim \mathrm{Bernoulli}\left(x^{\mathrm{gray}}_i\right),
+\qquad i=1,\dots,D.
+\]
+This is repeated \emph{on-the-fly} during training (and typically also during evaluation for consistency, unless the assignment specifies a fixed binarized test set). Dynamic binarization reduces sensitivity to a single arbitrary thresholding and is standard in likelihood-oriented evaluation of VAEs \citep{kingma2014vae,rezende2014stochastic}.
 
-\subsection{Scientific Rationale}
-Local feature detectors depend on gradient structure. Excessive resizing can destroy high-frequency structure and reduce keypoint density; insufficient resizing can increase latency without improving matching. The resizing policy should therefore be treated as an explicit experimental parameter and included in the configuration log.
+\subsubsection{Model-aligned input and decoder likelihood}
+Because $x\in\{0,1\}^{D}$ under dynamic binarization, we use a Bernoulli observation model:
+\[
+p_\theta(x\mid z)=\prod_{i=1}^{D}\mathrm{Bernoulli}\left(x_i;\pi_{\theta}(z)_i\right),
+\]
+where $\pi_\theta(z)\in(0,1)^D$ is the decoder output after sigmoid. The corresponding reconstruction term is the negative binary cross-entropy. This alignment is essential: mismatching preprocessing (e.g., continuous-valued pixels) with a Bernoulli likelihood produces invalid likelihood comparisons.
+
+\subsubsection{Practical implementation details}
+\begin{itemize}
+  \item \textbf{Input scaling:} convert raw uint8 MNIST images to float in $[0,1]$ before sampling.
+  \item \textbf{Stochasticity control:} if strict reproducibility is required, fix the RNG seed per epoch and log it; otherwise, keep the seed fixed globally but allow per-iteration variability (explicitly stated in the report).
+  \item \textbf{Evaluation consistency:} use the \emph{same} binarization convention for baseline and proposed VAEs (and across latent dimensionalities) to avoid confounding.
+\end{itemize}
+
+\subsection{Preprocessing for FashionMNIST (GAN augmentation)}
+\subsubsection{Normalization and numeric range}
+FashionMNIST images are transformed using the assignment’s normalization:
+\[
+x \leftarrow \frac{x-0.5}{0.5},
+\]
+which maps $x\in[0,1]$ to $x\in[-1,1]$. This is compatible with a generator using $\tanh$ at the output layer. The transform is implemented as:
+\begin{verbatim}
+transforms.ToTensor()
+transforms.Normalize(mean=(0.5,), std=(0.5,))
+\end{verbatim}
+
+\subsubsection{Label handling}
+Labels are kept as integer class IDs $y\in\{0,\dots,9\}$ and embedded in the generator and discriminator as specified (embedding dimension per assignment). No label smoothing is used unless explicitly required.
+
+\subsubsection{Ensuring fairness in augmentation evaluation}
+The classifier receives either:
+\begin{itemize}
+  \item \textbf{Real-only:} limited classifier subset,
+  \item \textbf{Real + synthetic:} the same real subset plus generated samples.
+\end{itemize}
+All other factors (classifier architecture, optimizer, training schedule, and evaluation set) are held constant to isolate the causal effect of augmentation.
+
+\subsection{Scientific Rationale and Controlled Variables}
+Preprocessing choices directly affect the learned distribution and the validity of model comparisons:
+\begin{itemize}
+  \item \textbf{Dynamic binarization} changes the effective data distribution; therefore, it must be treated as part of the experimental definition and not an implementation detail.
+  \item \textbf{Normalization} changes gradient scales and critic behavior in WGAN-GP; mismatched normalization can lead to unstable training or misleading comparisons across runs.
+  \item \textbf{Split integrity} is central: if GAN and classifier subsets overlap, augmentation evaluation becomes invalid because the generator may memorize examples the classifier later sees as ``augmented'' samples.
+\end{itemize}
+Accordingly, preprocessing settings and split indices are recorded in configuration files and reported explicitly in the experiment tables.
+
+

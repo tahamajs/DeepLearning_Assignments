@@ -12,7 +12,7 @@ def mnist_transforms(scale_to_minus1_1: bool = True) -> transforms.Compose:
     t = [transforms.ToTensor()]
     if scale_to_minus1_1:
         # MNIST ToTensor gives [0,1]. Convert to [-1,1].
-        t.append(transforms.Lambda(lambda x: x * 2.0 - 1.0))
+        t.append(transforms.Normalize(mean=(0.5,), std=(0.5,)))
     return transforms.Compose(t)
 
 

@@ -1,0 +1,117 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Problem Statement}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Motivation}{2}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Contributions}{2}{subsection.1.3}%
+\contentsline {section}{\numberline {2}Notation and Definitions}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Symbols}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Abbreviations}{2}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Key Assumption}{3}{subsection.2.3}%
+\contentsline {section}{\numberline {3}System Overview}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Pipeline Summary}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Repository Layout (Expected)}{3}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Why Feature-Based Registration}{3}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Related Work}{4}{section.4}%
+\contentsline {section}{\numberline {5}Methodology}{4}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Geometric Model}{4}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Feature Extraction and Matching}{4}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Robust Estimation}{4}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Warping and Overlay}{4}{subsection.5.4}%
+\contentsline {section}{\numberline {6}Data and Experimental Protocol}{4}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Data Description}{4}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Data Acquisition Considerations}{4}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Train/Tune/Test Split (If You Tune Parameters)}{5}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Ground Truth for Quantitative Metrics}{5}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}Preprocessing Goals}{5}{subsection.6.5}%
+\contentsline {subsection}{\numberline {6.6}Standard Steps}{5}{subsection.6.6}%
+\contentsline {subsection}{\numberline {6.7}Scientific Rationale}{5}{subsection.6.7}%
+\contentsline {subsection}{\numberline {6.8}Datasets and Inputs}{5}{subsection.6.8}%
+\contentsline {subsection}{\numberline {6.9}Evaluation Metrics}{6}{subsection.6.9}%
+\contentsline {paragraph}{Mean/Median Reprojection Error (pixels).}{6}{section*.2}%
+\contentsline {paragraph}{Success Rate.}{6}{section*.3}%
+\contentsline {paragraph}{Optional IoU.}{6}{section*.4}%
+\contentsline {paragraph}{Runtime.}{6}{section*.5}%
+\contentsline {subsection}{\numberline {6.10}Parameter Settings (Recorded for Reproducibility)}{6}{subsection.6.10}%
+\contentsline {section}{\numberline {7}Implementation}{6}{section.7}%
+\contentsline {section}{\numberline {8}Implementation}{6}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Objective and Scope}{6}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}System Architecture}{6}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Repository Layout and Script Responsibilities}{7}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Software Stack and Reproducibility Controls}{7}{subsection.8.4}%
+\contentsline {paragraph}{Core dependencies.}{7}{section*.6}%
+\contentsline {paragraph}{Determinism.}{8}{section*.7}%
+\contentsline {paragraph}{Output contract.}{8}{section*.8}%
+\contentsline {subsection}{\numberline {8.5}Data Preparation}{8}{subsection.8.5}%
+\contentsline {subsubsection}{\numberline {8.5.1}Template Standardization}{8}{subsubsection.8.5.1}%
+\contentsline {subsubsection}{\numberline {8.5.2}Photograph Preprocessing}{8}{subsubsection.8.5.2}%
+\contentsline {subsection}{\numberline {8.6}Geometric Alignment and Overlay}{8}{subsection.8.6}%
+\contentsline {subsubsection}{\numberline {8.6.1}Feature Extraction}{8}{subsubsection.8.6.1}%
+\contentsline {subsubsection}{\numberline {8.6.2}Descriptor Matching and Outlier Filtering}{9}{subsubsection.8.6.2}%
+\contentsline {subsubsection}{\numberline {8.6.3}Homography Estimation with RANSAC}{9}{subsubsection.8.6.3}%
+\contentsline {paragraph}{Reprojection error.}{9}{section*.9}%
+\contentsline {subsubsection}{\numberline {8.6.4}Warping and Alpha Blending}{9}{subsubsection.8.6.4}%
+\contentsline {subsubsection}{\numberline {8.6.5}Optional: Coarse Detection or Segmentation Gate}{9}{subsubsection.8.6.5}%
+\contentsline {subsection}{\numberline {8.7}Evaluation Protocol}{10}{subsection.8.7}%
+\contentsline {subsubsection}{\numberline {8.7.1}Ground Truth Definition}{10}{subsubsection.8.7.1}%
+\contentsline {subsubsection}{\numberline {8.7.2}Metrics}{10}{subsubsection.8.7.2}%
+\contentsline {paragraph}{(M1) Mean reprojection error (pixels).}{10}{section*.10}%
+\contentsline {paragraph}{(M2) Median reprojection error (pixels).}{10}{section*.11}%
+\contentsline {paragraph}{(M3) Success rate under threshold.}{10}{section*.12}%
+\contentsline {paragraph}{(M4) Intersection-over-Union (IoU) (optional).}{10}{section*.13}%
+\contentsline {paragraph}{(M5) Runtime and throughput.}{10}{section*.14}%
+\contentsline {subsubsection}{\numberline {8.7.3}Experimental Controls}{11}{subsubsection.8.7.3}%
+\contentsline {subsection}{\numberline {8.8}Results: Figures and Quantitative Summaries}{11}{subsection.8.8}%
+\contentsline {paragraph}{Qualitative overlays (visual verification).}{11}{section*.15}%
+\contentsline {paragraph}{Error distribution (reprojection error).}{11}{section*.16}%
+\contentsline {paragraph}{Runtime profiling.}{11}{section*.17}%
+\contentsline {paragraph}{Ablation study (robustness to parameter choices).}{11}{section*.18}%
+\contentsline {paragraph}{Failure analysis (diagnostic examples).}{11}{section*.19}%
+\contentsline {subsection}{\numberline {8.9}Answers to the Evaluation Questions (Complete, Explanatory)}{11}{subsection.8.9}%
+\contentsline {subsection}{\numberline {8.10}Code Inclusion (Optional, Safe Compilation)}{13}{subsection.8.10}%
+\contentsline {subsection}{\numberline {8.11}Reproducibility Instructions (Report-Ready)}{14}{subsection.8.11}%
+\contentsline {section}{\numberline {9}Evaluation and Metrics}{14}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Evaluation Objectives}{14}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Primary Quantitative Metrics}{14}{subsection.9.2}%
+\contentsline {paragraph}{Reprojection error (pixels).}{14}{section*.27}%
+\contentsline {paragraph}{Inlier ratio.}{14}{section*.28}%
+\contentsline {paragraph}{Success rate.}{14}{section*.29}%
+\contentsline {subsection}{\numberline {9.3}Report Figures: Required Exports}{15}{subsection.9.3}%
+\contentsline {subsection}{\numberline {9.4}Ablations (Minimum Scientific Set)}{15}{subsection.9.4}%
+\contentsline {section}{\numberline {10}Results and Analysis}{15}{section.10}%
+\contentsline {subsection}{\numberline {10.1}Overview of Exported Artifacts}{15}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}Quantitative Summary}{15}{subsection.10.2}%
+\contentsline {paragraph}{How to interpret the summary table scientifically.}{16}{section*.31}%
+\contentsline {subsection}{\numberline {10.3}Qualitative Results: Overlay Inspection}{16}{subsection.10.3}%
+\contentsline {paragraph}{What this figure demonstrates.}{16}{section*.32}%
+\contentsline {paragraph}{Operational conclusion from overlays.}{16}{section*.33}%
+\contentsline {subsection}{\numberline {10.4}Alignment Error Distribution}{16}{subsection.10.4}%
+\contentsline {paragraph}{What the error histogram demonstrates.}{16}{section*.34}%
+\contentsline {paragraph}{Scientific interpretation of MRE vs.\ MedRE.}{16}{section*.35}%
+\contentsline {subsection}{\numberline {10.5}Runtime and Stage-Wise Profiling}{17}{subsection.10.5}%
+\contentsline {paragraph}{What runtime breakdown demonstrates.}{17}{section*.36}%
+\contentsline {paragraph}{Deployment feasibility statement.}{17}{section*.37}%
+\contentsline {subsection}{\numberline {10.6}Ablation Study: Parameter Sensitivity}{17}{subsection.10.6}%
+\contentsline {paragraph}{What the ablation plot demonstrates.}{17}{section*.38}%
+\contentsline {paragraph}{Scientific conclusion from ablations.}{17}{section*.39}%
+\contentsline {subsection}{\numberline {10.7}Failure-Case Analysis and Diagnostics}{17}{subsection.10.7}%
+\contentsline {paragraph}{What failure figures demonstrate.}{17}{section*.40}%
+\contentsline {paragraph}{Scientifically justified mitigations (activated only if supported by measured improvements).}{18}{section*.41}%
+\contentsline {subsection}{\numberline {10.8}Result Summary: What the Results Prove}{18}{subsection.10.8}%
+\contentsline {section}{\numberline {11}Discussion}{18}{section.11}%
+\contentsline {subsection}{\numberline {11.1}Assumptions and Validity Domain}{18}{subsection.11.1}%
+\contentsline {subsection}{\numberline {11.2}Limitations}{18}{subsection.11.2}%
+\contentsline {subsection}{\numberline {11.3}Mitigation Strategies (Evidence-Driven)}{18}{subsection.11.3}%
+\contentsline {subsection}{\numberline {11.4}Threats to Validity}{18}{subsection.11.4}%
+\contentsline {section}{\numberline {12}Reproducibility}{19}{section.12}%
+\contentsline {subsection}{\numberline {12.1}Environment Specification}{19}{subsection.12.1}%
+\contentsline {subsection}{\numberline {12.2}Determinism Controls}{19}{subsection.12.2}%
+\contentsline {subsection}{\numberline {12.3}Reproducible Command Lines}{19}{subsection.12.3}%
+\contentsline {section}{\numberline {13}Ethics, Privacy, and Safety}{19}{section.13}%
+\contentsline {subsection}{\numberline {13.1}Environment Specification}{19}{subsection.13.1}%
+\contentsline {subsection}{\numberline {13.2}Determinism Controls}{20}{subsection.13.2}%
+\contentsline {subsection}{\numberline {13.3}Reproducible Command Lines}{20}{subsection.13.3}%
+\contentsline {section}{\numberline {14}Conclusion}{20}{section.14}%
+\contentsline {section}{\numberline {A}Appendix}{20}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Recommended Metrics File Formats}{20}{subsection.A.1}%
+\contentsline {paragraph}{Dataset summary.}{20}{section*.43}%
+\contentsline {subsection}{\numberline {A.2}Annotation Schema (Point Correspondences)}{21}{subsection.A.2}%
+\contentsline {subsection}{\numberline {A.3}Parameter Logging}{21}{subsection.A.3}%

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520">
+<rect width="100%" height="100%" fill="white"/>
+<text x="500.0" y="35" text-anchor="middle" font-family="Arial" font-size="26">CAe Q1 Captioning Metrics by Run</text>
+<line x1="90" y1="400.00" x2="960" y2="400.00" stroke="#e0e0e0"/>
+<text x="80" y="404.00" text-anchor="end" font-family="Arial" font-size="12">0.00</text>
+<line x1="90" y1="334.00" x2="960" y2="334.00" stroke="#e0e0e0"/>
+<text x="80" y="338.00" text-anchor="end" font-family="Arial" font-size="12">12.00</text>
+<line x1="90" y1="268.00" x2="960" y2="268.00" stroke="#e0e0e0"/>
+<text x="80" y="272.00" text-anchor="end" font-family="Arial" font-size="12">24.00</text>
+<line x1="90" y1="202.00" x2="960" y2="202.00" stroke="#e0e0e0"/>
+<text x="80" y="206.00" text-anchor="end" font-family="Arial" font-size="12">36.00</text>
+<line x1="90" y1="136.00" x2="960" y2="136.00" stroke="#e0e0e0"/>
+<text x="80" y="140.00" text-anchor="end" font-family="Arial" font-size="12">48.00</text>
+<line x1="90" y1="70.00" x2="960" y2="70.00" stroke="#e0e0e0"/>
+<text x="80" y="74.00" text-anchor="end" font-family="Arial" font-size="12">60.00</text>
+<line x1="90" y1="70" x2="90" y2="400" stroke="black"/>
+<line x1="90" y1="400" x2="960" y2="400" stroke="black"/>
+<rect x="114.00" y="88.15" width="48.00" height="311.85" fill="#4C78A8"/>
+<rect x="162.00" y="79.90" width="48.00" height="320.10" fill="#F58518"/>
+<text x="162.50" y="455" text-anchor="middle" font-family="Arial" font-size="12" transform="rotate(20 162.50,455)">BLEU1</text>
+<rect x="259.00" y="210.25" width="48.00" height="189.75" fill="#4C78A8"/>
+<rect x="307.00" y="201.45" width="48.00" height="198.55" fill="#F58518"/>
+<text x="307.50" y="455" text-anchor="middle" font-family="Arial" font-size="12" transform="rotate(20 307.50,455)">BLEU2</text>
+<rect x="404.00" y="278.45" width="48.00" height="121.55" fill="#4C78A8"/>
+<rect x="452.00" y="269.65" width="48.00" height="130.35" fill="#F58518"/>
+<text x="452.50" y="455" text-anchor="middle" font-family="Arial" font-size="12" transform="rotate(20 452.50,455)">BLEU3</text>
+<rect x="549.00" y="334.00" width="48.00" height="66.00" fill="#4C78A8"/>
+<rect x="597.00" y="327.95" width="48.00" height="72.05" fill="#F58518"/>
+<text x="597.50" y="455" text-anchor="middle" font-family="Arial" font-size="12" transform="rotate(20 597.50,455)">BLEU4</text>
+<rect x="694.00" y="298.25" width="48.00" height="101.75" fill="#4C78A8"/>
+<rect x="742.00" y="295.50" width="48.00" height="104.50" fill="#F58518"/>
+<text x="742.50" y="455" text-anchor="middle" font-family="Arial" font-size="12" transform="rotate(20 742.50,455)">METEOR</text>
+<rect x="839.00" y="282.30" width="48.00" height="117.70" fill="#4C78A8"/>
+<rect x="887.00" y="273.50" width="48.00" height="126.50" fill="#F58518"/>
+<text x="887.50" y="455" text-anchor="middle" font-family="Arial" font-size="12" transform="rotate(20 887.50,455)">CIDEr</text>
+<rect x="740" y="68" width="16" height="16" fill="#4C78A8"/>
+<text x="764" y="80" font-family="Arial" font-size="14">run1</text>
+<rect x="740" y="92" width="16" height="16" fill="#F58518"/>
+<text x="764" y="104" font-family="Arial" font-size="14">run2</text>
+</svg>

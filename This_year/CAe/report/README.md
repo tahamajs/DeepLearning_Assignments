@@ -14,3 +14,9 @@ make all
 Notes
 - If figures are only available as PNGs, either convert them to PDF or change the `\includegraphics{}` references in `report.tex` to the PNG filenames. The `codes/*/images` folders contain the generated high-resolution PNGs and the `ieee_assets/` subfolders hold copied PDFs and per-figure `.tex` snippets produced by the asset helper scripts.
 - For IEEE double-column figures, the default snippets use 0.48\textwidth width; tweak where appropriate.
+
+Added completion assets
+- `images/q1_captioning_metrics.svg`
+- `images/q2_urban_sound_metrics.svg`
+- `images/q4_adversarial_robustness.svg`
+- `REPORT_COMPLETION.md`

@@ -3,6 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{booktabs}
 \usepackage{hyperref}
 \usepackage{siunitx}
@@ -10,6 +11,7 @@
 \usepackage{subcaption}
 \usepackage{float}
 \usepackage{cite}
+\usepackage[strings]{underscore}
 
 \title{Homework 4: RNN Models for SLU and Recursive Time-Series Forecasting}
 \author{\IEEEauthorblockN{Taha Majlesi - 810101504}
@@ -162,7 +164,7 @@ The slot vocabulary handles the BIO tagging scheme with 120 unique labels:
 \begin{itemize}
   \item Includes \texttt{<PAD>} token for padding positions in batch processing
   \item Maintains all BIO variants observed in training data
-  \item Examples: B-fromloc.city_name, I-fromloc.city_name, B-toloc.city_name, O
+  \item Examples: \texttt{B-fromloc.city\_name}, \texttt{I-fromloc.city\_name}, \texttt{B-toloc.city\_name}, \texttt{O}
   \item No \texttt{<UNK>} token needed since all possible slot types are known at training time
 \end{itemize}
 
@@ -194,7 +196,7 @@ The padding token solves the fundamental challenge of batch processing variable-
 \begin{itemize}
   \item \textbf{Purpose}: Enables creation of rectangular tensors by extending shorter sequences to match the longest sequence in a batch
   \item \textbf{Index Assignment}: Conventionally assigned index 0 for computational efficiency (avoids explicit masking operations in some implementations)
-  \item \textbf{Loss Masking}: Critical requirement - CrossEntropyLoss configured with ignore_index=PAD_ID to prevent padding tokens from influencing gradient computation
+  \item \textbf{Loss Masking}: Critical requirement - CrossEntropyLoss configured with ignore\_index=\texttt{PAD\_ID} to prevent padding tokens from influencing gradient computation
   \item \textbf{Attention Masking}: In transformer-based models, padding positions must be masked during attention computation to prevent information leakage
   \item \textbf{Position Embeddings}: Padding positions should not receive positional information in models that use position encodings
 \end{itemize}
@@ -260,16 +262,16 @@ Consider a batch with sequence lengths \{5, 7, 3, 12, 8\}:
 \textbf{Implementation Architecture:}
 Our collate function returns a comprehensive batch dictionary:
 \begin{itemize}
-  \item \textbf{input_ids}: Padded token indices tensor (B, T) where T is batch maximum length
-  \item \textbf{slot_ids}: Padded slot label indices tensor (B, T) for supervised training
-  \item \textbf{attention_mask}: Boolean mask (B, T) where True indicates valid tokens, False indicates padding
-  \item \textbf{lengths}: Original sequence lengths (B,) for pack_padded_sequence in PyTorch RNNs
-  \item \textbf{intent_ids}: Intent class indices (B,) for intent classification head
+  \item \textbf{input\_ids}: Padded token indices tensor (B, T) where T is batch maximum length
+  \item \textbf{slot\_ids}: Padded slot label indices tensor (B, T) for supervised training
+  \item \textbf{attention\_mask}: Boolean mask (B, T) where True indicates valid tokens, False indicates padding
+  \item \textbf{lengths}: Original sequence lengths (B,) for pack\_padded\_sequence in PyTorch RNNs
+  \item \textbf{intent\_ids}: Intent class indices (B,) for intent classification head
 \end{itemize}
 
 \textbf{Advanced Features:}
 \begin{itemize}
-  \item \textbf{Packing Support}: Generates PackedSequence objects for efficient RNN processing when using torch.nn.utils.rnn.pack_padded_sequence
+  \item \textbf{Packing Support}: Generates \texttt{PackedSequence} objects for efficient RNN processing when using torch.nn.utils.rnn.pack\_padded\_sequence
   \item \textbf{Multi-head Compatibility}: Supports both slot filling (sequence) and intent detection (classification) objectives
   \item \textbf{Device Awareness}: Automatically moves tensors to specified device during batch creation
   \item \textbf{Gradient Masking}: Ensures padding positions contribute zero gradients during backpropagation
@@ -289,15 +291,16 @@ z_t &= W_s h_t + b_s \\
 \end{align}
 Training loss (masked):
 \begin{equation}
-L_{slot} = -\frac{1}{\sum_t m_t} \sum_t m_t \log p_{t, y_t},\quad m_t = \mathbf{1}\{t\text{ not PAD}\}\n\end{equation}
+L_{slot} = -\frac{1}{\sum_t m_t} \sum_t m_t \log p_{t, y_t},\quad m_t = \mathbf{1}\{t\text{ not PAD}\}
+\end{equation}
 
 \subsubsection{Hyperparameters and recommended training recipe}
 Defaults (matching assignment): embedding=128, hidden=128 per direction, dropout=0.5, batch size=32, epochs=10, lr=1e-3 (Adam). Additional best practices to obtain stable and reproducible models:
 \begin{itemize}
-  \item gradient clipping (max norm 5.0);\
-  \item learning rate scheduler (ReduceLROnPlateau on val-F1 or CosineAnnealing);\
-  \item early stopping patience 5 (based on val F1);\
-  \item set deterministic seeds and save git commit hash & config JSON.
+  \item gradient clipping (max norm 5.0);
+  \item learning rate scheduler (ReduceLROnPlateau on val-F1 or CosineAnnealing);
+  \item early stopping patience 5 (based on val F1);
+  \item set deterministic seeds and save git commit hash \& config JSON.
 \end{itemize}
 
 \subsubsection{Evaluation protocol}
@@ -374,7 +377,7 @@ For each model save:
 \textbf{Vocabularies.} We build:
 \begin{itemize}
   \item Word vocabulary (indexed with special tokens: \texttt{<PAD>}, \texttt{<UNK>}, and optionally \texttt{<BOS>}/\texttt{<EOS>} for decoder models).
-  \item Slot vocabulary (BIO tags; e.g. B-fromloc.city_name, I-fromloc.city_name, O).
+  \item Slot vocabulary (BIO tags; e.g. \texttt{B-fromloc.city\_name}, \texttt{I-fromloc.city\_name}, O).
   \item Intent vocabulary (unique intent labels).
 \end{itemize}
 
@@ -426,7 +429,7 @@ We also implement a `collate` that returns lengths and a boolean mask for loss a
 \begin{itemize}
   \item Slot filling is naturally an aligned task where input and output sequences have equal length. Direct sequence labeling models like BiLSTM exploit this one-to-one alignment through per-step classifiers, which is more straightforward and typically more accurate than sequential generation.
   \item Greedy decoding in encoder-decoder setups accumulates errors: an incorrect slot prediction at step $t$ becomes the input for step $t+1$, causing error propagation that compounds over the sequence length. Teacher forcing during training helps but doesn't solve inference-time error accumulation.
-  \item The decoder lacks inherent constraints for BIO tag validity (e.g., I-fromloc.city_name must follow B-fromloc.city_name). Without CRF layer or constrained decoding, invalid BIO sequences can be generated, reducing entity-level F1 scores. Beam search or CRF integration would be needed to properly enforce these structural constraints.
+  \item The decoder lacks inherent constraints for BIO tag validity (e.g., \texttt{I-fromloc.city\_name} must follow \texttt{B-fromloc.city\_name}). Without CRF layer or constrained decoding, invalid BIO sequences can be generated, reducing entity-level F1 scores. Beam search or CRF integration would be needed to properly enforce these structural constraints.
   \item Encoder-decoder architectures are better suited for tasks with variable-length outputs or when source-target alignment is non-trivial, such as machine translation or abstractive summarization.
 \end{itemize}
 
@@ -781,7 +784,7 @@ Our experiments reveal nuanced performance characteristics across different arch
 \textbf{BiRNN Baseline Performance:}
 The bidirectional RNN achieves 94.2\% slot F1, establishing a strong baseline for sequence labeling. Performance analysis shows:
 \begin{itemize}
-  \item Strong performance on frequent slot types (B-fromloc.city_name, B-toloc.city_name)
+  \item Strong performance on frequent slot types (\texttt{B-fromloc.city\_name}, \texttt{B-toloc.city\_name})
   \item Degradation on rare entities and complex BIO transitions
   \item Intent detection not applicable (architecture focuses solely on slot filling)
   \item Training converges rapidly (10 epochs) with stable gradients

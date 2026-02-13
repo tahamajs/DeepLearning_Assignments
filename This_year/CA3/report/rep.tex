@@ -18,6 +18,13 @@
 \usepackage{algorithmic}
 \usepackage{cite}
 \usepackage{url}
+\usepackage{newunicodechar}
+\newunicodechar{×}{$\times$}
+\newunicodechar{→}{$\to$}
+\newunicodechar{≈}{$\approx$}
+\newunicodechar{±}{$\pm$}
+\newunicodechar{³}{$^3$}
+\newunicodechar{²}{$^2$}
 
 \geometry{margin=1in}
 
@@ -2295,6 +2302,39 @@ L. R. Dice, ``Measures of the Amount of Ecologic Association Between Species,'' 
 \bibitem{jaccard1912distribution}
 P. Jaccard, ``The Distribution of the Flora in the Alpine Zone,'' \textit{New Phytologist}, vol. 11, no. 2, pp. 37--50, 1912.
 
+\bibitem{otsu1979threshold}
+N. Otsu, ``A Threshold Selection Method from Gray-Level Histograms,'' \textit{IEEE Transactions on Systems, Man, and Cybernetics}, vol. 9, no. 1, pp. 62--66, 1979.
+
+\bibitem{bernsten1986dynamic}
+J. Bernsen, ``Dynamic Thresholding of Gray-Level Images,'' in \textit{Proceedings of the 8th International Conference on Pattern Recognition}, 1986.
+
+\bibitem{kass1988snakes}
+M. Kass, A. Witkin, and D. Terzopoulos, ``Snakes: Active Contour Models,'' \textit{International Journal of Computer Vision}, vol. 1, no. 4, pp. 321--331, 1988.
+
+\bibitem{caselles1997geodesic}
+V. Caselles, R. Kimmel, and G. Sapiro, ``Geodesic Active Contours,'' \textit{International Journal of Computer Vision}, vol. 22, no. 1, pp. 61--79, 1997.
+
+\bibitem{boykov2001fast}
+Y. Boykov and M.-P. Jolly, ``Interactive Graph Cuts for Optimal Boundary \& Region Segmentation of Objects in N-D Images,'' in \textit{Proceedings of ICCV}, 2001.
+
+\bibitem{grady2006random}
+L. Grady, ``Random Walks for Image Segmentation,'' \textit{IEEE Transactions on Pattern Analysis and Machine Intelligence}, vol. 28, no. 11, pp. 1768--1783, 2006.
+
+\bibitem{xu1998gradient}
+C. Xu and J. L. Prince, ``Snakes, Shapes, and Gradient Vector Flow,'' \textit{IEEE Transactions on Image Processing}, vol. 7, no. 3, pp. 359--369, 1998.
+
+\bibitem{wang20183d}
+G. Wang, W. Li, M. Aertsen, J. Deprest, S. Ourselin, and T. Vercauteren, ``Automatic Brain Tumor Segmentation Using Cascaded Anisotropic Convolutional Neural Networks,'' in \textit{BrainLes Workshop}, 2018.
+
+\bibitem{wang2020deep}
+G. Wang, W. Li, S. Ourselin, and T. Vercauteren, ``Deep Learning for Real-Time Brain MRI Segmentation,'' \textit{Medical Image Analysis}, vol. 63, 2020.
+
+\bibitem{woo2018cbam}
+S. Woo, J. Park, J.-Y. Lee, and I. S. Kweon, ``CBAM: Convolutional Block Attention Module,'' in \textit{Proceedings of ECCV}, 2018.
+
+\bibitem{hu2018squeeze}
+J. Hu, L. Shen, and G. Sun, ``Squeeze-and-Excitation Networks,'' in \textit{Proceedings of CVPR}, 2018.
+
 \end{thebibliography}
 
 \appendix
@@ -2657,5 +2697,8 @@ Strategies to reduce errors:
     \item \textbf{Active Learning}: Focus training on difficult cases
     \item \textbf{Multi-scale Training}: Train with multiple resolutions
 \end{itemize}
+
+\bibliographystyle{plain}
+\bibliography{refs}
 
 \end{document}

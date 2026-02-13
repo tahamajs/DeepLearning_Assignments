@@ -4,11 +4,27 @@ Encoder/Decoder skeletons with Attention for Image Captioning
 import torch
 import torch.nn as nn
 import torchvision.models as models
+import warnings
 
 class EncoderCNN(nn.Module):
-    def __init__(self, encoded_dim=512, freeze_backbone=True):
+    def __init__(self, encoded_dim=512, freeze_backbone=True, pretrained=True):
         super().__init__()
-        vgg = models.vgg16(pretrained=True)
+        # Prefer pretrained ImageNet weights, but gracefully fall back to
+        # random initialization in offline/test environments.
+        weights = None
+        if pretrained:
+            try:
+                weights = models.VGG16_Weights.IMAGENET1K_V1
+            except AttributeError:
+                weights = None
+        try:
+            vgg = models.vgg16(weights=weights)
+        except Exception as exc:
+            warnings.warn(
+                f"Could not load pretrained VGG16 weights ({exc}); falling back to random init.",
+                RuntimeWarning,
+            )
+            vgg = models.vgg16(weights=None)
         modules = list(vgg.features.children())
         self.feature_extractor = nn.Sequential(*modules)
         if freeze_backbone:

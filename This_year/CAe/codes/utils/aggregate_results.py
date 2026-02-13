@@ -1,4 +1,4 @@
-"""
+r"""
 Aggregate experiment result CSVs across multiple runs and produce summary CSV and LaTeX tables.
 
 Usage:
@@ -9,7 +9,7 @@ Each CSV should contain one row per run with a `run_id` column.
 
 Outputs:
  - aggregate_summary.csv: mean/std/sem and 95% CI per metric
- - aggregate_table.tex: LaTeX table snippet ready to \input into the report
+ - aggregate_table.tex: LaTeX table snippet ready to \\input into the report
 """
 import argparse
 import glob
@@ -106,7 +106,7 @@ def format_latex_table(summary_df, metrics, caption, label, out_path):
             if np.isnan(mean):
                 cells.append('--')
             else:
-                cells.append(f"{mean:.3f} $\pm$ {std:.3f}")
+                cells.append(f"{mean:.3f} $\\pm$ {std:.3f}")
         lines.append(' & '.join(cells) + ' \\\n')
     lines.append('\\bottomrule')
     lines.append('\\end{tabular}')

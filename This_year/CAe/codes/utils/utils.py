@@ -103,12 +103,12 @@ def write_latex_figure_snippet(pdf_path, caption, label=None, width='\\columnwid
         label = _latex_safe_label(pdf_path)
     if tex_path is None:
         tex_path = os.path.splitext(pdf_path)[0] + '.tex'
-    tex = f"""\begin{{figure}}[t]
-\centering
-\includegraphics[width={width}]{{{os.path.basename(pdf_path)}}}
-\caption{{{caption}}}
-\label{{{label}}}
-\end{{figure}}
+    tex = f"""\\begin{{figure}}[t]
+\\centering
+\\includegraphics[width={width}]{{{os.path.basename(pdf_path)}}}
+\\caption{{{caption}}}
+\\label{{{label}}}
+\\end{{figure}}
 """
     with open(tex_path, 'w') as f:
         f.write(tex)

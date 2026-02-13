@@ -1,0 +1,22 @@
+Rc files read:
+  NONE
+Latexmk: This is Latexmk, John Collins, 27 Dec. 2024. Version 4.86a.
+Latexmk: applying rule 'xdvipdfmx'...
+Rule 'xdvipdfmx':  Reasons for rerun
+Category 'no_dest':
+  xdvipdfmx
+
+------------
+Run number 1 of rule 'xdvipdfmx'
+------------
+------------
+Running 'xdvipdfmx -E -o "report.pdf"  "report.xdv"'
+------------
+Latexmk: All targets (report.xdv report.pdf) are up-to-date
+Collected error summary (may duplicate other messages):
+  xelatex: gave an error in previous invocation of latexmk.
+
+
+report.xdv -> report.pdf
+[1][2][3]
+68348 bytes written

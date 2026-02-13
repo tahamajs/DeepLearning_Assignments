@@ -84,7 +84,7 @@ print(f'Median length: {np.median(train_lengths)}')
 print(f'Max length: {max(train_lengths)}')
 \end{verbatim}
 
-This systematic exploration reveals the ATIS dataset contains 4,978 training examples, 893 validation examples, and 893 test examples. The 21 unique intents range from common travel queries (atis_flight, atis_airfare) to specialized requests (atis_aircraft, atis_flight_time). The 120 BIO-formatted slot labels capture fine-grained semantic information, with 'O' (Outside) tags comprising approximately 65\% of all tokens, creating a challenging class imbalance scenario for sequence labeling tasks.
+This systematic exploration reveals the ATIS dataset contains 4,978 training examples, 893 validation examples, and 893 test examples. The 21 unique intents range from common travel queries (\texttt{atis\_flight}, \texttt{atis\_airfare}) to specialized requests (\texttt{atis\_aircraft}, \texttt{atis\_flight\_time}). The 120 BIO-formatted slot labels capture fine-grained semantic information, with 'O' (Outside) tags comprising approximately 65\% of all tokens, creating a challenging class imbalance scenario for sequence labeling tasks.
 
 \subsubsection{Tokenization: methods, tradeoffs, and implementation considerations}
 
@@ -171,7 +171,7 @@ Simple classification mapping for the 21 intent categories:
 \begin{itemize}
   \item Direct string-to-integer mapping without special tokens
   \item Deterministic ordering (alphabetical sort) for reproducibility
-  \item Examples: atis_aircraft $\to$ 0, atis_airfare $\to$ 1, atis_flight $\to$ 2
+  \item Examples: \texttt{atis\_aircraft} $\to$ 0, \texttt{atis\_airfare} $\to$ 1, \texttt{atis\_flight} $\to$ 2
 \end{itemize}
 
 \textbf{Implementation Considerations:}
@@ -362,7 +362,7 @@ For each model save:
   Dev & 893 & validation set for hyperparameter tuning \\
   Test & 893 & official test split \\
   \midrule
-  \#Intents & 21 & unique intent classes (e.g., atis_flight, atis_airfare) \\
+  \#Intents & 21 & unique intent classes (e.g., \texttt{atis\_flight}, \texttt{atis\_airfare}) \\
   \#Slot labels & 120 & BIO-formatted slot labels \\
   \bottomrule
   \end{tabular}

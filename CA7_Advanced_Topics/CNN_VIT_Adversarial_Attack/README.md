@@ -572,7 +572,7 @@ CNN_VIT_Adversarial_Attack/
 │   ├── notebook_image_001.png   # Extracted notebook images
 │   └── ...
 ├── report/
-│   └── NNDL_UT_CA6_2.pdf        # Project report
+│   └── NNDL_UT_CA7_1.pdf        # Project report
 └── README.md                     # This file
 ```
 

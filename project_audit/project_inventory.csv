@@ -1,0 +1,21 @@
+track,project_id,path,has_readme,has_code,has_description,has_report,has_plots,naming_ok,status,notes
+main,main_CA1,CA1_Neural_Networks_Basics,true,true,true,true,true,true,complete,meets required-core checks
+main,main_CA2_Q1,CA2_CNN_Applications/Covid_Detection,true,true,true,true,true,true,complete,meets required-core checks
+main,main_CA2_Q2,CA2_CNN_Applications/Vehicle_Classification,true,true,true,true,true,true,complete,meets required-core checks
+main,main_CA3_Q1,CA3_Object_Detection/Fast_SCNN,true,true,true,true,true,true,complete,meets required-core checks
+main,main_CA3_Q2,CA3_Object_Detection/Oriented_RCNN,true,true,true,true,true,true,complete,meets required-core checks
+main,main_CA4_Q1,CA4_Sequence_Modeling/Image_Captioning,true,true,true,true,true,true,complete,meets required-core checks
+main,main_CA4_Q2,CA4_Sequence_Modeling/Time_Series_Prediction,true,true,true,true,true,true,complete,meets required-core checks
+main,main_CA5_Q1,CA5_Vision_Transformers/VIT_Classification,true,true,true,true,true,true,complete,meets required-core checks
+main,main_CA5_Q2,CA5_Vision_Transformers/CLIP_Adversarial_Attack,true,true,true,true,true,true,complete,meets required-core checks
+main,main_CA6_Q1,CA6_Generative_Models/Unsupervised_Domain_Adaptation_GAN,true,true,true,true,true,true,complete,meets required-core checks
+main,main_CA6_Q2,CA6_Generative_Models/VAE,true,true,true,true,true,true,complete,meets required-core checks
+main,main_CA7_Q1,CA7_Advanced_Topics/CNN_VIT_Adversarial_Attack,true,true,true,true,true,true,complete,meets required-core checks
+main,main_CA7_Q2,CA7_Advanced_Topics/Image_Captioning,true,true,true,true,true,true,complete,meets required-core checks
+this_year,thisyear_CA1,This_year/CA1,true,true,true,true,true,true,complete,meets required-core checks
+this_year,thisyear_CA2,This_year/CA2,true,true,true,true,true,true,complete,meets required-core checks
+this_year,thisyear_CA3,This_year/CA3,true,true,true,true,true,true,complete,meets required-core checks
+this_year,thisyear_CA4,This_year/CA4,true,true,true,true,true,true,complete,meets required-core checks
+this_year,thisyear_CA5,This_year/CA5,true,true,true,true,true,true,complete,meets required-core checks
+this_year,thisyear_CA6,This_year/CA6,true,true,true,true,true,true,complete,meets required-core checks
+this_year,thisyear_CAe,This_year/CAe,true,true,true,true,true,true,complete,meets required-core checks

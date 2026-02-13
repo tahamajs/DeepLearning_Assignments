@@ -501,7 +501,7 @@ This project demonstrates that with appropriate architectures and advanced techn
 
 - `README.md`: This comprehensive documentation
 - `description/NNDL_HWe.pdf`: Assignment description
-- `report/NNDL_UT_CAe_2.pdf`: Project report
+- `report/NNDL_UT_CA7_2.pdf`: Project report
 
 ### Reference Papers
 

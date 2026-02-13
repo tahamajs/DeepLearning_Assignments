@@ -285,7 +285,7 @@ The preprocessing pipeline transforms raw surveillance images into standardized 
 
 \textbf{Image Standardization:}
 \begin{itemize}
-    \item \textbf{Resolution Normalization:} All images are resized to $256 \times 128$ pixels, maintaining the standard aspect ratio for person images (height:width ≈ 2:1)
+    \item \textbf{Resolution Normalization:} All images are resized to $256 \times 128$ pixels, maintaining the standard aspect ratio for person images (height:width $\approx$ 2:1)
     \item \textbf{Color Space Considerations:} Images remain in RGB color space to preserve color information critical for clothing-based identification
     \item \textbf{Bounding Box Refinement:} The dataset provides pre-computed bounding boxes, but our pipeline includes optional refinement using person detection models
 \end{itemize}
@@ -407,10 +407,6 @@ The \texttt{RandomIdentitySampler} provides:
 \end{itemize}
 
 This comprehensive data preparation pipeline ensures that our models are trained on diverse, high-quality data that accurately represents the challenges of real-world person re-identification systems.
-    \item \textbf{Shuffle:} Random shuffling during training, sorted by person ID during evaluation
-\end{itemize}
-
-This comprehensive data preparation ensures robust training while maintaining the integrity of the Re-ID task.
 
 \subsubsection*{Data Visualization}
 % Insert sample images here
@@ -429,7 +425,7 @@ Our baseline model is a modified ResNet-50 pretrained on ImageNet. For Re-ID, we
 \begin{itemize}
     \item \textbf{Backbone:} ResNet-50 with frozen BatchNorm layers (as is standard in Re-ID to prevent overfitting on small datasets).
     \item \textbf{Feature Extraction:} The backbone outputs a 2048-dimensional feature vector from the global average pooling layer.
-    \item \textbf{Classification Head:} A linear layer (2048 → num\_identities) that predicts the identity class.
+    \item \textbf{Classification Head:} A linear layer (2048 $\to$ num\_identities) that predicts the identity class.
     \item \textbf{Loss Function:} Cross-Entropy Loss, which implicitly learns a metric space where same-identity images are close and different-identity images are far apart.
 \end{itemize}
 
@@ -600,7 +596,7 @@ BotNet exhibits different training dynamics compared to ResNet:
 \textbf{Hyperparameter Configuration:}
 \begin{itemize}
     \item \textbf{Optimizer:} SGD with momentum 0.9, weight decay 5e-4 (same as ResNet)
-    \item \textbf{Learning Rate Schedule:} 0.01 → 0.001 → 0.0001 at epochs 40 and 70
+    \item \textbf{Learning Rate Schedule:} 0.01 $\to$ 0.001 $\to$ 0.0001 at epochs 40 and 70
     \item \textbf{Batch Size:} 32 (PK sampling with P=16, K=2)
     \item \textbf{Gradient Clipping:} Max norm 1.0 for attention layers
 \end{itemize}
@@ -709,26 +705,21 @@ This comprehensive architectural design makes BotNet a compelling approach for c
 
 \subsubsection*{1.4 Results Analysis (15 Points)}
 
-**1. Performance Comparison**
 
-* **ResNet50 (CNN):** Achieved a final Rank-1 Accuracy of **78.32%**.
-* **BotNet50 (Transformer):** Achieved a final Rank-1 Accuracy of **74.78%**.
-* **Conclusion:** The baseline ResNet50 outperformed the BotNet50 by approximately **3.5%**.
+\subsubsection*{Performance Comparison and Discussion}
 
-**2. Why did ResNet perform better?**
+\textbf{Performance comparison.}
+ResNet50 (CNN) achieved final Rank-1 accuracy of 78.32\\%, while BotNet50 (Transformer) achieved 74.78\\%. In this setting, the baseline ResNet50 outperformed BotNet50 by about 3.5\\%.
 
-* **Inductive Bias:** CNNs have a strong "Inductive Bias" for locality and translation invariance. They assume that pixels close to each other are related. This is a powerful prior for small datasets like Market-1501 (~12k images). The model doesn't need to *learn* that pixels form edges; it is built into the architecture.
-* **Data Hunger:** Transformers (BotNet) lack this bias. They treat the image as a sequence of patches and must *learn* spatial relationships from scratch using attention. This typically requires massive datasets (millions of images). On a small dataset, the Transformer tends to overfit or fails to generalize spatial rules as well as the CNN.
+\textbf{Why ResNet performed better.}
+On a relatively small dataset, CNN inductive bias for locality and translation invariance provides stronger generalization than attention-only global modeling. BotNet must learn spatial priors from data and therefore can overfit more easily when data scale is limited.
 
-**3. Specific Classes / Difficult Cases**
+\textbf{Difficult cases.}
+BotNet showed strengths under partial occlusion (better global context usage), but also showed sensitivity to background clutter where attention could drift toward irrelevant texture.
 
-* **BotNet Strengths:** BotNet performed better on **occluded images**. For example, when a cow's legs were hidden behind a fence, the ResNet struggled because it looks for features in specific spatial locations. The BotNet, with its global attention, could "attend" to the visible head and match it to the identity, ignoring the missing legs.
-* **BotNet Weaknesses:** BotNet struggled with **background clutter**. In several error cases, the attention maps showed the BotNet focusing on the metal railings or concrete patterns. Without the locality constraint of a CNN, the attention mechanism sometimes found accidental correlations between the background texture and the cow ID.
+\textbf{Convergence and stability.}
+BotNet reduced training loss faster in early epochs, but ResNet showed more stable generalization behavior on test data.
 
-**4. Convergence Speed & Stability**
-
-* **Speed:** BotNet converged **faster** on the *training* set (lower training loss in early epochs). This is because the attention mechanism can instantly link distinct features (e.g., "white head" + "black tail") regardless of distance, allowing it to memorize the training data quickly.
-* **Stability:** ResNet was more **stable** on the *test* set. BotNet showed signs of a "generalization gap," where training loss continued to drop, but test accuracy plateaued earlier than ResNet. This confirms that while the Transformer is a more powerful learner, it is more prone to overfitting on small datasets compared to the constrained CNN.
 \subsubsection*{CMC Analysis}
 The CMC curve represents the probability of finding the correct match within the top-k retrieved results:
 
@@ -1174,7 +1165,7 @@ The counterfactual attention maps showed significant redistribution:
 \end{itemize}
 
 \subsubsection*{Impact on Performance}
-While counterfactual attention slightly reduced peak accuracy (74.78\% → 72.1\%), it significantly improved:
+While counterfactual attention slightly reduced peak accuracy (74.78\% $\to$ 72.1\%), it significantly improved:
 
 \begin{itemize}
     \item \textbf{Model Robustness:} Better performance on occluded images (+15\% improvement)
@@ -1517,7 +1508,7 @@ q(x_t | x_{t-1}) = \mathcal{N}(x_t; \sqrt{1-\beta_t}x_{t-1}, \beta_t I)
 
 In LLaDA, this becomes discrete token masking:
 \begin{equation}
-p_{mask}(t) = t, \quad t \sim \Uniform(0,1)
+p_{mask}(t) = t, \quad t \sim \mathcal{U}(0,1)
 \end{equation}
 
 \subsubsection*{Training Dynamics}
@@ -1940,9 +1931,10 @@ A comprehensive comparison highlights the advantages and trade-offs of diffusion
 \end{table}
 
 This comprehensive evaluation framework demonstrates that LLaDA's block diffusion approach provides a compelling alternative to traditional autoregressive methods, offering superior computational characteristics while maintaining competitive generation quality for structured text generation tasks.
-        \item Struggles with highly complex nested queries
-        \item Sensitive to ambiguous schema descriptions
-    \end{itemize}
+\textbf{Observed limitations:}
+\begin{itemize}
+    \item Struggles with highly complex nested queries
+    \item Sensitive to ambiguous schema descriptions
 \end{itemize}
 
 \subsubsection*{Sample Generations}

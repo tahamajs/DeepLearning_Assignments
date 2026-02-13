@@ -71,7 +71,7 @@ The corresponding ELBO is
 -
 \mathrm{KL}\!\left(q_\phi(z_2\mid x)\,\|\,p(z_2)\right),
 \]
-where the top-level prior $p(z_2)$ may be chosen as a standard normal or replaced by the pseudo-input prior $p_\lambda(z_2)$, depending on the assignment’s specification.
+where the top-level prior $p(z_2)$ may be chosen as a standard normal or replaced by the pseudo-input prior $p_\lambda(z_2)$, depending on the assignment's specification.
 
 \paragraph{Likelihood estimation.}
 Since $\log p_\theta(x)=\log\int p_\theta(x\mid z)p(z)\,dz$ is not directly tractable, we estimate log-likelihood using an importance-weighted (IWAE-style) estimator \citep{burda2016iwae}. For $K$ importance samples $z^{(k)}\sim q_\phi(z\mid x)$,
@@ -94,7 +94,7 @@ The generator is conditional on class label $y\in\{1,\dots,C\}$ and noise $z\sim
 \[
 \tilde{z} = [z;\,e_G(y)],\qquad x_{\mathrm{fake}} = G_\psi(\tilde{z},y).
 \]
-The architecture follows the assignment’s specified ConvTranspose/upsampling blocks, including attention modules at designated resolutions.
+The architecture follows the assignment's specified ConvTranspose/upsampling blocks, including attention modules at designated resolutions.
 
 \paragraph{Projection discriminator (conditional critic).}
 The discriminator (critic) follows the projection discriminator formulation \citep{miyato2018projection}. Let $\phi_\omega(x)\in\mathbb{R}^{d_f}$ denote the discriminator feature vector before the final output layer, and let $e_D(y)\in\mathbb{R}^{d_f}$ be the label embedding in the discriminator. The conditional score is computed as
@@ -105,7 +105,7 @@ s_\omega(\phi_\omega(x)) + \langle \phi_\omega(x),\, e_D(y)\rangle,
 where $s_\omega(\cdot)$ is a learned scalar head and $\langle\cdot,\cdot\rangle$ denotes an inner product. This construction enforces class-conditional discrimination without explicitly concatenating labels to image channels.
 
 \paragraph{Spectral normalization.}
-To stabilize adversarial training, we apply spectral normalization (SN) to convolutional (and transposed convolutional) layers \citep{miyato2018sn}. SN constrains each layer’s operator norm by normalizing its weight matrix $W$ via its largest singular value $\sigma_{\max}(W)$:
+To stabilize adversarial training, we apply spectral normalization (SN) to convolutional (and transposed convolutional) layers \citep{miyato2018sn}. SN constrains each layer's operator norm by normalizing its weight matrix $W$ via its largest singular value $\sigma_{\max}(W)$:
 \[
 \bar{W} = \frac{W}{\sigma_{\max}(W)},
 \]
@@ -160,7 +160,7 @@ and the generator loss is:
 \]
 
 \paragraph{Optimization and training protocol.}
-We use Adam optimizers with the assignment’s hyperparameters: learning rates $\mathrm{LR}(G)=2\times10^{-4}$ and $\mathrm{LR}(D)=4\times10^{-4}$, $\beta_1=0.0$, $\beta_2=0.9$, and an exponential decay scheduler with $\gamma=0.95$ applied every 100 steps. Weight decay is grouped such that embedding parameters receive decay $10^{-3}$ and other parameters receive zero decay, matching the specification. We update the discriminator $N_{\mathrm{critic}}=5$ times per generator update, detach fake samples during critic updates, and log the Wasserstein estimate, gradient penalty, drift, embedding regularization, and total losses at each step.
+We use Adam optimizers with the assignment's hyperparameters: learning rates $\mathrm{LR}(G)=2\times10^{-4}$ and $\mathrm{LR}(D)=4\times10^{-4}$, $\beta_1=0.0$, $\beta_2=0.9$, and an exponential decay scheduler with $\gamma=0.95$ applied every 100 steps. Weight decay is grouped such that embedding parameters receive decay $10^{-3}$ and other parameters receive zero decay, matching the specification. We update the discriminator $N_{\mathrm{critic}}=5$ times per generator update, detach fake samples during critic updates, and log the Wasserstein estimate, gradient penalty, drift, embedding regularization, and total losses at each step.
 
 \paragraph{Sampling protocol and augmentation evaluation.}
 To monitor training progression, we generate class-conditional grids at fixed steps using fixed noise and fixed labels (covering all classes), enabling controlled qualitative comparisons across time. For augmentation, we generate a specified number of synthetic samples per class and train a classifier under two regimes: real-only and real+synthetic. We then compare overall accuracy, class-wise performance, and error patterns to quantify whether generative augmentation improves generalization in the limited data setting.

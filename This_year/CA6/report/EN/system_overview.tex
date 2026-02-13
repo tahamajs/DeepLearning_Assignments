@@ -35,13 +35,13 @@ results/
   matches/          % (optional) Folder for debug outputs showing raw matches or intermediate results
 \end{verbatim}
 
-This structure ensures that each component of the project—data, code, and results—are clearly separated, facilitating both reproducibility and further experimentation.
+This structure ensures that each component of the project--data, code, and results--are clearly separated, facilitating both reproducibility and further experimentation.
 
 \subsection{Why Feature-Based Registration}
 Feature-based registration is a widely adopted method for aligning images, particularly when dealing with planar scenes or objects where the relationship between the template and the query image can be approximated by a projective transformation (homography). This approach has several advantages:
 
 \begin{itemize}
-  \item \textbf{Computational Efficiency:} Feature-based methods like ORB provide a good balance between accuracy and computational efficiency. ORB’s binary descriptors are lightweight and allow for fast matching, which is essential for real-time applications or large-scale datasets.
+  \item \textbf{Computational Efficiency:} Feature-based methods like ORB provide a good balance between accuracy and computational efficiency. ORB's binary descriptors are lightweight and allow for fast matching, which is essential for real-time applications or large-scale datasets.
   \item \textbf{No Training Data Required:} Unlike deep learning-based methods, feature-based registration does not require large datasets for training. This makes it a particularly appealing choice when labeled data is scarce or when the method needs to be applied to a wide variety of images without re-training.
   \item \textbf{Robustness to Moderate Viewpoint Changes:} ORB features are invariant to rotation and scale, making the method robust to moderate viewpoint changes and ensuring that keypoints remain detectable even when the template and photograph are viewed from different angles or distances.
   \item \textbf{Low Latency:} The method operates with low latency, making it suitable for applications that require fast processing, such as interactive inspection systems or on-the-fly part verification during assembly lines.

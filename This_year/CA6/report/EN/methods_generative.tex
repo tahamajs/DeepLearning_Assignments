@@ -55,7 +55,7 @@ A frequent failure mode of VAEs with expressive decoders is \emph{over-regulariz
 \[
 p_\lambda(z)=\frac{1}{K}\sum_{k=1}^K q_\phi(z\mid u_k),
 \]
-where $\{u_k\}_{k=1}^K$ are learnable pseudo-inputs. In the implementation, pseudo-inputs are direct image-shaped parameters (\texttt{self.pseudos}) and are passed through \texttt{tanh} to keep them approximately in $[-1,1]$ (consistent with the encoder’s expected input range).
+where $\{u_k\}_{k=1}^K$ are learnable pseudo-inputs. In the implementation, pseudo-inputs are direct image-shaped parameters (\texttt{self.pseudos}) and are passed through \texttt{tanh} to keep them approximately in $[-1,1]$ (consistent with the encoder's expected input range).
 
 \paragraph{KL term with a mixture prior (how we compute it in practice).}
 When $p(z)$ is a mixture defined via $q_\phi(z\mid u_k)$, the KL term is computed via Monte Carlo:

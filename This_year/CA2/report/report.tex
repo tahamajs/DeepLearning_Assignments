@@ -11,6 +11,7 @@
 \usepackage{multirow}
 \usepackage{hyperref}
 \usepackage[utf8]{inputenc}
+\usepackage[strings]{underscore}
 
 \begin{document}
 
@@ -211,7 +212,7 @@ The ELBO provides a lower bound that we can optimize instead. The first term $\m
 
 \subsubsection{Subsection 2 (1 Point): dSprites Dataset}
 
-The dSprites dataset is a synthetic dataset of 2D shapes (squares, ellipses, and hearts) with five ground-truth latent factors: shape, scale, orientation, x-position, and y-position. Each image is 64×64 pixels in grayscale. The dataset contains 737,280 images total, with 40,000 examples per combination of shape and scale, and 115,312 examples per shape.
+The dSprites dataset is a synthetic dataset of 2D shapes (squares, ellipses, and hearts) with five ground-truth latent factors: shape, scale, orientation, x-position, and y-position. Each image is 64x64 pixels in grayscale. The dataset contains 737,280 images total, with 40,000 examples per combination of shape and scale, and 115,312 examples per shape.
 
 \begin{figure}[ht]
 \centering
@@ -235,10 +236,10 @@ The VAE models were trained for 50 epochs with the following hyperparameters:
 - Learning rate: 1e-4
 - Batch size: 64
 - Latent dimension: 10
-- Encoder architecture: Conv2d layers (1→32→64→128→256) with 4×4 kernels and stride 2
-- Decoder architecture: ConvTranspose2d layers (256→128→64→32→1) with matching parameters
+- Encoder architecture: Conv2d layers (1->32->64->128->256) with 4x4 kernels and stride 2
+- Decoder architecture: ConvTranspose2d layers (256->128->64->32->1) with matching parameters
 - Optimizer: Adam
-- Loss function: Binary Cross Entropy + β·KL Divergence
+- Loss function: Binary Cross Entropy + $\beta \cdot$ KL Divergence
 
 \textbf{Loss Curves:}
 \begin{figure}[ht]
@@ -337,14 +338,14 @@ $\beta$ & Shape & Scale & Orientation & X-pos & Y-pos & Mean \\
 \end{tabular}
 \end{table}
 
-The MIG values reported above were computed using the \texttt{compute_mig} implementation in \texttt{This_year/CA2/codes/vae_implementation.ipynb} and saved to \texttt{This_year/CA2/results/mig_results.npy} (see repository for code and exact parameters).
+The MIG values reported above were computed using the \texttt{compute\_mig} implementation in \path{This_year/CA2/codes/vae_implementation.ipynb} and saved to \path{This_year/CA2/results/mig_results.npy} (see repository for code and exact parameters).
 
-\subsubsection{Subsection 8 (3 Points): PCA Analysis
+\subsubsection{Subsection 8 (3 Points): PCA Analysis}
 
 \textbf{PCA on Latent Space:}
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\linewidth]{../pictures/pca_β4.png}
+\includegraphics[width=\linewidth]{../pictures/pca_beta4.png}
 \caption{PCA visualization of latent space for $\beta=4$ model, colored by ground-truth factors (shape, scale, orientation, x-position, y-position), showing clear disentanglement}
 \label{fig:pca_analysis}
 \end{figure}
@@ -371,9 +372,9 @@ VampPrior replaces the standard normal prior with a more flexible data-driven pr
 
 \textbf{How it estimates the posterior:} The algorithm learns a set of pseudo-inputs $\{u_k\}_{k=1}^K$ that are passed through the encoder to obtain component parameters. The prior becomes:
 
-\[p(z) = \\sum_{k=1}^K \\frac{1}{K} \\mathcal{N}(z | \\mu_k, \\sigma_k^2 I)\]
+\[p(z) = \sum_{k=1}^K \frac{1}{K} \mathcal{N}(z | \mu_k, \sigma_k^2 I)\]
 
-where $\\mu_k, \\sigma_k$ are obtained from encoding pseudo-inputs $u_k$.
+where $\mu_k, \sigma_k$ are obtained from encoding pseudo-inputs $u_k$.
 
 \textbf{Better latent utilization:} This adaptive prior captures multi-modal data distributions, reduces KL divergence penalty for out-of-distribution samples, and allows the model to use the full latent space more effectively than a restrictive standard normal prior.
 
@@ -381,7 +382,7 @@ where $\\mu_k, \\sigma_k$ are obtained from encoding pseudo-inputs $u_k$.
 
 SC-VAE integrates Sparse Coding with VAEs by using the Iterative Soft Thresholding Algorithm (ISTA) to enforce sparsity in latent representations. The model jointly learns encoder/decoder parameters and a dictionary of atoms, with sparsity achieved through thresholded proximal operators in the latent space.
 
-\textbf{ISTA algorithm role:} ISTA solves the sparse coding problem $z = \\arg\\min_z \\frac{1}{2}\\|x - Dz\\|_2^2 + \\lambda\\|z\\|_1$ iteratively using proximal gradient steps. In SC-VAE, this is integrated into the encoder to produce sparse latent codes.
+\textbf{ISTA algorithm role:} ISTA solves the sparse coding problem $z = \arg\min_z \frac{1}{2}\|x - Dz\|_2^2 + \lambda\|z\|_1$ iteratively using proximal gradient steps. In SC-VAE, this is integrated into the encoder to produce sparse latent codes.
 
 \textbf{Sparsity advantages:}
 - Improved interpretability through localized feature activation
@@ -414,7 +415,7 @@ Key output files saved to \texttt{This_year/CA2/pictures/}:
 \item \texttt{training_curves_comparison.png}
 \item \texttt{reconstructions_comparison.png}
 \item \texttt{mig_comparison.png}
-\item \texttt{pca_β1.png, pca_β2.png, pca_β4.png} (PCA visualizations for different $\beta$)
+\item \texttt{pca_beta1.png, pca_beta2.png, pca_beta4.png} (PCA visualizations for different $\beta$)
 \end{itemize}
 
 \subsection{Compilation}

@@ -16,7 +16,7 @@ To guarantee that the experiments are fully reproducible, the following environm
 Even well-established computer vision pipelines can show small nondeterminism due to threading and internal heuristics. To control for this, the following actions should be taken:
 \begin{itemize}
   \item Set fixed random seeds in Python, NumPy, and PyTorch to ensure that the random elements of the pipeline do not introduce variance.
-  \item Set OpenCV’s thread count to a fixed value (e.g., \texttt{cv2.setNumThreads(1)}) to ensure deterministic behavior.
+  \item Set OpenCV's thread count to a fixed value (e.g., \texttt{cv2.setNumThreads(1)}) to ensure deterministic behavior.
   \item Log all parameter values and configurations to a \texttt{config.json} file, which can be referenced for reproducibility.
 \end{itemize}
 

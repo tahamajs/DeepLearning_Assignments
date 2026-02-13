@@ -41,10 +41,10 @@ These limitations define where the method should be used as-is (planar inspectio
 
 \subsection{Future Directions}
 \label{subsec:future_directions}
-Several technically well-motivated directions can extend the method’s validity domain and robustness:
+Several technically well-motivated directions can extend the method's validity domain and robustness:
 
 \begin{itemize}
-  \item \textbf{Non-planar alignment models:} For parts with depth variation, replace the single-homography assumption with models that represent 3D structure, such as multi-homography (piecewise planar) registration, pose estimation with known CAD geometry (PnP), or dense alignment methods that explicitly model parallax. The choice should be driven by the application’s tolerance and available priors (e.g., known camera intrinsics, CAD correspondences).
+  \item \textbf{Non-planar alignment models:} For parts with depth variation, replace the single-homography assumption with models that represent 3D structure, such as multi-homography (piecewise planar) registration, pose estimation with known CAD geometry (PnP), or dense alignment methods that explicitly model parallax. The choice should be driven by the application's tolerance and available priors (e.g., known camera intrinsics, CAD correspondences).
   \item \textbf{ROI-aware matching in clutter:} Integrate a coarse detector or segmentation gate to restrict correspondence search to the part region. This reduces background-induced false matches and can significantly improve tail robustness, particularly when workbench clutter dominates failure modes.
   \item \textbf{Illumination-robust preprocessing:} Systematically evaluate photometric normalization strategies (e.g., CLAHE, glare suppression, gradient-domain representations) under controlled lighting variations, reporting effects on both accuracy and inlier ratios.
   \item \textbf{Deployment optimization:} If runtime constraints are strict, adopt configuration choices supported by ablation stability regions (e.g., reduced resolution and bounded \texttt{nfeatures}), precompute template descriptors, and consider approximate nearest-neighbor matching where it does not degrade success rate. Report median and tail latency to ensure rare pathological cases do not dominate operational behavior.

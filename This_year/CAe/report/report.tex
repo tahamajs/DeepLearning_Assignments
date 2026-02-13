@@ -20,11 +20,12 @@
 \usepackage{mdframed}
 \usepackage{tikz}
 \usepackage{pgfplots}
+\usepackage[strings]{underscore}
 \definecolor{codegray}{rgb}{0.95,0.95,0.95}
 \lstset{backgroundcolor=\color{codegray},basicstyle=\ttfamily\small,breaklines=true}
 
 % Graphics path (relative to report.tex)
-\graphicspath{{../codes/q1_image_captioning/images/ieee_assets/}{../codes/q1_clip/images/ieee_assets/}{../codes/q2_urban_sound/images/ieee_assets/}{../codes/q4_adversarial/images/ieee_assets/}{../codes/pictures/}}
+\graphicspath{{../codes/q1_image_captioning/images/ieee_assets/}{../codes/q1_clip/images/ieee_assets/}{../codes/q2_urban_sound/images/ieee_assets/}{../codes/q4_adversarial/images/ieee_assets/}{../../codes/pictures/}}
 
 \title{Comprehensive Implementation and Evaluation of Multimodal and Robust Deep Learning Systems: \\ A Complete Analysis of Image Captioning, Contrastive Learning, Audio Classification, Parameter-Efficient Fine-tuning, and Adversarial Robustness}
 
@@ -85,7 +86,7 @@ The text preprocessing follows a systematic pipeline designed to handle Persian 
 
   \item \textbf{Lowercasing:} Convert all characters to lowercase to reduce vocabulary size and handle case-insensitive semantics, while being mindful of Persian-specific orthographic conventions.
 
-  \item \textbf{Punctuation Handling:} Remove punctuation marks except for sentence-ending periods, which are preserved to maintain sentence boundaries. Persian-specific punctuation (،؛؟) is handled appropriately.
+  \item \textbf{Punctuation Handling:} Remove punctuation marks except for sentence-ending periods, which are preserved to maintain sentence boundaries. Persian-specific punctuation ( ,  ;  ? ) is handled appropriately.
 
   \item \textbf{Emoji Preservation:} Emojis are treated as special tokens and preserved in the vocabulary, as they can convey important semantic information (e.g., facial expressions, objects).
 
@@ -604,11 +605,11 @@ We manually inspected a stratified sample of 200 validation images to better und
   \item Error cases often correspond to misplaced attention mass (e.g., focusing on background texture rather than salient objects).
 \end{itemize}
 
-Figure~\ref{fig:q1_attention_examples} shows representative attention maps and generated captions for four validation images. (Figure file: \texttt{codes/pictures/q1_attention_examples.png})
+Figure~\ref{fig:q1_attention_examples} shows representative attention maps and generated captions for four validation images. (Figure file: \path{../codes/pictures/q1_attention_examples.png})
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\linewidth]{codes/pictures/q1_attention_examples.png}
+\includegraphics[width=0.9\linewidth]{../codes/pictures/q1_attention_examples.png}
 \caption{Attention visualization examples for image captioning: per-token heatmaps overlaid on input images and generated captions.}
 \label{fig:q1_attention_examples}
 \end{figure}
@@ -699,17 +700,17 @@ Supervised Baseline & 95.2\% & 78.9\% & 76.3\% \\
 
 \textbf{Training setup:} For the CLIP-style experiments we trained the ViT + text encoder model on the assignment-provided image-caption pairs (a cleaned Flickr/COCO subset). Key hyperparameters: batch size 256, learning rate 1e-4 with AdamW, 10--20 epochs (depending on dataset size), and a learnable temperature parameter initialized to 0.07. Data augmentations for images included random resized crops, horizontal flips, color jittering, and normalization; text augmentation was limited to templated prompts (``a photo of a {class}'').
 
-\textbf{Loss and optimization:} We used the symmetric InfoNCE loss (see Section~\ref{sec:q1_clip_loss}) computed across the batch, with gradient scaling and mixed-precision when available. To reduce false negatives in large batches, we experimented with hard negative mining by selecting high-similarity mismatched pairs from the batch and applying an additional margin loss — this provided modest gains in retrieval recall.
+\textbf{Loss and optimization:} We used the symmetric InfoNCE loss (see Section~\ref{sec:q1_clip_loss}) computed across the batch, with gradient scaling and mixed-precision when available. To reduce false negatives in large batches, we experimented with hard negative mining by selecting high-similarity mismatched pairs from the batch and applying an additional margin loss -- this provided modest gains in retrieval recall.
 
 \textbf{Zero-shot and retrieval evaluation:} Zero-shot classification performance is reported in Table~\ref{tab:clip_results}. In addition, we evaluated retrieval performance on a held-out set (10k image-text pairs) and report Recall@1/5/10: R@1 = 38.2\%, R@5 = 62.7\%, R@10 = 72.1\% (image->text), and similar values for text->image. Retrieval errors were analyzed qualitatively: many false negatives were semantically correct but lexically divergent captions (synonyms, paraphrasing), which again highlights limitations of strict lexical matching.
 
 \textbf{Scaling observations:} Larger image encoders and larger text models both consistently improved zero-shot accuracy, indicating that model capacity and pretraining data scale matters. Temperature tuning and batch size are particularly influential for contrastive losses, with larger batch sizes leading to better representations when training data is sufficient.
 
-\textbf{Qualitative examples and figure:} Figure~\ref{fig:q1_clip_retrieval} shows top-5 retrieval results for representative queries (image-to-text and text-to-image). Example figure file: \texttt{codes/pictures/q1_clip_retrieval.png}.
+\textbf{Qualitative examples and figure:} Figure~\ref{fig:q1_clip_retrieval} shows top-5 retrieval results for representative queries (image-to-text and text-to-image). Example figure file: \texttt{../codes/pictures/q1_clip_retrieval.png}.
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\linewidth]{codes/pictures/q1_clip_retrieval.png}
+\includegraphics[width=0.9\linewidth]{../codes/pictures/q1_clip_retrieval.png}
 \caption{CLIP retrieval examples: top-5 retrieved captions for sample images (left) and top-5 retrieved images for sample text queries (right).}
 \label{fig:q1_clip_retrieval}
 \end{figure}
@@ -1065,22 +1066,22 @@ Wav2Vec (Full) & 0.791 & 0.778 & 95M & 12.7h \\
   \item Fine-tuning depth: For Wav2Vec, fine-tuning the last 6 layers gave a good balance between performance and compute.
 \end{itemize}
 
-\textbf{Reproducibility artifacts:} All training/evaluation scripts are in `codes/q2_urban_sound/` and the interactive demo is `codes/notebooks/q2_urban_sound_demo.ipynb`. Figures generated during smoke runs are saved in `codes/pictures/` with names like `q2_cnn_training_results_<timestamp>.png` and `q2_confusion_matrix_<timestamp>.png` for easy inclusion in the report. Run the helper cell in `q2_urban_sound_demo.ipynb` to auto-generate a LaTeX snippet `codes/pictures/q2_figures_includes.tex` and include it in the report using:
+\textbf{Reproducibility artifacts:} All training/evaluation scripts are in `codes/q2_urban_sound/` and the interactive demo is `codes/notebooks/q2_urban_sound_demo.ipynb`. Figures generated during smoke runs are saved in `../codes/pictures/` with names like `q2_cnn_training_results_<timestamp>.png` and `q2_confusion_matrix_<timestamp>.png` for easy inclusion in the report. Run the helper cell in `q2_urban_sound_demo.ipynb` to auto-generate a LaTeX snippet `../codes/pictures/q2_figures_includes.tex` and include it in the report using:
 
 \begin{verbatim}
-\IfFileExists{codes/pictures/q2_figures_includes.tex}{\input{codes/pictures/q2_figures_includes.tex}}{}
+\IfFileExists{../codes/pictures/q2_figures_includes.tex}{\input{../codes/pictures/q2_figures_includes.tex}}{}
 \end{verbatim}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.88\linewidth]{codes/pictures/q2_cnn_training_results_example.png}
+\includegraphics[width=0.88\linewidth]{../codes/pictures/q2_cnn_training_results_example.png}
 \caption{CNN training curves (loss and accuracy) for a representative run. Replace with actual timestamped image.}
 \label{fig:q2_training}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.88\linewidth]{codes/pictures/q2_confusion_matrix_example.png}
+\includegraphics[width=0.88\linewidth]{../codes/pictures/q2_confusion_matrix_example.png}
 \caption{Normalized confusion matrix on the test fold (example image). Replace with actual timestamped image.}
 \label{fig:q2_confusion}
 \end{figure}
@@ -1202,7 +1203,7 @@ This section presents the implementation of Low-Rank Adaptation (LoRA) for param
 \label{sec:q3_lora_theory}
 
 \textbf{Parameter-Efficient Fine-tuning Problem:}
-Traditional fine-tuning updates all parameters $\theta_0 \in \mathbb{R}^d$ to $\theta_0 + \Delta\theta$. For large models (d > 10^9), this is computationally expensive.
+Traditional fine-tuning updates all parameters $\theta_0 \in \mathbb{R}^d$ to $\theta_0 + \Delta\theta$. For large models ($d > 10^9$), this is computationally expensive.
 
 \textbf{LoRA Solution:}
 Instead of updating all parameters, LoRA constrains $\Delta\theta$ to a low-rank subspace:
@@ -1269,7 +1270,7 @@ LoRA (r=16) & 16.78M & 13.2 & 3.8 & 86.7\% \\
 \label{sec:q3_lora_theory}
 
 \textbf{Parameter-Efficient Fine-tuning Problem:}
-Traditional fine-tuning updates all parameters $\theta_0 \in \mathbb{R}^d$ to $\theta_0 + \Delta\theta$. For large models (d > 10^9), this becomes computationally expensive and memory-intensive.
+Traditional fine-tuning updates all parameters $\theta_0 \in \mathbb{R}^d$ to $\theta_0 + \Delta\theta$. For large models ($d > 10^9$), this becomes computationally expensive and memory-intensive.
 
 \textbf{LoRA Solution:}
 Instead of updating all parameters, LoRA constrains $\Delta\theta$ to a low-rank subspace:
@@ -1324,7 +1325,7 @@ LoRA combines effectively with model quantization:
 \label{sec:q3_lora_implementation}
 
 \textbf{LoRA Layer Structure:}
-```python
+\begin{lstlisting}[language=Python]
 class LoRALayer(nn.Module):
     def __init__(self, weight, rank, alpha):
         super().__init__()
@@ -1348,7 +1349,7 @@ class LoRALayer(nn.Module):
         lora_out = F.linear(lora_out, self.lora_B.t())
         
         return out + self.scaling * lora_out
-```
+\end{lstlisting}
 
 \subsubsection{PEFT Integration and Library Support}
 \label{sec:q3_peft_integration}
@@ -1438,11 +1439,11 @@ Instruction tuning requires high-quality instruction-response pairs:
 \end{itemize}
 
 \textbf{Example Template:}
-```
+\begin{lstlisting}
 Instruction: {task_description}
 Input: {input_text}
 Response: {expected_output}
-```
+\end{lstlisting}
 
 \subsubsection{Evaluation Metrics for Instruction Following}
 \label{sec:q3_evaluation}
@@ -1984,7 +1985,7 @@ Ensemble Adversarial & 85.6 & 61.7 & 32.1 & 12.4h & 6.2GB \\
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\linewidth]{codes/pictures/q4_adversarial_examples_example.png}
+\includegraphics[width=0.9\linewidth]{../codes/pictures/q4_adversarial_examples_example.png}
 \caption{Representative adversarial perturbations and their effect on model predictions (example). Replace with actual images generated from experiments.}
 \label{fig:q4_adversarial_examples}
 \end{figure}
@@ -2088,58 +2089,58 @@ We recommend running ablations over: vocabulary size, attention dimensionality, 
 
 This section summarizes the full set of recommended visualizations that should be included in the report (or generated by the notebooks) to present a complete, reproducible, and interpretable experimental study. For each question/task, we list the visualizations, recommended filenames, a short description of what each plot shows, and why it is useful for analysis.
 
-### Q1 — Image Captioning (required visuals)
-- Attention rollout maps (per token): `codes/pictures/q1_attention_examples.png`. Visualize how decoder attention focuses on image regions per generated word — helps interpret missing object errors.
-- Example source image + GT caption + model caption grid: `codes/pictures/q1_captions_examples.png` (pick diverse cases: successes, partial matches, failures).
-- BLEU/METEOR/CIDEr score distributions (histograms): `codes/pictures/q1_metric_distributions.png` to show variance across samples.
-- Caption length vs BLEU scatter plot: `codes/pictures/q1_length_vs_bleu.png` to detect length-related biases.
-- Retrieval grid (CLIP-style): `codes/pictures/q1_clip_retrieval.png` showing top-k image/text retrievals for sample queries.
+### Q1 -- Image Captioning (required visuals)
+- Attention rollout maps (per token): `../codes/pictures/q1_attention_examples.png`. Visualize how decoder attention focuses on image regions per generated word -- helps interpret missing object errors.
+- Example source image + GT caption + model caption grid: `../codes/pictures/q1_captions_examples.png` (pick diverse cases: successes, partial matches, failures).
+- BLEU/METEOR/CIDEr score distributions (histograms): `../codes/pictures/q1_metric_distributions.png` to show variance across samples.
+- Caption length vs BLEU scatter plot: `../codes/pictures/q1_length_vs_bleu.png` to detect length-related biases.
+- Retrieval grid (CLIP-style): `../codes/pictures/q1_clip_retrieval.png` showing top-k image/text retrievals for sample queries.
 
-### Q1 — Why these matter
+### Q1 -- Why these matter
 - Attention maps help debug omission and attribute errors.
 - Metric distributions and length-vs-score highlight skewed performance (e.g., long captions penalized by BLEU).
 - Retrieval grids show semantic alignment beyond lexical matches.
 
-### Q2 — Urban Sound Classification (required visuals)
-- Class-wise mel-spectrogram example grid: `codes/pictures/q2_spectrograms_examples.png` (one representative spectrogram per class).
-- Class distribution bar chart: `codes/pictures/q2_class_distribution_<timestamp>.png` (already generated by the notebook).
-- Training curves (loss/accuracy) for each model: `codes/pictures/q2_cnn_training_results_<timestamp>.png`, `codes/pictures/q2_wav2vec_training_results_<timestamp>.png`.
-- Confusion matrix (normalized): `codes/pictures/q2_confusion_matrix_<timestamp>.png` (heatmap for test set).
-- Per-class PR curves and Precision/Recall bar charts: `codes/pictures/q2_pr_curves_<timestamp>.png`, `codes/pictures/q2_precision_recall_bar.png`.
-- UMAP/t-SNE of embedding space colored by class: `codes/pictures/q2_embeddings_tsne.png` to inspect class separability.
-- Spectral feature summaries (centroid, bandwidth) per class (boxplots): `codes/pictures/q2_spectral_stats.png` to analyze overlapping frequency content.
+### Q2 -- Urban Sound Classification (required visuals)
+- Class-wise mel-spectrogram example grid: `../codes/pictures/q2_spectrograms_examples.png` (one representative spectrogram per class).
+- Class distribution bar chart: `../codes/pictures/q2_class_distribution_<timestamp>.png` (already generated by the notebook).
+- Training curves (loss/accuracy) for each model: `../codes/pictures/q2_cnn_training_results_<timestamp>.png`, `../codes/pictures/q2_wav2vec_training_results_<timestamp>.png`.
+- Confusion matrix (normalized): `../codes/pictures/q2_confusion_matrix_<timestamp>.png` (heatmap for test set).
+- Per-class PR curves and Precision/Recall bar charts: `../codes/pictures/q2_pr_curves_<timestamp>.png`, `../codes/pictures/q2_precision_recall_bar.png`.
+- UMAP/t-SNE of embedding space colored by class: `../codes/pictures/q2_embeddings_tsne.png` to inspect class separability.
+- Spectral feature summaries (centroid, bandwidth) per class (boxplots): `../codes/pictures/q2_spectral_stats.png` to analyze overlapping frequency content.
 
-### Q2 — Why these matter
+### Q2 -- Why these matter
 - PR curves and per-class metrics aid in identifying class imbalance and problematic classes (e.g., gun shot).
 - Embedding visualization supports qualitative evaluation of feature separability and outliers.
 - Spectral summaries highlight potential feature overlaps causing confusion.
 
-### Q3 — LoRA Fine-tuning (required visuals)
-- Training loss & validation loss + perplexity curves: `codes/pictures/q3_lora_training_results_<timestamp>.png`.
-- Parameter-efficiency bar chart (full FT vs LoRA ranks): `codes/pictures/q3_lora_efficiency_<timestamp>.png` (log-scale for parameters).
-- Adapter parameter norms (L2 over training): `codes/pictures/q3_lora_adapter_norms.png` (diagnoses collapsed adapters).
-- Rank-sweep results plot (accuracy vs parameter count for r = 4,8,16,32): `codes/pictures/q3_lora_rank_sweep.png`.
-- Inference sample outputs comparison (base vs LoRA): `codes/pictures/q3_generation_examples.png`.
+### Q3 -- LoRA Fine-tuning (required visuals)
+- Training loss & validation loss + perplexity curves: `../codes/pictures/q3_lora_training_results_<timestamp>.png`.
+- Parameter-efficiency bar chart (full FT vs LoRA ranks): `../codes/pictures/q3_lora_efficiency_<timestamp>.png` (log-scale for parameters).
+- Adapter parameter norms (L2 over training): `../codes/pictures/q3_lora_adapter_norms.png` (diagnoses collapsed adapters).
+- Rank-sweep results plot (accuracy vs parameter count for r = 4,8,16,32): `../codes/pictures/q3_lora_rank_sweep.png`.
+- Inference sample outputs comparison (base vs LoRA): `../codes/pictures/q3_generation_examples.png`.
 
-### Q3 — Why these matter
+### Q3 -- Why these matter
 - Parameter-efficiency charts visualize the trade-off between trainable parameters and performance.
 - Adapter norms detect if adapters are learning or collapsing to zero.
 - Rank sweep highlights diminishing returns when increasing r.
 
-### Q4 — Adversarial Attacks & Defenses (required visuals)
-- Adversarial example visualizations (original vs perturbed): `codes/pictures/q4_adversarial_examples_<timestamp>.png`.
-- Robust accuracy vs epsilon curves (for different defenses): `codes/pictures/q4_robustness_curve.png`.
-- Attack success heatmap per-class vs epsilon: `codes/pictures/q4_attack_heatmap.png`.
-- Gradient magnitude / saliency maps for clean vs adversarial: `codes/pictures/q4_gradients.png`.
-- Certified robustness plot (if using randomized smoothing): `codes/pictures/q4_certified_curve.png`.
+### Q4 -- Adversarial Attacks & Defenses (required visuals)
+- Adversarial example visualizations (original vs perturbed): `../codes/pictures/q4_adversarial_examples_<timestamp>.png`.
+- Robust accuracy vs epsilon curves (for different defenses): `../codes/pictures/q4_robustness_curve.png`.
+- Attack success heatmap per-class vs epsilon: `../codes/pictures/q4_attack_heatmap.png`.
+- Gradient magnitude / saliency maps for clean vs adversarial: `../codes/pictures/q4_gradients.png`.
+- Certified robustness plot (if using randomized smoothing): `../codes/pictures/q4_certified_curve.png`.
 
-### Q4 — Why these matter
+### Q4 -- Why these matter
 - Visual and quantitative robustness analyses convey whether defenses truly improve worst-case behavior and which classes remain vulnerable.
 
 ### Cross-cutting visualizations
-- Computational & memory profiling plots (time per epoch vs model type; peak GPU memory): `codes/pictures/compute_profiles.png`.
-- Ablation summary tables rendered as heatmaps (e.g., vocabulary vs BLEU, mel-bins vs accuracy): `codes/pictures/ablation_heatmaps.png`.
-- Reproducibility artifact index (generated by notebook helper): `codes/pictures/q?_figures_includes.tex` with the LaTeX include snippet auto-generated by the notebooks.
+- Computational & memory profiling plots (time per epoch vs model type; peak GPU memory): `../codes/pictures/compute_profiles.png`.
+- Ablation summary tables rendered as heatmaps (e.g., vocabulary vs BLEU, mel-bins vs accuracy): `../codes/pictures/ablation_heatmaps.png`.
+- Reproducibility artifact index (generated by notebook helper): `../codes/pictures/q?_figures_includes.tex` with the LaTeX include snippet auto-generated by the notebooks.
 
 ---
 
@@ -2296,7 +2297,7 @@ class LoRALinear(nn.Module):
 \end{lstlisting}
 Reference implementation used: `codes/q3_lora/lora_layer.py`.
 
-\subsection{Appendix: Adversarial Attacks — Algorithms and Evaluation Protocol}\label{appendix:adv}
+\subsection{Appendix: Adversarial Attacks -- Algorithms and Evaluation Protocol}\label{appendix:adv}
 We provide exact algorithmic steps used for FGSM and PGD evaluations.
 
 \textbf{FGSM (single-step):}
@@ -2339,7 +2340,7 @@ Exact augmentation settings used in experiments:
 \end{itemize}
 
 \subsection{Appendix: Code map (file references)}\label{appendix:coding}
-Key code files implementing algorithms described in this report (examples — line ranges may change; see files for latest):
+Key code files implementing algorithms described in this report (examples -- line ranges may change; see files for latest):
 \begin{itemize}
   \item Image captioning model, tokenizer, and training: `codes/q1_image_captioning/train.py`, `codes/q1_image_captioning/model.py`, `codes/q1_image_captioning/tokenizer.py`
   \item CLIP-style training and retrieval: `codes/q1_clip/train.py`, `codes/q1_clip/model.py`

@@ -1,12 +1,13 @@
 # Fdb version 4
-["xdvipdfmx"] 1770946538.60145 "report.xdv" "report.pdf" "report" 1770946550.44089 0
-  "report.xdv" 1770946504.50138 110312 838694fb1e0cd93a0a4955a23ee2265b "xelatex"
+["xdvipdfmx"] 1770948822.19766 "report.xdv" "report.pdf" "report" 1770948829.57896 0
+  "report.xdv" 1770948822.11829 189836 fe7b7074ea7e0a814b33912547469d40 "xelatex"
   (generated)
   "report.pdf"
   (rewritten before read)
-["xelatex"] 1770946501.90669 "report.tex" "report.xdv" "report" 1770946550.4371 2
+["xelatex"] 1770948821.56657 "report.tex" "report.xdv" "report" 1770948829.57779 0
   "../pictures/dsprites_samples.png" 1766425227.38622 43614 99d7dfc7e0baebfb6dd4e25c790cfee7 ""
   "../pictures/mig_comparison.png" 1766425228.54769 95509 ca8944f00724f101ed7c13d057654121 ""
+  "../pictures/pca_beta4.png" 1770947265.67808 2618370 e37ca8d19aaf19dc65b797878afe5b24 ""
   "../pictures/reconstructions_comparison.png" 1766425228.37462 122368 83831b61a6e2925e16b1ea6fe71cc5e3 ""
   "../pictures/training_curves_comparison.png" 1766425227.99599 776448 9d10ee2068008dd2711437191b40b584 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/map/fontname/texfonts.map" 1741388039 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -61,6 +62,7 @@
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/booktabs/booktabs.sty" 1741388039 6078 f1cb470c9199e7110a27851508ed7a5c ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/cite/cite.sty" 1741388039 26218 19edeff8cdc2bcb704e8051dc55eb5a7 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/etoolbox/etoolbox.sty" 1741388039 46850 d87daedc2abdc653769a6f1067849fe0 ""
+  "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/firstaid/underscore-ltx.sty" 1741388039 1901 3576027d0126e44ffbc5775018918dc4 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/graphics-cfg/color.cfg" 1741388039 1213 620bba36b25224fa9b7e1ccb4ecb76fd ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/graphics-cfg/graphics.cfg" 1741388039 1224 978390e9c2234eab29404bc21b268d1e ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/graphics-def/xetex.def" 1741388039 14788 1dde73f396dd97d88c838bee2a352abe ""
@@ -82,13 +84,14 @@
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/multirow/multirow.sty" 1741388039 6696 886c9f3087d0b973ed2c19aa79cb3023 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/refcount/refcount.sty" 1741388039 9878 9e94e8fa600d95f9c7731bb21dfb67a4 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty" 1741388039 9714 ba3194bd52c8499b3f1e3eb91d409670 ""
+  "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/underscore/underscore.sty" 1741388039 10722 1e2a550b7f07af2b195b71b3fc7bf3ff ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/url/url.sty" 1741388039 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/xcolor/xcolor.sty" 1741388039 55384 b454dec21c2d9f45ec0b793f0995b992 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/web2c/texmf.cnf" 1741388039 42151 79f67285bdd95beca4d137b380b4b9e5 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-var/web2c/xetex/xelatex.fmt" 1741388039 5640242 4f7cb22c150520ed498cbbe46d26ba29 ""
-  "report.aux" 1770946504.50087 6370 119c6ce28284890e5ecd5a3d188cb552 "xelatex"
-  "report.out" 1770946504.50102 7800 6eb90a5fb56b5f17c6ae0e45a13056d9 "xelatex"
-  "report.tex" 1767610516.37044 22111 c35a7d7fd1a3e12d161af38b0aa96f6b ""
+  "report.aux" 1770948822.11677 9920 19f9e13960366aca85f53c2b4092c693 "xelatex"
+  "report.out" 1770948822.11773 10022 3ac575b488875ebeed9fbab571bb9b6f "xelatex"
+  "report.tex" 1770948016.95764 22136 7425920c9a310d37eaae91c4df656cac ""
   (generated)
   "report.aux"
   "report.log"

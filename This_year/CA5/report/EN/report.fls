@@ -180,8 +180,6 @@ INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/
 INPUT ./report.toc
 INPUT ./report.toc
 INPUT report.toc
-OUTPUT report.toc
-OUTPUT report.xdv
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/lm/ec-lmbx12.tfm
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/cm/cmr12.tfm
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/cm/cmr8.tfm
@@ -201,6 +199,8 @@ INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm7.tfm
+OUTPUT report.xdv
+OUTPUT report.toc
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/cm/cmbx8.tfm
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/cm/cmbx6.tfm
@@ -217,3 +217,17 @@ INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/lm/t1lm
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/lm/t1lmtt.fd
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/lm/t1lmtt.fd
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/lm/ec-lmtt12.tfm
+INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/lm/ec-lmtt10.tfm
+INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/lm/ec-lmr10.tfm
+INPUT ./images/attention_map.png
+INPUT ./images/attention_map.png
+INPUT ./images/attention_map.png
+INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/lm/ec-lmr10.tfm
+INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/lm/ec-lmri12.tfm
+INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/lm/ec-lmtk10.tfm
+INPUT report.aux
+INPUT ./report.out
+INPUT ./report.out

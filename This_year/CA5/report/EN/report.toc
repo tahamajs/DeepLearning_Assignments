@@ -1,0 +1,65 @@
+\contentsline {section}{\numberline {1}Introduction}{4}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Background and Motivation}{4}{subsection.1.1}%
+\contentsline {subsubsection}{\numberline {1.1.1}Transformer Architectures in Computer Vision}{4}{subsubsection.1.1.1}%
+\contentsline {subsubsection}{\numberline {1.1.2}Diffusion Models for Discrete Generation}{4}{subsubsection.1.1.2}%
+\contentsline {subsubsection}{\numberline {1.1.3}Person Re-identification: A Critical Computer Vision Task}{4}{subsubsection.1.1.3}%
+\contentsline {subsubsection}{\numberline {1.1.4}Text-to-SQL Generation: Bridging Natural Language and Databases}{5}{subsubsection.1.1.4}%
+\contentsline {subsection}{\numberline {1.2}Problem Overview}{5}{subsection.1.2}%
+\contentsline {subsubsection}{\numberline {1.2.1}Person Re-identification with Transformer Architectures}{5}{subsubsection.1.2.1}%
+\contentsline {subsubsection}{\numberline {1.2.2}Large Language Diffusion Models for Text-to-SQL}{5}{subsubsection.1.2.2}%
+\contentsline {subsection}{\numberline {1.3}Technical Contributions}{5}{subsection.1.3}%
+\contentsline {subsubsection}{\numberline {1.3.1}Novel Architectural Innovations}{6}{subsubsection.1.3.1}%
+\contentsline {subsubsection}{\numberline {1.3.2}Advanced Training Methodologies}{6}{subsubsection.1.3.2}%
+\contentsline {subsubsection}{\numberline {1.3.3}Interpretability and Analysis Tools}{6}{subsubsection.1.3.3}%
+\contentsline {subsubsection}{\numberline {1.3.4}Mathematical and Theoretical Advances}{7}{subsubsection.1.3.4}%
+\contentsline {subsection}{\numberline {1.4}Research Challenges and Theoretical Foundations}{7}{subsection.1.4}%
+\contentsline {subsubsection}{\numberline {1.4.1}Challenge 1: Integrating Local and Global Feature Learning}{7}{subsubsection.1.4.1}%
+\contentsline {subsubsection}{\numberline {1.4.2}Challenge 2: Discrete Sequence Generation with Diffusion}{7}{subsubsection.1.4.2}%
+\contentsline {subsubsection}{\numberline {1.4.3}Challenge 3: Model Interpretability in Complex Architectures}{7}{subsubsection.1.4.3}%
+\contentsline {subsubsection}{\numberline {1.4.4}Challenge 4: Computational Efficiency for Large-Scale Models}{8}{subsubsection.1.4.4}%
+\contentsline {subsection}{\numberline {1.5}Report Structure}{8}{subsection.1.5}%
+\contentsline {subsection}{\numberline {1.6}Technical Challenges and Solutions}{8}{subsection.1.6}%
+\contentsline {section}{\numberline {2}Image Re-identification using Transformers}{10}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Data Preparation}{10}{subsection.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.1}Market-1501 Dataset: A Comprehensive Benchmark for Person Re-identification}{10}{subsubsection.2.1.1}%
+\contentsline {subsubsection}{\numberline {2.1.2}Preprocessing Pipeline: From Raw Images to Model-Ready Features}{11}{subsubsection.2.1.2}%
+\contentsline {subsubsection}{\numberline {2.1.3}Aggressive Data Augmentation Strategy}{11}{subsubsection.2.1.3}%
+\contentsline {subsubsection}{\numberline {2.1.4}Identity-Aware Batch Sampling Strategy}{12}{subsubsection.2.1.4}%
+\contentsline {subsubsection}{\numberline {2.1.5}Data Loading Pipeline Optimization}{12}{subsubsection.2.1.5}%
+\contentsline {subsubsection}{\numberline {2.1.6}Quality Assurance and Validation}{13}{subsubsection.2.1.6}%
+\contentsline {subsubsection}{\numberline {2.1.7}Implementation Details and Code Structure}{13}{subsubsection.2.1.7}%
+\contentsline {subsection}{\numberline {2.2}ResNet Training}{14}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}BotNet Training}{16}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}BotNet Architecture: A Theoretical Foundation}{16}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}Multi-Head Self-Attention: Mathematical Formulation}{16}{subsubsection.2.3.2}%
+\contentsline {subsubsection}{\numberline {2.3.3}Integration with ResNet Bottleneck Structure}{17}{subsubsection.2.3.3}%
+\contentsline {subsubsection}{\numberline {2.3.4}Why Attention in the Final Layer? Strategic Placement Analysis}{17}{subsubsection.2.3.4}%
+\contentsline {subsubsection}{\numberline {2.3.5}Multi-Head Attention Design Choices}{18}{subsubsection.2.3.5}%
+\contentsline {subsubsection}{\numberline {2.3.6}Training Dynamics and Optimization}{18}{subsubsection.2.3.6}%
+\contentsline {subsubsection}{\numberline {2.3.7}Computational Complexity Analysis}{18}{subsubsection.2.3.7}%
+\contentsline {subsubsection}{\numberline {2.3.8}Implementation Details and Code Structure}{19}{subsubsection.2.3.8}%
+\contentsline {subsubsection}{\numberline {2.3.9}Performance Characteristics and Trade-offs}{20}{subsubsection.2.3.9}%
+\contentsline {subsection}{\numberline {2.4}Results Analysis and Comparison}{20}{subsection.2.4}%
+\contentsline {paragraph}{Note on metrics (clarification):}{23}{section*.28}%
+\contentsline {subsection}{\numberline {2.5}Attention Map Visualization}{23}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Bonus: Counterfactual Attention Analysis}{27}{subsection.2.6}%
+\contentsline {section}{\numberline {3}Large Language Diffusion Models}{32}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Methodology Report: LLaDA Text-to-SQL Pipeline}{32}{subsection.3.1}%
+\contentsline {subsubsection}{\numberline {3.1.1}1. Core Concept: LLaDA vs. Traditional Autoregression}{32}{subsubsection.3.1.1}%
+\contentsline {subsubsection}{\numberline {3.1.2}2. Forward Masking (The Discrete Noise Model)}{33}{subsubsection.3.1.2}%
+\contentsline {subsubsection}{\numberline {3.1.3}3. Training Pipeline Implementation}{33}{subsubsection.3.1.3}%
+\contentsline {subsubsection}{\numberline {3.1.4}4. Inference Strategy: Block Diffusion Sampling}{34}{subsubsection.3.1.4}%
+\contentsline {subsubsection}{\numberline {3.1.5}5. Technical Optimizations}{34}{subsubsection.3.1.5}%
+\contentsline {subsection}{\numberline {3.2}Theoretical Questions}{35}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Data, Prompt, and Evaluation}{36}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Model Loading and Training}{38}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Evaluation and Block Diffusion}{42}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}Bonus: 5 Creative Ideas for Improving LLaDA}{52}{subsection.3.6}%
+\contentsline {section}{\numberline {4}Conclusion}{53}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Key Achievements and Contributions}{53}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Technical Insights and Theoretical Contributions}{54}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Methodological Contributions}{55}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Limitations and Future Work}{56}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Broader Impact and Significance}{57}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Final Assessment}{57}{subsection.4.6}%
+\contentsline {subsection}{\numberline {4.7}Final Reflections}{58}{subsection.4.7}%

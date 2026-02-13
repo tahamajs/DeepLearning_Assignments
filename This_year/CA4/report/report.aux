@@ -1,9 +1,134 @@
 \relax 
 \providecommand\hyper@newdestlabel[2]{}
 \providecommand*\HyPL@Entry[1]{}
+\catcode 95\active
 \HyPL@Entry{0<</S/D>>}
 \@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}{section.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {II}Question 1: RNN Models for SLU (Detailed Answers and Complete Solutions)}{1}{section.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-A}}1.1 Data Preparation (12 points; full exposition)}{1}{subsection.2.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {II-A}1}Exploration and dataset statistics}{1}{subsubsection.2.1.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {II-A}2}Tokenization: methods, tradeoffs, and implementation considerations}{2}{subsubsection.2.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {II-A}3}Vocabulary construction and implementation details}{3}{subsubsection.2.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {II-A}4}Special tokens: comprehensive roles and implementation}{3}{subsubsection.2.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {II-A}5}Collate function — dynamic padding with comprehensive analysis}{4}{subsubsection.2.1.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-B}}1.2 Baseline Model: BiRNN (16 points) — complete}{5}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {II-B}1}Formal model definition}{5}{subsubsection.2.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {II-B}2}Hyperparameters and recommended training recipe}{5}{subsubsection.2.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {II-B}3}Evaluation protocol}{5}{subsubsection.2.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-C}}1.3 BiLSTM Joint Model (24 points) — complete}{5}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {II-C}1}Model architecture and intent pooling}{5}{subsubsection.2.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {II-C}2}Advantages of joint learning}{5}{subsubsection.2.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-D}}1.4 Encoder--Decoder non-aligned joint model (48 points) — detailed implementation and theory}{5}{subsection.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {II-D}1}Why an encoder-decoder?}{5}{subsubsection.2.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {II-D}2}Training: teacher forcing and scheduled sampling}{5}{subsubsection.2.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {II-D}3}Decoding: greedy vs beam search and BIO constraints}{5}{subsubsection.2.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-E}}1.5 Practical recommendations and ablations}{5}{subsection.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-F}}1.6 Example evaluation outputs and explainability artifacts}{5}{subsection.2.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Dataset statistics (ATIS dataset)}}{6}{table.caption.1}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:dataset-stats}{{I}{6}{Dataset statistics (ATIS dataset)}{table.caption.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {II-F}1}Collate function (dynamic padding)}{6}{subsubsection.2.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-G}}1.2 Baseline Model: BiRNN (16 points)}{6}{subsection.2.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-H}}1.3 BiLSTM Joint Model (24 points)}{6}{subsection.2.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-I}}1.4 Encoder--Decoder non-aligned joint model (48 points)}{6}{subsection.2.9}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces SLU model performance comparison}}{7}{table.caption.2}\protected@file@percent }
+\newlabel{tab:slu-results}{{II}{7}{SLU model performance comparison}{table.caption.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {III}Question 1: Implementation details and sample results}{7}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Question 2: Stock Price Prediction using Recursive Architectures (Complete Answers)}{7}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}2.1 Data Preprocessing (20 points) — detailed answers}{7}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-A}1}Data retrieval and comprehensive verification}{7}{subsubsection.4.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-A}2}Feature engineering: cyclical encoding, temporal features, and domain knowledge integration}{8}{subsubsection.4.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-A}3}Stationarity, ACF/PACF and differencing (technical)}{9}{subsubsection.4.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-A}4}Differencing and transformations}{9}{subsubsection.4.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-A}5}Ergodicity and financial time series}{9}{subsubsection.4.1.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-A}6}Windowing, splitting and normalization — explicit recipe}{9}{subsubsection.4.1.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}2.2 Baseline Model (10 points) — MLP: architecture, training and evaluation}{10}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-B}1}Architecture}{10}{subsubsection.4.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-B}2}Evaluation metrics}{10}{subsubsection.4.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}2.3 Recursive architectures (50 points): CNN+LSTM and CNN+GRU}{10}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-C}1}Why Conv1D + RNN?}{10}{subsubsection.4.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-C}2}Design choices}{10}{subsubsection.4.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-C}3}Practical hyperparameters and training goals}{10}{subsubsection.4.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-D}}2.4 GRU vs LSTM — short comparison}{10}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-E}}2.5 CNN-only (TCN-like) lightweight model}{10}{subsection.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-F}}2.6 Multi-step forecasting strategies and stability}{10}{subsection.4.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-G}}2.7 Model comparison, computational reporting and FLOPs}{10}{subsection.4.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-H}}2.2 Baseline MLP (10 points)}{10}{subsection.4.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-I}}2.3 Recursive Neural Network Models (50 points)}{11}{subsection.4.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-J}}2.4 Comparison and Analysis}{11}{subsection.4.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-K}}2.5 Bonus: CNN-only network (TCN-like)}{11}{subsection.4.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {V}Multi-step Recursive Forecasting and Stability}{11}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Evaluation Metrics and Implementation Notes}{11}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {VII}Reproducibility and Usage}{11}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {VIII}Results and Discussion}{11}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VIII-A}}Spoken Language Understanding Results}{12}{subsection.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {VIII-A}1}Joint vs. Separate Learning Analysis}{12}{subsubsection.8.1.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces SLU training curves: validation slot F1, intent accuracy, and training/validation loss across epochs. Replace this placeholder with the notebook-generated figure `slu_training_curves.png`.}}{12}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:slu-curves}{{1}{12}{SLU training curves: validation slot F1, intent accuracy, and training/validation loss across epochs. Replace this placeholder with the notebook-generated figure `slu_training_curves.png`}{figure.caption.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces SLU diagnostic figures. These plots are generated by `ATIS_and_SP500_Experiments.ipynb` when run end-to-end.}}{12}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:slu-diagnostics}{{2}{12}{SLU diagnostic figures. These plots are generated by `ATIS_and_SP500_Experiments.ipynb` when run end-to-end}{figure.caption.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Computational efficiency comparison across SLU models}}{12}{table.caption.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {VIII-A}2}Computational Performance Analysis}{12}{table.caption.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VIII-B}}Time-Series Forecasting Results}{13}{subsection.8.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {VIII-B}1}Recursive Architecture Performance}{13}{subsubsection.8.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {VIII-B}2}Multi-step Forecasting Analysis}{13}{subsubsection.8.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VIII-C}}Cross-Task Insights and Theoretical Implications}{13}{subsection.8.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {VIII-C}1}Architectural Design Principles}{13}{subsubsection.8.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {VIII-C}2}Limitations and Future Directions}{13}{subsubsection.8.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {VIII-C}3}Practical Deployment Considerations}{13}{subsubsection.8.3.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces S\&P 500 forecasting results (normalized scale)}}{14}{table.caption.6}\protected@file@percent }
+\newlabel{tab:sp-results}{{IV}{14}{S\&P 500 forecasting results (normalized scale)}{table.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VIII-D}}Conclusion and Key Takeaways}{14}{subsection.8.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {IX}Related Work and Literature Context}{14}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IX-A}}Spoken Language Understanding: Historical Evolution and Modern Approaches}{14}{subsection.9.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IX-A}1}Traditional Pipeline Approaches}{14}{subsubsection.9.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IX-A}2}Neural Network Revolution}{14}{subsubsection.9.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IX-A}3}Encoder-Decoder Architectures for SLU}{15}{subsubsection.9.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IX-B}}Time-Series Forecasting: From Statistical Methods to Deep Learning}{15}{subsection.9.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IX-B}1}Classical Statistical Approaches}{15}{subsubsection.9.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IX-B}2}Machine Learning Era}{15}{subsubsection.9.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IX-B}3}Deep Learning Revolution}{15}{subsubsection.9.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IX-B}4}Hybrid and Advanced Architectures}{15}{subsubsection.9.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IX-C}}Gaps Addressed by Our Work}{16}{subsection.9.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IX-C}1}Methodological Contributions}{16}{subsubsection.9.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IX-C}2}Research Gaps Filled}{16}{subsubsection.9.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IX-C}3}Future Research Directions}{16}{subsubsection.9.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {X}Theoretical Background and Derivations}{16}{section.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {X-A}}RNNs, LSTMs and GRUs: Theoretical Foundations and Design Principles}{16}{subsection.10.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {X-B}}Cross-Entropy, Masking and Loss Aggregation}{17}{subsection.10.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {X-C}}Conditional Random Fields (CRF) for sequence labeling}{17}{subsection.10.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {XI}Algorithms and Pseudocode}{17}{section.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {XI-A}}Teacher Forcing with Scheduled Sampling}{17}{subsection.11.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {V}{\ignorespaces Example hyperparameter grid for SLU models}}{18}{table.caption.7}\protected@file@percent }
+\newlabel{tab:hp-grid}{{V}{18}{Example hyperparameter grid for SLU models}{table.caption.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {XI-B}}Greedy Decoding vs Beam Search (decoder)}{18}{subsection.11.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {XII}Experimental Design and Hyperparameters}{18}{section.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {XII-A}}Hyperparameter grids (examples)}{18}{subsection.12.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {XIII}Ablation Study Plan and Statistical Testing}{18}{section.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {XIV}Error Analysis and Model Explainability}{18}{section.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {XV}Limitations and Future Work}{18}{section.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {XV-A}}Methodological Limitations}{18}{subsection.15.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {XV-A}1}SLU-Specific Limitations}{18}{subsubsection.15.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {XV-A}2}General Methodological Gaps}{19}{subsubsection.15.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {XV-B}}Computational and Scalability Limitations}{19}{subsection.15.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {XV-B}1}Hardware Constraints}{19}{subsubsection.15.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {XV-B}2}Implementation Constraints}{19}{subsubsection.15.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {XV-C}}Theoretical and Conceptual Limitations}{19}{subsection.15.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {XV-C}1}Fundamental Model Assumptions}{19}{subsubsection.15.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {XV-C}2}Task-Specific Theoretical Challenges}{19}{subsubsection.15.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {XV-D}}Future Research Directions}{19}{subsection.15.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {XV-D}1}Immediate Next Steps}{19}{subsubsection.15.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {XV-D}2}Longer-term Research Agenda}{19}{subsubsection.15.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {XV-E}}Practical Recommendations for Deployment}{20}{subsection.15.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {XV-E}1}SLU System Deployment}{20}{subsubsection.15.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {XV-E}2}Financial Forecasting Deployment}{20}{subsubsection.15.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {XV-F}}Conclusion}{20}{subsection.15.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {XVI}Ethical Considerations}{20}{section.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {XVII}Appendices}{20}{section.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {XVII-A}}Appendix A — Commands to reproduce main experiments}{20}{subsection.17.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {XVII-B}}Appendix B — Hyperparameter tables and config example}{20}{subsection.17.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {VI}{\ignorespaces Final hyperparameters used in the reported experiments}}{21}{table.caption.8}\protected@file@percent }
+\newlabel{tab:final-hps}{{VI}{21}{Final hyperparameters used in the reported experiments}{table.caption.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {XVII-C}}Appendix C — File manifest and responsibilities}{21}{subsection.17.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {XVIII}Conclusion}{21}{section.18}\protected@file@percent }
+\gdef \@abspage@last{21}

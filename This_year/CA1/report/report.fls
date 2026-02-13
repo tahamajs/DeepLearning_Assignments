@@ -193,3 +193,6 @@ INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/
 INPUT ./report.bbl
 INPUT ./report.bbl
 INPUT report.bbl
+INPUT report.aux
+INPUT ./report.out
+INPUT ./report.out

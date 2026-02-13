@@ -1,6 +1,7 @@
-This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025/Homebrew) (preloaded format=xelatex 2025.11.7)  26 JAN 2026 06:14
+This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025/Homebrew) (preloaded format=xelatex 2025.11.7)  13 FEB 2026 05:44
 entering extended mode
  restricted \write18 enabled.
+ file:line:error style messages enabled.
  %&-line parsing enabled.
 **main.tex
 (./main.tex
@@ -1307,26 +1308,32 @@ apping=tex-text;"
 
 
 Package fontspec Info: 
-(fontspec)             Could not resolve font "Geeza Pro/I" (it probably
-(fontspec)             doesn't exist).
+(fontspec)             Could not resolve font "Arial Unicode MS/BI" (it
+(fontspec)             probably doesn't exist).
 
 
 Package fontspec Info: 
-(fontspec)             Font family 'GeezaPro(0)' created for font 'Geeza Pro'
-(fontspec)             with options
+(fontspec)             Could not resolve font "Arial Unicode MS/B" (it
+(fontspec)             probably doesn't exist).
+
+
+Package fontspec Info: 
+(fontspec)             Could not resolve font "Arial Unicode MS/I" (it
+(fontspec)             probably doesn't exist).
+
+
+Package fontspec Info: 
+(fontspec)             Font family 'ArialUnicodeMS(0)' created for font 'Arial
+(fontspec)             Unicode MS' with options
 (fontspec)             [RawFeature={script=arab},Ligatures=PersianTeX].
 (fontspec)              
 (fontspec)              This font family consists of the following NFSS
 (fontspec)             series/shapes:
 (fontspec)              
-(fontspec)             - 'normal' (m/n) with NFSS spec.: <->"Geeza
-(fontspec)             Pro/AAT:script=arab;mapping=persian-tex-text;"
-(fontspec)             - 'bold' (b/n) with NFSS spec.: <->"Geeza
-(fontspec)             Pro/B/AAT:script=arab;mapping=persian-tex-text;"
-(fontspec)             - 'bold italic' (b/it) with NFSS spec.: <->"Geeza
-(fontspec)             Pro/BI/AAT:script=arab;mapping=persian-tex-text;"
+(fontspec)             - 'normal' (m/n) with NFSS spec.: <->"Arial Unicode
+(fontspec)             MS/OT:language=dflt;script=arab;mapping=persian-tex-text
+;"
 
-Unknown feature `script=arab' in font `Geeza Pro Regular'.
 
 Package fontspec Info: 
 (fontspec)             Font family 'TimesNewRoman(0)' created for font 'Times
@@ -1454,13 +1461,9 @@ Package hyperref Info: Link coloring OFF on input line 61.
 \@outlinefile=\write4
 \openout4 = `main.out'.
 
-Unknown feature `script=arab' in font `Geeza Pro Regular'.
 
-Missing character: There is no « (U+00AB) in font Geeza Pro Regular/AAT:script=
-arab;mapping=persian-tex-text;!
-Missing character: There is no » (U+00BB) in font Geeza Pro Regular/AAT:script=
-arab;mapping=persian-tex-text;!
-Unknown feature `script=arab' in font `Geeza Pro Regular'.
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
 LaTeX Font Info:    Trying to load font information for U+msa on input line 63.
 
 
@@ -1475,20 +1478,477 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 63.
 sb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Missing character: There is no ( (U+0028) in font Geeza Pro Regular/AAT:script=
-arab;mapping=persian-tex-text;!
-Missing character: There is no ) (U+0029) in font Geeza Pro Regular/AAT:script=
-arab;mapping=persian-tex-text;!
-Missing character: There is no ( (U+0028) in font Geeza Pro Regular/AAT:script=
-arab;mapping=persian-tex-text;!
-Missing character: There is no / (U+002F) in font Geeza Pro Regular/AAT:script=
-arab;mapping=persian-tex-text;!
-Missing character: There is no ) (U+0029) in font Geeza Pro Regular/AAT:script=
-arab;mapping=persian-tex-text;!
-Missing character: There is no ( (U+0028) in font Geeza Pro Regular/AAT:script=
-arab;mapping=persian-tex-text;!
-Missing character: There is no ) (U+0029) in font Geeza Pro Regular/AAT:script=
-arab;mapping=persian-tex-text;!
-Unknown feature `script=arab' in font `Geeza Pro Regular'.
-Unknown feature `script=arab' in font `Geeza Pro Bold'.
-Unknown feature `script=arab' in font `Gee
+
+LaTeX Font Warning: Font shape `TU/ArialUnicodeMS(0)/b/n' undefined
+(Font)              using `TU/ArialUnicodeMS(0)/m/n' instead on input line 64.
+
+(./main.toc
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+
+
+[1
+
+]
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+)
+\tf@toc=\write5
+\openout5 = `main.toc'.
+
+
+
+[2] (./introduction.tex) (./notation.tex
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+) (./system_overview.tex
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+
+
+[3]
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no م (U+0645) in font [lmmono10-regular]:!
+Missing character: There is no ا (U+0627) in font [lmmono10-regular]:!
+Missing character: There is no ژ (U+0698) in font [lmmono10-regular]:!
+Missing character: There is no و (U+0648) in font [lmmono10-regular]:!
+Missing character: There is no ل (U+0644) in font [lmmono10-regular]:!
+Missing character: There is no ‌ (U+200C) in font [lmmono10-regular]:!
+Missing character: There is no ه (U+0647) in font [lmmono10-regular]:!
+Missing character: There is no ا (U+0627) in font [lmmono10-regular]:!
+Missing character: There is no ی (U+06CC) in font [lmmono10-regular]:!
+Missing character: There is no پ (U+067E) in font [lmmono10-regular]:!
+Missing character: There is no ا (U+0627) in font [lmmono10-regular]:!
+Missing character: There is no ی (U+06CC) in font [lmmono10-regular]:!
+Missing character: There is no ت (U+062A) in font [lmmono10-regular]:!
+Missing character: There is no و (U+0648) in font [lmmono10-regular]:!
+Missing character: There is no ن (U+0646) in font [lmmono10-regular]:!
+Missing character: There is no ا (U+0627) in font [lmmono10-regular]:!
+Missing character: There is no خ (U+062E) in font [lmmono10-regular]:!
+Missing character: There is no ت (U+062A) in font [lmmono10-regular]:!
+Missing character: There is no ی (U+06CC) in font [lmmono10-regular]:!
+Missing character: There is no ا (U+0627) in font [lmmono10-regular]:!
+Missing character: There is no ر (U+0631) in font [lmmono10-regular]:!
+Missing character: There is no ی (U+06CC) in font [lmmono10-regular]:!
+Missing character: There is no ا (U+0627) in font [lmmono10-regular]:!
+Missing character: There is no خ (U+062E) in font [lmmono10-regular]:!
+Missing character: There is no ت (U+062A) in font [lmmono10-regular]:!
+Missing character: There is no ی (U+06CC) in font [lmmono10-regular]:!
+Missing character: There is no ا (U+0627) in font [lmmono10-regular]:!
+Missing character: There is no ر (U+0631) in font [lmmono10-regular]:!
+Missing character: There is no ی (U+06CC) in font [lmmono10-regular]:!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+) (./related_work.tex
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+
+
+[4]
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+) (./methodology.tex
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+
+
+[5]
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+) (./dataset.tex
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+
+
+[6]
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+) (./preprocessing.tex
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+) (./experiments.tex
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+
+
+[7]
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+) (./implementation.tex
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+
+
+[8]
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+
+
+[9]
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no م (U+0645) in font [lmmono10-regular]:!
+Missing character: There is no ا (U+0627) in font [lmmono10-regular]:!
+Missing character: There is no ژ (U+0698) in font [lmmono10-regular]:!
+Missing character: There is no و (U+0648) in font [lmmono10-regular]:!
+Missing character: There is no ل (U+0644) in font [lmmono10-regular]:!
+Missing character: There is no ه (U+0647) in font [lmmono10-regular]:!
+Missing character: There is no م (U+0645) in font [lmmono10-regular]:!
+Missing character: There is no ‌ (U+200C) in font [lmmono10-regular]:!
+Missing character: There is no ت (U+062A) in font [lmmono10-regular]:!
+Missing character: There is no ر (U+0631) in font [lmmono10-regular]:!
+Missing character: There is no ا (U+0627) in font [lmmono10-regular]:!
+Missing character: There is no ز (U+0632) in font [lmmono10-regular]:!
+Missing character: There is no ی (U+06CC) in font [lmmono10-regular]:!
+Missing character: There is no و (U+0648) in font [lmmono10-regular]:!
+Missing character: There is no ی (U+06CC) in font [lmmono10-regular]:!
+Missing character: There is no ژ (U+0698) in font [lmmono10-regular]:!
+Missing character: There is no گ (U+06AF) in font [lmmono10-regular]:!
+Missing character: There is no ی (U+06CC) in font [lmmono10-regular]:!
+Missing character: There is no ‌ (U+200C) in font [lmmono10-regular]:!
+Missing character: There is no ه (U+0647) in font [lmmono10-regular]:!
+Missing character: There is no ا (U+0627) in font [lmmono10-regular]:!
+Missing character: There is no ، (U+060C) in font [lmmono10-regular]:!
+Missing character: There is no ت (U+062A) in font [lmmono10-regular]:!
+Missing character: There is no ط (U+0637) in font [lmmono10-regular]:!
+Missing character: There is no ب (U+0628) in font [lmmono10-regular]:!
+Missing character: There is no ی (U+06CC) in font [lmmono10-regular]:!
+Missing character: There is no ق (U+0642) in font [lmmono10-regular]:!
+Missing character: There is no ، (U+060C) in font [lmmono10-regular]:!
+Missing character: There is no ه (U+0647) in font [lmmono10-regular]:!
+Missing character: There is no م (U+0645) in font [lmmono10-regular]:!
+Missing character: There is no و (U+0648) in font [lmmono10-regular]:!
+Missing character: There is no گ (U+06AF) in font [lmmono10-regular]:!
+Missing character: There is no ر (U+0631) in font [lmmono10-regular]:!
+Missing character: There is no ا (U+0627) in font [lmmono10-regular]:!
+Missing character: There is no ف (U+0641) in font [lmmono10-regular]:!
+Missing character: There is no ی (U+06CC) in font [lmmono10-regular]:!
+) (./evaluation.tex
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+
+
+[10]
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+
+
+[11]
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+) (./results.tex) (./discussion.tex
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+) (./reproducibility.tex
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+
+
+[12]
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+) (./ethics.tex
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+) (./conclusion.tex
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ٔ (U+0654) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+) (./acknowledgements.tex) (./appendix.tex
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+
+
+[13]
+Overfull \hbox (35.67575pt too wide) in paragraph at lines 11--11
+[][]\TU/lmtt/m/n/10.95 python -m src.run_alignment --config configs/default.jso
+n --data data/ --out results/[] []
+ []
+
+
+Overfull \hbox (29.927pt too wide) in paragraph at lines 15--15
+[][]\TU/lmtt/m/n/10.95 python -m src.run_eval --config configs/default.json --d
+ata data/ --results results/[] []
+ []
+
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+) (./main.bbl
+
+LaTeX Font Warning: Font shape `TU/ArialUnicodeMS(0)/m/it' undefined
+(Font)              using `TU/ArialUnicodeMS(0)/m/n' instead on input line 5.
+
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+Missing character: There is no ‏ (U+200F) in font Arial Unicode MS/OT:language=
+dflt;script=arab;mapping=persian-tex-text;!
+)
+
+[14] (./main.aux)
+ ***********
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2025-01-18>
+ ***********
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+Package rerunfilecheck Info: File `main.out' has not changed.
+(rerunfilecheck)             Checksum: 72728AE14D7A86D201A01A78D4C38D20;13435.
+ ) 
+Here is how much of TeX's memory you used:
+ 44304 strings out of 473832
+ 1121635 string characters out of 5719382
+ 1740858 words of memory out of 5000000
+ 66636 multiletter control sequences out of 15000+600000
+ 566583 words of font info for 97 fonts, out of 8000000 for 9000
+ 1348 hyphenation exceptions out of 8191
+ 114i,8n,115p,1211b,1011s stack positions out of 10000i,1000n,20000p,200000b,200000s
+
+Output written on main.xdv (14 pages, 290128 bytes).

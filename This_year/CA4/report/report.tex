@@ -683,7 +683,7 @@ Ergodicity implies that time averages converge to ensemble averages, allowing us
 
 \subsection{2.2 Baseline Model (10 points) — MLP: architecture, training and evaluation}
 \subsubsection{Architecture}
-MLP with two hidden layers and BatchNorm & Dropout between them. Let input dimension be $D$ (window length $\times$ features). The network:
+MLP with two hidden layers and BatchNorm \& Dropout between them. Let input dimension be $D$ (window length $\times$ features). The network:
 \[ h^1 = \text{ReLU}(\text{BN}(W^1 x + b^1)),\quad h^2 = \text{ReLU}(\text{BN}(W^2 h^1 + b^2)),\quad \hat{y}=W^3 h^2 + b^3.\]
 Loss: MSE. Optimizer: AdamW with weight decay. Early stopping by validation loss.
 
@@ -762,14 +762,14 @@ R^2 &= 1 - \frac{\sum_i (y_i - \hat{y}_i)^2}{\sum_i (y_i - \overline{y})^2}
 \section{Reproducibility and Usage}
 All code and notebooks are in `codes/`. Steps to reproduce results:
 \begin{enumerate}
-  \item Install dependencies: `pip install -r codes/requirements.txt` (includes torch, numpy, pandas, yfinance, seqeval, statsmodels).
-  \item Download ATIS dataset: `python -m data.download --dataset siddhadev/atis-dataset-clean` (or manually download from Kaggle and place in data/raw/).
-  \item Preprocess ATIS: `python -m src.data.preprocess --input data/raw --out data/processed` (tokenization, vocabularies, collate function).
-  \item Download S\&P 500 data: Run the notebook cell that executes `yf.download("^GSPC", start="2000-01-01")`.
-  \item Train SLU models: `python scripts/train_birnn.py --epochs 10`, `python scripts/train_bilstm_joint.py --epochs 24`, `python scripts/train_encoder_decoder.py --epochs 24`.
-  \item Train time-series models: `python scripts/sp_train_mlp.py`, then modify for CNN+LSTM/GRU/TCN variants.
+  \item Install dependencies: \verb|pip install -r codes/requirements.txt| (includes torch, numpy, pandas, yfinance, seqeval, statsmodels).
+  \item Download ATIS dataset: \verb|python -m data.download --dataset siddhadev/atis-dataset-clean| (or manually download from Kaggle and place in data/raw/).
+  \item Preprocess ATIS: \verb|python -m src.data.preprocess --input data/raw --out data/processed| (tokenization, vocabularies, collate function).
+  \item Download S\&P 500 data: run the notebook cell \verb|yf.download("^GSPC", start="2000-01-01")|.
+  \item Train SLU models: \verb|python scripts/train_birnn.py --epochs 10|, \verb|python scripts/train_bilstm_joint.py --epochs 24|, \verb|python scripts/train_encoder_decoder.py --epochs 24|.
+  \item Train time-series models: \verb|python scripts/sp_train_mlp.py|, then modify for CNN+LSTM/GRU/TCN variants.
   \item Run evaluation notebooks to generate figures and populate result tables.
-  \item Compile report: `pdflatex report.tex` in `report/` directory.
+  \item Compile report: \verb|pdflatex report.tex| in the \verb|report/| directory.
 \end{enumerate}
 
 \section{Results and Discussion}
@@ -1624,7 +1624,7 @@ training:
   \item `src/data/preprocess.py`: data loaders, vocabs, collate fn.\
   \item `src/models/baseline.py`: BiRNN and BiLSTM joint implementations.\
   \item `src/models/encoder_decoder.py`: encoder-decoder joint model.\
-  \item `src/models/sp_models.py`: S&P model implementations (MLP, Conv+RNN, TCN).\
+  \item `src/models/sp_models.py`: S\&P model implementations (MLP, Conv+RNN, TCN).\
   \item `scripts/*.py`: training and evaluation scripts for each model.\
   \item `notebooks/`: reproducing analyses, plotting, and figure generation for the report.\
 \end{itemize}
@@ -1635,8 +1635,5 @@ This report presents a comprehensive solution to Homework 4, covering RNN-based 
 Key findings include the superiority of joint learning for SLU tasks, the challenges of encoder-decoder approaches for aligned sequence tasks, and the effectiveness of CNN+RNN combinations for financial forecasting. All models were implemented with careful attention to reproducibility, proper train/validation/test splits, and comprehensive evaluation metrics.
 
 The implementation provides a solid foundation for both SLU and time-series research, with modular code that can be extended for additional experiments. Future work could explore Transformer-based approaches, CRF integration for better BIO constraint enforcement, and more sophisticated uncertainty quantification for financial predictions.
-
-\bibliographystyle{IEEEtran}
-\bibliography{references}
 
 \end{document}

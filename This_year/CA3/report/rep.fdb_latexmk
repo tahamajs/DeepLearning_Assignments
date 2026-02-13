@@ -1,11 +1,21 @@
 # Fdb version 4
-["xdvipdfmx"] 1770946567.00428 "rep.xdv" "rep.pdf" "rep" 1770946568.15826 0
-  "rep.xdv" 1770946510.27308 109584 487031784511ecfcb70cdd57013e89c1 "xelatex"
+["xdvipdfmx"] 1770948833.43841 "rep.xdv" "rep.pdf" "rep" 1770948834.09616 0
+  "rep.xdv" 1770948833.36823 457168 17e824d5af462c9c1362a2fb2922e9c9 "xelatex"
   (generated)
   "rep.pdf"
   (rewritten before read)
-["xelatex"] 1770946505.84822 "rep.tex" "rep.xdv" "rep" 1770946568.15364 2
-  "../codes/checkpoints/dataset_statistics.png" 0 -1 0 ""
+["xelatex"] 1770948832.14794 "rep.tex" "rep.xdv" "rep" 1770948834.09459 0
+  "../codes/checkpoints/best_worst_predictions.png" 1770947487.73002 12023 7a1a022223ac222ae718b74e0688a0da ""
+  "../codes/checkpoints/confusion_matrix.png" 1770947487.73002 12023 7a1a022223ac222ae718b74e0688a0da ""
+  "../codes/checkpoints/dataset_samples.png" 1770947487.73002 12023 7a1a022223ac222ae718b74e0688a0da ""
+  "../codes/checkpoints/dataset_statistics.png" 1770947487.73002 12023 7a1a022223ac222ae718b74e0688a0da ""
+  "../codes/checkpoints/error_analysis.png" 1770947487.73002 12023 7a1a022223ac222ae718b74e0688a0da ""
+  "../codes/checkpoints/model_architecture.png" 1770947691.21147 12023 7a1a022223ac222ae718b74e0688a0da ""
+  "../codes/checkpoints/model_comparison.png" 1770947487.73002 12023 7a1a022223ac222ae718b74e0688a0da ""
+  "../codes/checkpoints/predictions_comprehensive.png" 1770947487.73002 12023 7a1a022223ac222ae718b74e0688a0da ""
+  "../codes/checkpoints/probability_maps.png" 1770947487.73002 12023 7a1a022223ac222ae718b74e0688a0da ""
+  "../codes/checkpoints/test_metrics.png" 1770947487.73002 12023 7a1a022223ac222ae718b74e0688a0da ""
+  "../codes/checkpoints/training_curves_comprehensive.png" 1770947487.73002 12023 7a1a022223ac222ae718b74e0688a0da ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/map/fontname/texfonts.map" 1741388039 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/adobe/zapfding/pzdr.tfm" 1741388039 1528 f853c4d1b4e0550255e02831fdc8496f ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1741388039 1004 54797486969f23fa377b128694d548df ""
@@ -34,6 +44,9 @@
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/lm/ec-lmr17.tfm" 1741388039 12156 ca1ae6a3c8564e89597f1f993fba1608 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/lm/ec-lmr6.tfm" 1741388039 12048 c1068d0f4772be9b0ec447692e1d6d82 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/lm/ec-lmr8.tfm" 1741388039 12064 a35db870f0b76c338d749c56dc030ef5 ""
+  "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/lm/ec-lmri12.tfm" 1741388039 17144 271aaf9ebb339934b04110dc5211fba4 ""
+  "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/lm/ec-lmtk10.tfm" 1741388039 1368 5bfeb1cf8f9f0acdb7436bfaa8e0da4e ""
+  "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/lm/ec-lmtt10.tfm" 1741388039 1372 2ef2c2b492b3c4cd7879fe083abbb061 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/lm/ec-lmtt12.tfm" 1741388039 1368 6a60e6a5e029141041d64d339b87e533 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/fonts/tfm/public/lm/ts1-lmr12.tfm" 1741388039 1596 1d4548788e389ded56d0b01b28377882 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/generic/atbegshi/atbegshi.sty" 1741388039 24708 5584a51a7101caf7e6bbf1fc27d8f7b1 ""
@@ -100,6 +113,7 @@
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/lm/t1lmr.fd" 1741388039 1867 996fe743d88a01aca041ed22cc10e1bb ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/lm/t1lmtt.fd" 1741388039 2682 555da1faa2e266801e4b221d01a42cb5 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/multirow/multirow.sty" 1741388039 6696 886c9f3087d0b973ed2c19aa79cb3023 ""
+  "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/newunicodechar/newunicodechar.sty" 1741388039 4131 750798269645c90ec73b605fc5832add ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/refcount/refcount.sty" 1741388039 9878 9e94e8fa600d95f9c7731bb21dfb67a4 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty" 1741388039 9714 ba3194bd52c8499b3f1e3eb91d409670 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/subfigure/subfigure.cfg" 1741388039 2062 a0e7d66e09e508f51289a656aec06ed2 ""
@@ -108,10 +122,10 @@
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/xcolor/xcolor.sty" 1741388039 55384 b454dec21c2d9f45ec0b793f0995b992 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/web2c/texmf.cnf" 1741388039 42151 79f67285bdd95beca4d137b380b4b9e5 ""
   "/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-var/web2c/xetex/xelatex.fmt" 1741388039 5640242 4f7cb22c150520ed498cbbe46d26ba29 ""
-  "rep.aux" 1770946510.26932 9763 6caf42c57730f7c1732a0f2f2b907213 "xelatex"
-  "rep.out" 1770946510.2725 14980 2c4331996da44da75f567ad066921d55 "xelatex"
-  "rep.tex" 1770946473.55022 133617 0a8854f996bfa6c79adf988582328f79 ""
-  "rep.toc" 1770946509.01053 0 d41d8cd98f00b204e9800998ecf8427e "xelatex"
+  "rep.aux" 1770948833.3638 33317 02d4c12520fd00000df8d4d62cfc8abb "xelatex"
+  "rep.out" 1770948833.3676 36961 b8102a54a11fc3c37d5fd3447dfc80e3 "xelatex"
+  "rep.tex" 1770948527.27687 135808 f2e9d70424ad43fc0a0b78a38bd03401 ""
+  "rep.toc" 1770948833.36806 17834 47ef225f56325115ccd6e1227ab85dec "xelatex"
   (generated)
   "rep.aux"
   "rep.log"

@@ -1,6 +1,7 @@
-This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025/Homebrew) (preloaded format=xelatex 2025.11.7)  13 FEB 2026 05:04
+This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025/Homebrew) (preloaded format=xelatex 2025.11.7)  13 FEB 2026 05:43
 entering extended mode
  restricted \write18 enabled.
+ file:line:error style messages enabled.
  %&-line parsing enabled.
 **report.tex
 (./report.tex
@@ -717,10 +718,6 @@ Package hyperref Info: Link coloring OFF on input line 30.
 \openout3 = `report.out'.
 
 
-
-Package hyperref Warning: Rerun to get /PageLabels entry.
-
-
 (/opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/translation
 s/translations-basic-dictionary-english.trsl
 File: translations-basic-dictionary-english.trsl (english translation file `tra
@@ -831,25 +828,54 @@ Underfull \hbox (badness 5403) in paragraph at lines 442--443
 
 
 (./report.bbl
+Underfull \hbox (badness 10000) in paragraph at lines 46--53
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][][][][][][][][][][][][][] []
+ []
 
-! LaTeX Error: Something's wrong--perhaps a missing \item.
 
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.24 \end{thebibliography}
-                          
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
 
- 
+[4]
+Underfull \hbox (badness 10000) in paragraph at lines 76--83
+[][][] [] [][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][][][][][][][][][] [] [][] []
+ []
+
+
+
+)
+
+** Conference Paper **
+Before submitting the final camera ready copy, remember to:
+
+ 1. Manually equalize the lengths of two columns on the last page
+ of your paper;
+
+ 2. Ensure that any PostScript and/or PDF output post-processing
+ uses only Type 1 fonts and that every step in the generation
+ process uses the appropriate paper size.
+
+
+
+[5] (./report.aux)
+ ***********
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2025-01-18>
+ ***********
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+Package rerunfilecheck Info: File `report.out' has not changed.
+(rerunfilecheck)             Checksum: 2ED0261C631CAC458A2CFD240AE30BCE;11276.
+ ) 
 Here is how much of TeX's memory you used:
- 18025 strings out of 473832
- 351034 string characters out of 5719382
- 752581 words of memory out of 5000000
- 40910 multiletter control sequences out of 15000+600000
+ 18048 strings out of 473832
+ 351346 string characters out of 5719382
+ 799077 words of memory out of 5000000
+ 40932 multiletter control sequences out of 15000+600000
  565624 words of font info for 72 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 72i,9n,79p,810b,1013s stack positions out of 10000i,1000n,20000p,200000b,200000s
-Output written on report.xdv (3 pages, 120656 bytes).
+ 72i,9n,79p,810b,1062s stack positions out of 10000i,1000n,20000p,200000b,200000s
+
+Output written on report.xdv (5 pages, 232304 bytes).

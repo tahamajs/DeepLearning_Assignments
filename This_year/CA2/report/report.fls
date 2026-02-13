@@ -114,6 +114,10 @@ INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/generic/uniqu
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/base/inputenc.sty
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/base/inputenc.sty
+INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/underscore/underscore.sty
+INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/underscore/underscore.sty
+INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/firstaid/underscore-ltx.sty
+INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/firstaid/underscore-ltx.sty
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/l3backend/l3backend-xetex.def
 INPUT /opt/homebrew/Cellar/texlive/20250308_2/share/texmf-dist/tex/latex/l3backend/l3backend-xetex.def
 INPUT ./report.aux
@@ -178,3 +182,9 @@ INPUT ../pictures/reconstructions_comparison.png
 INPUT ../pictures/mig_comparison.png
 INPUT ../pictures/mig_comparison.png
 INPUT ../pictures/mig_comparison.png
+INPUT ../pictures/pca_beta4.png
+INPUT ../pictures/pca_beta4.png
+INPUT ../pictures/pca_beta4.png
+INPUT report.aux
+INPUT ./report.out
+INPUT ./report.out
